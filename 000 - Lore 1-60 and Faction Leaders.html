@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: TBC Dark Stone & Amber -->
+    <!-- Application Structure Plan: A single, long-form narrative page will be used to present the proposal like a chapter in a tome. A sticky navigation bar will appear on scroll for quick access to key sections (Philosophy, Narrative, Lands, Leaders, Overture). This linear-first approach with quick-access navigation is ideal for presenting a text-heavy document, allowing for both immersive reading and efficient information retrieval. The main interactive element will be a modal for the faction leaders, which keeps the primary layout clean while adding an engaging layer of detail on-demand. -->
+    <!-- Visualization & Content Choices: Content is primarily textual. Goal: Inform/Organize. Method: Custom-styled text sections (HTML/Tailwind) and image cards (HTML/Tailwind Grid) will be used to break up the content and make it scannable. Goal: Engage. Method: An interactive modal (JS) for the Faction Leaders section will allow users to explore character motivations without leaving the page flow. This enhances engagement while maintaining a clean core layout. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>World of Warcraft: Chronicles of a World Reborn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --horde-red: #b82828;
+            --alliance-blue: #285cb8;
+            --amber-glow: #ffc700;
+        }
+        body {
+            background-color: #0a0806;
+            color: #c7b377;
+            font-family: 'Roboto', sans-serif;
+            background-image: url('https://i.imgur.com/iQl5r5G.jpeg');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+        .font-wow {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        .cinzel-black {
+            font-family: 'Cinzel', serif;
+            font-weight: 900;
+            animation: text-glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes text-glow {
+            from { text-shadow: 0 0 8px var(--amber-glow), 0 0 10px var(--amber-glow); }
+            to { text-shadow: 0 0 12px var(--amber-glow), 0 0 20px #ff8c00; }
+        }
+        .stone-panel {
+            background-color: rgba(10, 8, 6, 0.9);
+            border: 2px solid #4a4130;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #c7b27a, transparent);
+            border: 0;
+            margin: 2rem auto;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--amber-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 15px 5px var(--amber-glow);
+            filter: blur(3px);
+        }
+        .section-header {
+            border-bottom: 2px solid;
+            border-image: linear-gradient(to right, transparent, #c7b27a 50%, transparent) 1;
+            padding-bottom: 1rem;
+        }
+        .leader-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            background-color: rgba(0,0,0,0.2);
+            border-left-width: 4px;
+        }
+        .leader-card:hover { transform: translateY(-5px); }
+        .horde-border { border-left-color: var(--horde-red); }
+        .alliance-border { border-left-color: var(--alliance-blue); }
+        .horde-border:hover { box-shadow: 0 0 20px rgba(184, 40, 40, 0.4); }
+        .alliance-border:hover { box-shadow: 0 0 20px rgba(40, 92, 184, 0.4); }
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 100; display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .modal-backdrop.visible { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.9); transition: transform 0.4s ease; }
+        .modal-backdrop.visible .modal-content { transform: scale(1); }
+        .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s ease-out, transform 1s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .nav-link { transition: color 0.3s ease, transform 0.3s ease; display: inline-block; }
+        .nav-link:hover { color: var(--amber-glow); transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-black">
+
+    <nav id="navbar" class="fixed top-0 left-0 right-0 bg-black/80 backdrop-blur-sm z-50 transition-all duration-500 opacity-0 -translate-y-full shadow-lg shadow-black/50">
+        <div class="max-w-7xl mx-auto px-6 py-3">
+            <div class="flex justify-between items-center">
+                <h1 class="font-wow text-xl text-amber-300">Chronicles of a World Reborn</h1>
+                <div class="hidden md:flex space-x-6 text-gray-300 text-sm">
+                    <a href="#philosophy" class="nav-link">Philosophy</a>
+                    <a href="#narrative" class="nav-link">Narrative</a>
+                    <a href="#zones" class="nav-link">Lands</a>
+                    <a href="#leaders" class="nav-link">Leaders</a>
+                    <a href="#overture" class="nav-link">Overture</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header id="hero" class="min-h-screen flex items-center justify-center text-center" style="background-image: linear-gradient(rgba(10, 8, 6, 0.7), rgba(10, 8, 6, 1)), url('https://i.imgur.com/YChdqyR.jpeg'); background-size: cover; background-position: center;">
+        <div class="bg-black/40 p-10 rounded-lg">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl text-yellow-400 font-wow tracking-wider">CHRONICLES OF A WORLD REBORN</h1>
+            <p class="text-gray-300 mt-6 max-w-2xl mx-auto text-lg leading-relaxed">The face of Azeroth is changing. Old wounds fester and new threats rise. Experience a realm remade, where every journey is an epic saga, and every shadow foretells a coming storm.</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-16 space-y-24">
+        
+        <section id="philosophy" class="reveal">
+            <div class="stone-panel p-8 md:p-12 rounded-lg">
+                <h2 class="text-4xl text-center text-amber-300 section-header font-wow">I. The Core Philosophy</h2>
+                <h3 class="text-2xl text-center text-gray-300 mt-4 font-wow">"Threads of Fate"</h3>
+                <p class="mt-6 text-sm max-w-4xl mx-auto text-center text-gray-400 leading-relaxed">
+                    The world of Azeroth is a tapestry of stories, but many threads have been left frayed. We are re-weaving the entire 1-60 experience. Instead of a scattered collection of quests, major zones will now feature a central narrative arc—a "Thread"—that tells a complete story while subtly foreshadowing future events. This is our primary tool for crafting a more cohesive and connected world, where your actions have meaning and momentum. This includes the discovery of strange artifacts—a fel-pitted coin, a faded photograph of a red world under two suns—that hint at the greater conflict brewing just beyond the veil.
+                </p>
+                <hr class="divider">
+                <div class="grid md:grid-cols-3 gap-8 mt-8 text-center">
+                    <div>
+                        <h4 class="text-xl text-amber-400 font-wow">Quest Hub Consolidation</h4>
+                        <p class="mt-2 text-sm text-gray-400 leading-relaxed">More robust hubs reduce needless travel and create a stronger sense of place, turning lonely zones into bustling centers of activity.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl text-amber-400 font-wow">Intelligent Quest Chains</h4>
+                        <p class="mt-2 text-sm text-gray-400 leading-relaxed">Quests flow logically from one hub to the next, creating narrative momentum that carries you across continents.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl text-amber-400 font-wow">Traveler's Caravan System</h4>
+                        <p class="mt-2 text-sm text-gray-400 leading-relaxed">An immersive, slow-travel option to help you safely traverse dangerous lands and drink in the scenery.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="narrative" class="reveal">
+            <h2 class="text-4xl text-center text-amber-300 section-header font-wow">II. Weaving the Narrative</h2>
+            <h3 class="text-2xl text-center text-gray-300 mt-4 font-wow">Whispers of a Shattered World</h3>
+            <div class="grid md:grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+                <div class="stone-panel p-6 rounded-lg flex flex-col hover:shadow-lime-500/20 hover:border-lime-400/50 border border-transparent transition-all duration-300">
+                    <img src="https://i.imgur.com/AaFFGfK.png" onerror="this.onerror=null;this.src='https://placehold.co/600x400/3a1a4a/a5ff91?text=Legion%27s+Shadow';" alt="Legion influence" class="rounded-md w-full h-48 object-cover">
+                    <div class="p-4 flex-grow">
+                        <h4 class="text-2xl text-lime-400 font-wow">The Shadow Council's Whispers</h4>
+                        <p class="mt-3 text-sm text-gray-400 leading-relaxed flex-grow">Players will stumble upon evidence of a renewed Shadow Council presence. A simple quest in Duskwood might lead to a hidden den of warlocks, kicking off a cross-continental "breadcrumb" questline to uncover a vast conspiracy of cultists working to weaken Azeroth's defenses, setting the stage for the Legion's influence in Hellfire Peninsula.</p>
+                    </div>
+                </div>
+                <div class="stone-panel p-6 rounded-lg flex flex-col hover:shadow-cyan-500/20 hover:border-cyan-400/50 border border-transparent transition-all duration-300">
+                    <img src="https://i.imgur.com/6q3IqTu.jpeg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1a2a4a/91d5ff?text=Draenei+Survivor';" alt="Draenei crystal" class="rounded-md w-full h-48 object-cover">
+                    <div class="p-4 flex-grow">
+                        <h4 class="text-2xl text-cyan-300 font-wow">The Crashed Survivor</h4>
+                        <p class="mt-3 text-sm text-gray-400 leading-relaxed flex-grow">In a remote corner of the Swamp of Sorrows, players discover the wreckage of a crystalline vessel. A lone, mortally wounded Draenei survivor shares delirious, fragmented warnings of a "shattered world," a "Betrayer," and a "storm of fel and fire," providing the first tangible hint of Outland.</p>
+                    </div>
+                </div>
+                <div class="stone-panel p-6 rounded-lg flex flex-col hover:shadow-red-500/20 hover:border-red-400/50 border border-transparent transition-all duration-300">
+                    <img src="https://i.imgur.com/hAkz4l9.jpeg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/4a1a1a/ff9191?text=Blood+Elf+Relics';" alt="Blood Elf relic hunter" class="rounded-md w-full h-48 object-cover">
+                    <div class="p-4 flex-grow">
+                        <h4 class="text-2xl text-red-400 font-wow">The Relic Hunter</h4>
+                        <p class="mt-3 text-sm text-gray-400 leading-relaxed flex-grow">A charismatic but desperate Blood Elf offers lucrative quests to retrieve magical artifacts. Players eventually discover he is consuming their energy, and his journal speaks of Prince Kael'thas's promises of a "new source of power," foreshadowing the blood elves' plight.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="zones" class="reveal">
+            <h2 class="text-4xl text-center text-amber-300 section-header font-wow">III. The Changing Lands</h2>
+            <h3 class="text-2xl text-center text-gray-300 mt-4 font-wow">New Horizons, Ancient Conflicts</h3>
+            <div id="zones-container" class="mt-12 space-y-8">
+            </div>
+        </section>
+
+        <section id="leaders" class="reveal">
+            <h2 class="text-4xl text-center text-amber-300 section-header font-wow">IV. The Call to War</h2>
+            <h3 class="text-2xl text-center text-gray-300 mt-4 font-wow">Attunement to the Portal</h3>
+            <p class="mt-6 text-sm max-w-4xl mx-auto text-center text-gray-400 leading-relaxed">In the weeks before the portal opens, each faction leader will offer a unique, high-level quest. This is not just a call to arms, but a personal plea, rooted in their own history and motivations, tasking their greatest champions with investigating the strange energies emanating from the Blasted Lands. Completing this quest attunes the player to the Dark Portal, granting them access to the "Nethergarde Stands" world event and a faction-specific tabard.</p>
+            <div class="grid md:grid-cols-2 gap-x-10 gap-y-8 mt-12">
+                <div id="alliance-leaders" class="space-y-6">
+                    <h3 class="text-3xl text-blue-400 text-center font-wow">The Alliance</h3>
+                </div>
+                <div id="horde-leaders" class="space-y-6">
+                    <h3 class="text-3xl text-red-500 text-center font-wow">The Horde</h3>
+                </div>
+            </div>
+        </section>
+        
+        <section id="overture" class="reveal">
+            <div class="stone-panel p-8 md:p-12 rounded-lg text-center">
+                <h2 class="text-4xl text-center text-red-500 section-header font-wow">V. The Dark Portal Overture</h2>
+                <h3 class="text-2xl text-center text-gray-300 mt-4 font-wow">"Nethergarde Stands" World Event</h3>
+                <p class="mt-6 text-sm max-w-4xl mx-auto text-gray-300 leading-relaxed">In the final weeks before the portal opens, the Blasted Lands will transform. The sky will burn a sickly, fel-green as the Dark Portal pulses with raw power. In the final hour, a massive, zone-wide invasion begins. Players must unite to defend Nethergarde Keep from wave after wave of demons. This transforms the pre-launch wait into a desperate, climactic battle, making that first step through the portal a true victory.</p>
+            </div>
+        </section>
+    </main>
+    
+    <div id="leader-modal" class="modal-backdrop">
+        <div class="modal-content stone-panel rounded-lg max-w-4xl w-full grid md:grid-cols-2 overflow-hidden shadow-2xl shadow-black">
+            <img id="modal-img" src="" class="w-full h-full object-cover min-h-[400px]">
+            <div class="p-8 flex flex-col justify-center">
+                <h3 id="modal-name" class="text-3xl font-wow">Leader Name</h3>
+                <p id="modal-quote" class="text-lg italic mt-4 text-gray-300"></p>
+                <button id="modal-close" class="mt-8 self-start px-6 py-2 bg-amber-500 text-black font-bold rounded hover:bg-amber-400 transition-colors">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-8 bg-black mt-16 border-t border-t-zinc-800">
+        <p class="text-gray-500 text-sm">A conceptual design based on the "Chronicles of a World Reborn" proposal.</p>
+        <p class="text-gray-600 text-xs mt-2">World of Warcraft® and Blizzard Entertainment® are all trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.</p>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const data = {
+        zones: [
+            { type: 'revamp', name: 'Desolace', level: '30-40', campaign: 'Seeds of Redemption', image: 'https://i.imgur.com/Zrim8Nw.jpeg', desc: "Once a barren wasteland, Desolace now holds a glimmer of hope. Players will join a desperate circle of Cenarion druids who believe the land can be saved. The campaign involves defeating the Kolkar centaur who poison the land, cleansing corrupted water sources, and protecting ancient trees from the influence of the Burning Blade. With each major quest completed, players will see the world change as small patches of vibrant life return to the grey dust.", color: 'text-green-400' },
+            { type: 'revamp', name: 'Feralas', level: '40-50', campaign: 'Wrath of the Sentinel', image: 'https://i.imgur.com/6ke3OAu.jpeg', desc: "The Grimtotem Tauren, emboldened by a mysterious new leader, have launched a full-scale assault on Feathermoon Stronghold. Players will engage in open-world skirmishes, sabotage Grimtotem supply lines, and uncover a link between their dark rituals and the Shadow Council. Simultaneously, the Gordunni ogres have unearthed a powerful Titan relic, causing localized temporal distortions that a Bronze Dragon agent will ask players to help contain.", color: 'text-indigo-400' },
+            { type: 'revamp', name: 'The Burning Steppes', level: '50-58', campaign: 'Embers of the Past', image: 'https://i.imgur.com/GxRaQ1f.jpeg', desc: "The Dark Iron dwarves, influenced by Ragnaros's remaining lieutenants, are attempting to reignite the fires of Blackrock Mountain. The Thorium Brotherhood hires players to sabotage their efforts through espionage and direct assault. This zone becomes a hotbed of conflict as a hidden Shadow Council cell manipulates the Dark Irons, seeking to use the mountain's volcanic energy to open a small, permanent demonic rift.", color: 'text-orange-400' },
+            { type: 'revamp', name: 'Winterspring', level: '53-60', campaign: 'Whispers in the Snow', image: 'https://i.imgur.com/uozSybN.jpeg', desc: "The Blue Dragonflight, driven mad by the loss of their Aspect, have become aggressively territorial, their erratic magic causing unnatural blizzards. Meanwhile, the Winterfall furbolgs have fallen completely to corruption. Players will investigate the source of the furbolgs' dark magic, finding it linked to a powerful dreadlord's influence, and interact with agents of the Kirin Tor who are studying the Blue Dragonflight's dangerous behavior.", color: 'text-sky-400' },
+            { type: 'revamp', name: 'Azshara', level: '45-55', campaign: 'Tides of Power', image: 'https://i.imgur.com/ciTpxPJ.jpeg', desc: "This beautiful but empty zone becomes a dynamic theater of war. A three-way conflict for control of the zone's powerful ley lines rages between the Night Elves, the Goblins of Bilgewater Port, and resurgent Naga. Players can side with a faction, unlocking unique questlines, reputation rewards, and participating in world PvP objectives to capture and hold key strategic points on the map.", color: 'text-purple-400' },
+            { type: 'revamp', name: 'Arathi Highlands', level: '30-40', campaign: 'Legacy of Stromgarde', image: 'https://i.imgur.com/NU8OhC5.png', desc: "The kingdom of Stromgarde is a shattered ruin, but its people endure. Players will rally the surviving human forces, fighting back against the Syndicate, crushing the Witherbark trolls, and reclaiming territory in a bid to restore the kingdom. This provides a strong, human-centric storyline and a renewed sense of purpose for the Alliance in the north, culminating in the retaking of Stromgarde Keep itself.", color: 'text-red-400' },
+            { type: 'new', name: 'The Forbidding Coast', level: '30-40', image: 'https://i.imgur.com/7AfqRtA.jpeg', desc: "A rugged, storm-lashed coastline south of Arathi, a lawless land of shipwrecks and hidden coves dominated by warring pirates. A Draenei scout ship has crashed, and players must rescue the survivors from both the pirates and the treacherous environment.", color: 'text-blue-400' },
+            { type: 'new', name: 'The Glimmering Flats', level: '40-48', image: 'https://i.imgur.com/QaKdjRq.jpeg', desc: "South of Tanaris lies a crystallized salt flat where a war rages between Gadgetzan Goblins and a new Silithid hive over volatile crystals. Players can act as mercenaries or work with a Cenarion sage to uncover the arcane mysteries.", color: 'text-yellow-200' },
+            { type: 'new', name: 'Dragonblight Frontier', level: '48-55', image: 'https://i.imgur.com/NTmj2v0.jpeg', desc: "On the southern coast of Northrend, aid the Argent Dawn against the Scourge and thwart a corrupted Black Dragon nest that is raising Frost Wyrms for the Lich King.", color: 'text-cyan-400' },
+            { type: 'dungeon', name: "The Sunken City of Vashj'ir", level: '60', image: 'https://i.imgur.com/oxBsWmJ.jpeg', desc: "A high-level dungeon zone. Venture into a massive, submerged city off the coast of the Eastern Kingdoms, a major outpost established by Lady Vashj.", color: 'text-teal-400' }
+        ],
+        leaders: {
+            alliance: [
+                { name: 'King Varian Wrynn', title: 'via Bolvar Fordragon', quote: "Champion, our scouts in Nethergarde report the Dark Portal pulses with a malevolence not felt in years. We cannot afford another war on our doorstep. Go to the Blasted Lands. Assess the Legion's strength. Be my eyes.", image: 'https://wow.zamimg.com/uploads/screenshots/normal/278311-king-varian-wrynn.jpg' },
+                { name: 'King Magni Bronzebeard', quote: "The earth itself groans from that cursed portal! The seismic activity is off the charts! Get to the Blasted Lands. I need readings. Plant these geo-prospectors near the portal's foundation. We need to know what this energy is doing to our world!", image: 'https://wow.zamimg.com/uploads/screenshots/normal/99306-magni-bronzebeard.jpg' },
+                { name: 'High Priestess Tyrande Whisperwind', quote: "Elune's light is dimmed by the shadow of that gateway. I can feel his presence on the other side... Illidan. The Legion's movements are a distraction. Go to the portal. See if the Betrayer's scent lingers on the winds from that fell world.", image: 'https://wow.zamimg.com/uploads/screenshots/normal/864834-tyrande-whisperwind.jpg' },
+                { name: 'High Tinker Gelbin Mekkatorque', quote: "A stable, interdimensional portal of that magnitude! The engineering is breathtaking! And terrifying! We need data! Take this Arcan-O-Scanner to the Blasted Lands. Get me telemetry on its energy output, structural integrity, everything! For Gnomeregan!", image: 'https://wow.zamimg.com/uploads/screenshots/normal/308135-high-tinker-mekkatorque.jpg' }
+            ],
+            horde: [
+                { name: 'Warchief Thrall', quote: "The spirits are in turmoil. They whisper of a red world, of our people's past... and our people's shame. I must know what lies beyond that gate. Go to the Dark Portal. Be my scout. Report what you see. We will not be led into chains again.", image: 'https://wow.zamimg.com/uploads/screenshots/normal/940401-thrall.jpg' },
+                { name: 'High Chieftain Cairne Bloodhoof', quote: "The Earth Mother shudders. The corruption that seeps from that scar in the world is a poison. The tauren have long memories. We remember the first war. Go. See what the Legion prepares. We must be ready to defend our lands.", image: 'https://wow.zamimg.com/uploads/screenshots/small/85926.jpg' },
+                { name: 'Lady Sylvanas Windrunner', quote: "That portal reeks of demonic power... a power I know all too well. It is a threat, but also an opportunity. I need to know what kind of demons are crossing over. Take this enchanted phylactery. Capture the essence of their strongest warriors. Their power may yet serve the Forsaken.", image: 'https://wow.zamimg.com/uploads/screenshots/normal/150197-lady-sylvanas-windrunner.jpg' },
+                { name: 'Prince Kael\'thas Sunstrider', title: 'via Rommath', quote: "The gateway is the key to our future. Our Prince requires precise measurements of its energy fluctuations to stabilize our own efforts. Go to this 'Dark Portal'. Place these scrying crystals at its threshold. Do not fail the Sin'dorei.", image: 'https://wow.zamimg.com/uploads/screenshots/normal/222913-kaelthas-sunstrider.jpg' }
+            ]
+        }
+    };
+
+    const zonesContainer = document.getElementById('zones-container');
+    data.zones.forEach(zone => {
+        const campaignTitle = zone.campaign ? `<p class="font-wow text-lg ${zone.color} -mb-2">"${zone.campaign}"</p>` : '';
+        const imageHTML = zone.image ? `<img src="${zone.image}" onerror="this.onerror=null;this.style.display='none'" alt="${zone.name}" class="w-full h-48 object-cover rounded-md mb-4">` : '';
+
+        const card = document.createElement('div');
+        card.className = 'stone-panel p-6 rounded-lg';
+        card.innerHTML = `
+            ${imageHTML}
+            <div class="flex justify-between items-baseline">
+                <h4 class="text-3xl font-wow ${zone.color}">${zone.name}</h4>
+                <span class="text-base text-gray-400 font-wow">(Levels ${zone.level})</span>
+            </div>
+            ${campaignTitle}
+            <p class="mt-4 text-sm text-gray-300 leading-relaxed">${zone.desc}</p>
+        `;
+        zonesContainer.appendChild(card);
+    });
+
+    const allianceContainer = document.getElementById('alliance-leaders');
+    const hordeContainer = document.getElementById('horde-leaders');
+    const modal = document.getElementById('leader-modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalName = document.getElementById('modal-name');
+    const modalQuote = document.getElementById('modal-quote');
+    const modalClose = document.getElementById('modal-close');
+
+    const createLeaderCard = (leader, faction) => {
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-lg leader-card ${faction === 'alliance' ? 'alliance-border' : 'horde-border'}`;
+        card.innerHTML = `
+            <h4 class="text-xl font-wow">${leader.name} ${leader.title ? `<span class="text-sm text-gray-400">${leader.title}</span>` : ''}</h4>
+            <p class="mt-1 text-sm text-gray-400 italic">"Go to the Blasted Lands. Assess the threat..."</p>
+        `;
+        card.addEventListener('click', () => {
+            modalImg.src = leader.image;
+            modalImg.onerror = () => { modalImg.src = `https://placehold.co/600x800/111111/eeeeee?text=${leader.name.replace(/\s/g,'+')}`; };
+            modalName.textContent = leader.name;
+            modalQuote.textContent = `"${leader.quote}"`;
+            modal.classList.add('visible');
+        });
+        return card;
+    };
+
+    data.leaders.alliance.forEach(leader => allianceContainer.appendChild(createLeaderCard(leader, 'alliance')));
+    data.leaders.horde.forEach(leader => hordeContainer.appendChild(createLeaderCard(leader, 'horde')));
+
+    const closeModal = () => modal.classList.remove('visible');
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    const navbar = document.getElementById('navbar');
+    const hero = document.getElementById('hero');
+    const revealElements = document.querySelectorAll('.reveal');
+
+    const navObserver = new IntersectionObserver((entries) => {
+        if (hero && !entries[0].isIntersecting) {
+            navbar.classList.remove('opacity-0', '-translate-y-full');
+        } else {
+            navbar.classList.add('opacity-0', '-translate-y-full');
+        }
+    }, { threshold: 0.1 });
+    
+    if (hero) navObserver.observe(hero);
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    
+    revealElements.forEach(el => revealObserver.observe(el));
+});
+</script>
+</body>
+</html>

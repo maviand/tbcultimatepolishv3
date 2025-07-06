@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profession Overhaul - TBC Polish Addendum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background-primary: #1c1c1c; /* Dark Forge Grey */
+            --color-background-secondary: #2d2d2d; /* Softer Grey */
+            --color-text-primary: #f5eadd; /* Parchment White */
+            --color-text-secondary: #b0a89a; /* Aged Parchment */
+            --color-accent-orange: #ff8c00; /* Forge Orange */
+            --color-accent-bronze: #cd7f32; /* Bronze */
+            --color-border: #4a4a4a;
+            --color-quality-uncommon: #1eff00;
+            --color-quality-rare: #0070dd;
+            --color-quality-epic: #a335ee;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--color-background-primary);
+            color: var(--color-text-primary);
+            background-image: url('https://www.transparenttextures.com/patterns/brushed-alum-dark.png');
+        }
+        
+        .font-header {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.05em;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .card {
+            background-color: var(--color-background-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section-header {
+            border-bottom: 2px solid var(--color-accent-orange);
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px -10px var(--color-accent-orange);
+        }
+
+        .header-icon {
+             width: 3rem; height: 3rem; margin-right: 1rem;
+             filter: drop-shadow(0 0 8px var(--color-accent-orange));
+        }
+
+        .details-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .details-list li::before {
+            content: '🛠️';
+            position: absolute;
+            left: 0;
+            top: 1px;
+            font-size: 1.1em;
+        }
+        
+        .profession-card {
+            border-top: 4px solid var(--color-accent-bronze);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profession-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 20px rgba(255, 140, 0, 0.4);
+        }
+        
+        .quest-item {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0,0,0,0.2);
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        .quest-item img {
+            width: 2.5rem;
+            height: 2.5rem;
+            margin-right: 0.75rem;
+            border-radius: 0.25rem;
+        }
+        .quest-item p {
+            margin: 0;
+        }
+        .item-stats {
+            background-color: #111;
+            border: 1px solid #333;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+        }
+        .item-stats ul { list-style-type: none; padding: 0;}
+        .item-stats .uncommon { color: var(--color-quality-uncommon); }
+        .item-stats .rare { color: var(--color-quality-rare); }
+        .item-stats .epic { color: var(--color-quality-epic); }
+        .item-stats .proc { color: var(--color-accent-gold); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <main class="container mx-auto px-4 py-12 md:py-16">
+
+        <!-- Header Section -->
+        <section id="vision" class="mb-16 md:mb-24 text-center">
+            <div class="flex items-center justify-center mb-6">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-20 h-20 text-[var(--color-accent-orange)] filter drop-shadow-lg"><path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" /><path fill-rule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.342 1.374a3.001 3.001 0 01.42 2.585.51.51 0 00.126.54c.26.26.592.42.943.47.352.05.692.17.992.348.214.126.38.294.492.493a3.001 3.001 0 01-.153 3.056c-.118.17-.28.312-.472.41a.51.51 0 00-.022.946c.324.234.568.527.739.856.17.33.272.69.292 1.055a3.001 3.001 0 01-1.374 2.853c-.27.202-.577.34-.91.43a.51.51 0 00-.51.64c.05.351.05.708 0 1.058a3.001 3.001 0 01-2.585 2.42c-.378.14-.79.23-1.225.23h-.385a.51.51 0 00-.47.943c-.26.26-.42.592-.47.943-.05.352-.17.692-.348.992a3.001 3.001 0 01-3.056.153c-.17-.118-.312-.28-.41-.472a.51.51 0 00-.946-.022c-.234.324-.527.568-.856.739a3.001 3.001 0 01-2.853-1.374c-.202-.27-.34-.577-.43-.91a.51.51 0 00-.64-.51c-.351-.05-.708-.05-1.058 0a3.001 3.001 0 01-2.42-2.585c-.14-.378-.23-.79-.23-1.225v-.385a.51.51 0 00-.943-.47c-.26-.26-.592-.42-.943-.47-.352-.05-.692-.17-.992-.348a3.001 3.001 0 01-.153-3.056c.118-.17.28-.312.472-.41a.51.51 0 00.022-.946c-.324-.234-.568-.527-.739-.856a3.001 3.001 0 011.374-2.853c.27-.202.577-.34.91-.43a.51.51 0 00.51-.64c-.05-.351-.05-.708 0-1.058a3.001 3.001 0 012.585-2.42c.378-.14.79-.23 1.225-.23h.385a.51.51 0 00.47-.943c.26-.26.42-.592.47-.943z" clip-rule="evenodd" /></svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 font-header"><span class="text-[var(--color-accent-orange)]">Profession Overhaul:</span> Utility, Identity, & Engagement</h1>
+            <p class="max-w-4xl mx-auto text-lg text-gray-300 leading-relaxed">
+                This proposal redesigns TBC professions to be more than just stat sticks or mandatory raid consumables. The goal is to enhance parity, encourage diversity, and add engaging gameplay loops through unique utilities, epic crafting quests, and system refinements, ensuring every artisan's craft is valuable.
+            </p>
+        </section>
+
+        <!-- Masterwork Quests Section -->
+        <section id="masterwork-quests" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="header-icon"><path fill-rule="evenodd" d="M6.912 3.08a.75.75 0 01.173 1.045l-2.122 3.675A.75.75 0 014.21 8.25H3.75a.75.75 0 010-1.5h.094l1.63-2.823A.75.75 0 016.912 3.08zM17.088 3.08a.75.75 0 00-.173 1.045l2.122 3.675A.75.75 0 0019.79 8.25h.46a.75.75 0 000-1.5h-.094l-1.63-2.823a.75.75 0 00-1.438-.822z" clip-rule="evenodd" /><path d="M12.007 6.43a.75.75 0 00-1.06 0l-4.508 4.507a.75.75 0 000 1.06l4.508 4.507a.75.75 0 001.06 0l4.508-4.507a.75.75 0 000-1.06l-4.508-4.507z" /></svg>
+                <h2 class="text-3xl md:text-4xl font-bold font-header"><span class="text-[var(--color-accent-orange)]">Masterwork Crafting Quests</span> 📜</h2>
+            </div>
+            <div class="card p-8">
+                <p class="text-gray-300 leading-relaxed mb-8">To provide a meaningful progression path outside of raiding, each crafting profession receives an epic, lore-rich questline. These quests involve gathering rare materials, completing objectives in TBC dungeons, and collaborating with other professions. The journey culminates in crafting a unique, Bind-on-Pickup item competitive with T5/early T6 gear, representing the pinnacle of your chosen craft.</p>
+                <div id="masterwork-quest-grid" class="space-y-8">
+                    <!-- Masterwork quest examples will be injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- On-Use Utility Section -->
+        <section id="utility-items" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="header-icon"><path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" /><path fill-rule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.342 1.374a3.001 3.001 0 01.42 2.585.51.51 0 00.126.54c.26.26.592.42.943.47.352.05.692.17.992.348.214.126.38.294.492.493a3.001 3.001 0 01-.153 3.056c-.118.17-.28.312-.472.41a.51.51 0 00-.022.946c.324.234.568.527.739.856.17.33.272.69.292 1.055a3.001 3.001 0 01-1.374 2.853c-.27.202-.577.34-.91.43a.51.51 0 00-.51.64c.05.351.05.708 0 1.058a3.001 3.001 0 01-2.585 2.42c-.378.14-.79.23-1.225.23h-.385a.51.51 0 00-.47.943c-.26.26-.42.592-.47.943-.05.352-.17.692-.348.992a3.001 3.001 0 01-3.056.153c-.17-.118-.312-.28-.41-.472a.51.51 0 00-.946-.022c-.234.324-.527.568-.856.739a3.001 3.001 0 01-2.853-1.374c-.202-.27-.34-.577-.43-.91a.51.51 0 00-.64-.51c-.351-.05-.708-.05-1.058 0a3.001 3.001 0 01-2.42-2.585c-.14-.378-.23-.79-.23-1.225v-.385a.51.51 0 00-.943-.47c-.26-.26-.592-.42-.943-.47-.352-.05-.692.17-.992-.348a3.001 3.001 0 01-.153-3.056c.118-.17.28-.312.472-.41a.51.51 0 00.022-.946c-.324-.234-.568-.527-.739-.856a3.001 3.001 0 011.374-2.853c.27-.202.577-.34.91-.43a.51.51 0 00.51-.64c-.05-.351-.05-.708 0-1.058a3.001 3.001 0 012.585-2.42c.378-.14.79-.23 1.225-.23h.385a.51.51 0 00.47-.943c.26-.26.42-.592.47-.943z" clip-rule="evenodd" /></svg>
+                <h2 class="text-3xl md:text-4xl font-bold font-header"><span class="text-[var(--color-accent-orange)]">On-Use Utility Items</span></h2>
+            </div>
+            <p class="text-center text-gray-300 max-w-4xl mx-auto mb-10 leading-relaxed">Each profession gains unique, situational on-use items. These provide tangible party/raid utility, encouraging diverse profession choices and rewarding player investment. They do not share cooldowns with potions or trinkets, but have their own cooldowns to prevent spamming.</p>
+            <div id="professions-utility-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Profession utility cards will be injected here -->
+            </div>
+        </section>
+
+        <!-- Detailed Fixes Section -->
+        <section id="detailed-fixes" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="header-icon"><path fill-rule="evenodd" d="M12 6.75a5.25 5.25 0 015.25 5.25c0 2.42-.984 4.594-2.551 6.163a.75.75 0 11-1.06-1.061A3.75 3.75 0 1012 8.25a.75.75 0 010-1.5z" clip-rule="evenodd" /><path d="M15.75 6a.75.75 0 01.75.75v5.25a.75.75 0 01-1.5 0V6.75a.75.75 0 01.75-.75z" /><path d="M8.25 9.75a.75.75 0 01.75.75v8.25a.75.75 0 01-1.5 0V10.5a.75.75 0 01.75-.75z" /></svg>
+                <h2 class="text-3xl md:text-4xl font-bold font-header"><span class="text-[var(--color-accent-orange)]">Profession-Specific Enhancements</span></h2>
+            </div>
+             <div id="professions-fixes-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Profession fixes cards will be injected here -->
+            </div>
+        </section>
+        
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const utilityData = [
+                { name: "Alchemy ⚗️", items: [{ name: "Flask of Flux Conversion", icon: "inv_potion_109", desc: "Convert 20% of current mana into a 5% Spell Damage buff for 15s. High-risk, high-reward for caster burst phases." }, { name: "Vial of Reactive Toxins", icon: "inv_potion_31", desc: "Next attack applies 'Hindering Poison,' reducing healing received by 25% for 10s. Vital for PvP and specific PvE encounters." }, { name: "Elixir of Stoneblood", icon: "inv_potion_41", desc: "Increases max health by 1500 and armor by 1000 for 20s. A personal defensive cooldown for any class."}] },
+                { name: "Blacksmithing ⚔️", items: [{ name: "Forgemaster's Bell", icon: "inv_misc_bell_01", desc: "Grants party +100 Armor Penetration for 15s. A physical DPS burst cooldown." }, { name: "Adamantite Plating Kit", icon: "inv_shield_05", desc: "Gain a +1000 Armor shield for 20s. A personal tank survivability cooldown." }, { name: "Whetstone of True Striking", icon: "inv_stone_sharpeningstone_01", desc: "Applies a buff to your party's weapons, granting +30 Expertise Rating for 10s. Crucial for melee groups to bypass dodges and parries." }] },
+                { name: "Enchanting ✨", items: [{ name: "Soulwoven Prism", icon: "inv_jewelcrafting_gem_35", desc: "Creates an aura granting party +10% healing received for 15s. Essential for heavy raid damage phases." }, { name: "Echo Shard", icon: "inv_jewelcrafting_nobletopaz_02", desc: "Debuffs a target, increasing Spell Damage taken by 3% for 12s. A minor but stackable damage increase." }, { name: "Leyline Focuser", icon: "inv_misc_orb_03", desc: "Places a focal point on the ground. Allies standing within 8 yards regenerate 100 mana per 2 seconds for 10s. A strategic mana battery." }] },
+                { name: "Engineering ⚙️", items: [{ name: "Arcane Feedback Pulse Emitter", icon: "inv_gizmo_supervolt_zapper_01", desc: "Deploys a device that pulses an AoE interrupt and 3s silence. Crucial for managing caster-heavy trash packs." }, { name: "Targeted Steam-Powered Grapple", icon: "inv_misc_hook_01", desc: "Pulls a targeted friendly player to your location. Perfect for repositioning slow players or saving someone from a hazard." }, { name: "Deployable Target Decoy", icon: "inv_misc_scoutbot_01", desc: "Deploys an advanced dummy that taunts all non-boss enemies within 10 yards for 15s before exploding. An AoE tanking tool and CC." }] },
+                { name: "Jewelcrafting 💎", items: [{ name: "Facet of Fury", icon: "inv_jewelcrafting_crimsonspinel_02", desc: "Grants party +40 Crit Rating for 15s. A coordinated burst cooldown." }, { name: "Shard of Insight", icon: "inv_jewelcrafting_lionseye_02", desc: "Reduces target's Resistances by 40 for 15s. An alternative to Warlock curses to boost caster damage." }, { name: "Harmonizing Crystal", icon: "inv_jewelcrafting_talasite_02", desc: "Links the Jeweler with a friendly target. For 8s, 20% of the damage taken by the target is redirected to the Jeweler as a DoT."}] },
+                { name: "Leatherworking 🥁", items: [{ name: "Drums of the Wildcall", icon: "inv_misc_drum_07", desc: "Grants party +15% Move Speed & +5% Attack Speed for 20s. Ideal for mobility phases and enhancing melee uptime." }, { name: "Beastmaster's Rally Horn", icon: "inv_misc_horn_04", desc: "Summons a spirit beast to taunt non-boss adds and provide a minor crit aura. Useful for off-tanking and add management." }, { name: "Drums of Mending", icon: "inv_misc_drum_01", desc: "Beats a soothing rhythm, healing all party members for a moderate amount over 12s. A supplemental group heal." }] },
+                 { name: "Tailoring 🧵", items: [{ name: "Rune-Threaded Veil", icon: "inv_helmet_131", desc: "Grants party selectable magic resistance (+150 Fire, Frost, or Shadow) for 15s. Pre-emptive magic defense." }, { name: "Net of Threads", icon: "inv_misc_net_01", desc: "Throws a net that roots a target and nearby enemies for 5s. Powerful AoE crowd control." }, { name: "Banner of Arcane Haste", icon: "inv_banner_01", desc: "Places a banner that increases spell haste rating of all party members within 20 yards by 50 for 30s. A strategic caster cooldown." }] },
+            ];
+            
+            const fixesData = [
+                { name: "Tailoring 🧵", icon: "inv_fabric_netherweave_bolt", fixes: ["Specialized cloth set bonuses are no longer soulbound to the tailor, improving flexibility.", "Cooldowns on Primal Mooncloth/Spellcloth/Shadowcloth reduced to 3 days, with a chance for double procs from specialization.", "New patterns for larger bags, including a 22-slot Primal Mooncloth Bag from a rare recipe."] },
+                { name: "Blacksmithing 🔨", icon: "inv_ingot_feliron", fixes: ["Iconic crafted weapons (Dragonstrike, etc.) receive upgrade paths via rare T5/T6 patterns, keeping them relevant.", "Armorsmiths can craft powerful BoP tanking shields and armor kits competitive with raid drops.", "Weaponsmiths can craft temporary Sharpening Stones that apply stacking armor reduction."] },
+                { name: "Alchemy ⚗️", icon: "inv_potion_108", fixes: ["New Bind-on-Account XP phials to help level alts.", "Competitive Alchemist Stone trinkets with effects tied to your specialization (Elixir, Potion, or Transmute).", "Raid Cauldrons can be created, providing a significant quality-of-life improvement for raid preparation."] },
+                { name: "Engineering ⚙️", icon: "inv_gizmo_01", fixes: ["Epic Engineering helms receive upgradeable T5/T6 versions that remain competitive while offering unique utility tinkers.", "New combat tools like explosive ammo and deployable combat pets/turrets to enhance utility in PvE and PvP.", "Repair Bots can be upgraded to access guild banks, a massive convenience."] },
+                { name: "Enchanting ✨", icon: "inv_enchant_formulaepic_01", fixes: ["Enchanters can learn recipes for cosmetic-only weapon illusions, adding a new layer of character customization.", "New BoP ring and neck enchants provide competitive stat combinations, making Enchanting a highly desirable personal profession.", "Nexus Crystal sources are slightly more accessible to ease material bottlenecks."] },
+                { name: "Jewelcrafting 💎", icon: "inv_jewelcrafting_gem_40", fixes: ["New 'Prismatic Gems' can fit into any socket color, providing unmatched gearing flexibility at the cost of slightly lower stats.", "New epic BoE ring and neck designs are added, requiring rare world-drop materials and raid components.", "Prospecting yields are slightly increased to improve material flow."] },
+                { name: "Gathering 🌿", icon: "inv_misc_herb_12", fixes: ["Mining, Herbalism, and Skinning each grant a scaling passive stat bonus (Stamina, Spirit, Crit Rating).", "Each gathering profession gains a small on-use utility ability (e.g., Herbalism for a party HoT).", "Nodes have a small chance to yield rare materials like gems or primals, making the act of gathering more engaging and potentially lucrative."] },
+            ];
+
+            const masterworkData = [
+                {
+                    name: "Blacksmithing 🔨",
+                    finalItem: { name: "Blade of the Master Smith", icon: "inv_sword_122", desc: "A flawless greatsword humming with fel energy and arcane might." },
+                    steps: [
+                        { name: "Step 1: The Components", items: [{ name: "Unfinished Felsteel Blade", icon: "inv_sword_27", source: "Forge a blade using materials from Gruul's Lair.", quality: "uncommon", stats: ["+25 Stamina", "+18 Strength"]}] },
+                        { name: "Step 2: The Quench", items: [{ name: "Arcane-Tempered Blade", icon: "inv_sword_48", source: "Quench the blade in the waters of Serpentshrine Cavern after defeating Lady Vashj.", quality: "rare", stats: ["+35 Stamina", "+28 Strength", "+15 Crit Rating"]}] },
+                        { name: "Step 3: The Attunement", items: [{ name: "Blade of the Master Smith", icon: "inv_sword_122", source: "Imbue the blade with power by defeating Illidan Stormrage in the Black Temple.", quality: "epic", stats: ["+45 Stamina", "+35 Strength", "+22 Crit Rating", "+18 Haste Rating", "<span class='proc'>Chance on hit: Shears reality, dealing 250-350 Shadow damage.</span>"]}] }
+                    ]
+                },
+                {
+                    name: "Leatherworking 🔪",
+                    finalItem: { name: "Drakescale Vestments of the Nether", icon: "inv_chest_leather_raidhunter_e_01", desc: "Chest armor crafted from the toughest hides in Outland, crackling with nether energy." },
+                    steps: [
+                        { name: "Step 1: The Patterns", items: [{ name: "Tattered Nether Dragon Pattern", icon: "inv_scroll_03", source: "Piece together fragments of a pattern held by the Netherwing.", quality: "uncommon", stats: ["Teaches the first step of the Drakescale Vestments."] }] },
+                        { name: "Step 2: The Core Hides", items: [{ name: "Cured Scale of Magtheridon", icon: "inv_misc_monsterscales_17", source: "Cure the hide of Magtheridon using special alchemical reagents.", quality: "rare", stats: ["+25 Agility", "+25 Stamina", "+12 Intellect"]}] },
+                        { name: "Step 3: The Binding", items: [{ name: "Drakescale Vestments of the Nether", icon: "inv_chest_leather_raidhunter_e_01", source: "Stitch the armor using thread spun from the essence of Nightbane.", quality: "epic", stats: ["+40 Agility", "+38 Stamina", "+25 Intellect", "+30 Crit Rating", "<span class='proc'>Equip: Your ranged attacks have a chance to grant you 150 AP for 10 sec.</span>"]}] }
+                    ]
+                },
+                {
+                    name: "Tailoring 🧵",
+                    finalItem: { name: "Mantle of the Master Weaver", icon: "inv_shoulder_60", desc: "Shoulderpads that shimmer with the light of the Sunwell, woven with threads of pure magic." },
+                    steps: [
+                        { name: "Step 1: The Threads", items: [{ name: "Bolt of Sun-Infused Spellcloth", icon: "inv_fabric_spellcloth_02", source: "Create a special bolt of Spellcloth purified at a Sunwell fount on the Isle of Quel'Danas.", quality: "uncommon", stats: ["A reagent radiating immense power."] }] },
+                        { name: "Step 2: The Soul Gem", items: [{ name: "Pattern: Phoenix-Wing Weave", icon: "inv_scroll_05", source: "Contain the fiery soul of Al'ar within a powerful gem to learn the item's pattern.", quality: "rare", stats: ["Teaches how to craft Phoenix-Wing Mantle."]}] },
+                        { name: "Step 3: The Weaving", items: [{ name: "Mantle of the Master Weaver", icon: "inv_shoulder_60", source: "Weave the final piece using an ethereal loom found within Tempest Keep.", quality: "epic", stats: ["+28 Stamina", "+33 Intellect", "+25 Spell Crit Rating", "+40 Spell Power", "<span class='proc'>Equip: Your damaging spells have a chance to increase your Haste Rating by 120 for 8 sec.</span>"]}] }
+                    ]
+                },
+                 {
+                    name: "Enchanting ✨",
+                    finalItem: { name: "Runed Signet of the Arch-Enchanter", icon: "inv_jewelry_ring_55", desc: "A ring that pulses with raw magical power, capable of storing and unleashing potent enchantments." },
+                    steps: [
+                        { name: "Step 1: The Core", items: [{ name: "Inert Runed Band", icon: "inv_jewelry_ring_31", source: "Obtain a powerless ring from the vaults of the Ethereals in Netherstorm.", quality: "uncommon", stats: ["+15 Stamina", "+12 Intellect"]}] },
+                        { name: "Step 2: The Essence", items: [{ name: "Essence-Charged Ring", icon: "inv_jewelry_ring_55", source: "Charge the ring with the dying energies of the Illidari Council in the Black Temple.", quality: "rare", stats: ["+20 Stamina", "+18 Intellect", "+14 Spell Power"]}] },
+                        { name: "Step 3: The Final Inscription", items: [{ name: "Runed Signet of the Arch-Enchanter", icon: "inv_jewelry_ring_55", source: "Learn the final enchanting word from a captured Eredar sorcerer within Sunwell Plateau.", quality: "epic", stats: ["+25 Stamina", "+22 Intellect", "+28 Spell Power", "<span class='proc'>Use: Draw upon the ring's power to restore 800 mana. (5 Min Cooldown)</span>"]}] }
+                    ]
+                },
+                 {
+                    name: "Jewelcrafting 💎",
+                    finalItem: { name: "Prism of Infinite Facets", icon: "inv_jewelry_necklace_77", desc: "A breathtaking necklace that captures and refracts light into its purest forms, empowering the wearer." },
+                    steps: [
+                        { name: "Step 1: The Lens", items: [{ name: "Flawless Focusing Crystal", icon: "inv_jewelcrafting_gem_28", source: "Cut a perfect crystal from a rare gem found only in the deepest parts of the Netherwing Mines.", quality: "uncommon", stats: ["A perfect, but mundane, crystal lens."]}] },
+                        { name: "Step 2: The Setting", items: [{ name: "Khorium-Bound Setting", icon: "inv_jewelry_necklace_35", source: "Craft a setting from Khorium bars smelted only in the fires of the Black Temple's forge.", quality: "rare", stats: ["+20 All Stats", "1 Red Socket"]}] },
+                        { name: "Step 3: The Heart", items: [{ name: "Prism of Infinite Facets", icon: "inv_jewelry_necklace_77", source: "Capture a spark from the death of Kael'thas Sunstrider to serve as the necklace's power source.", quality: "epic", stats: ["+25 All Stats", "1 Red Socket", "1 Yellow Socket", "1 Blue Socket", "Socket Bonus: +5 Spell Power"]}] }
+                    ]
+                }
+            ];
+
+            function renderUtility() {
+                const grid = document.getElementById('professions-utility-grid');
+                let content = '';
+                utilityData.forEach(prof => {
+                    content += `<div class="profession-card card p-6">
+                        <h3 class="font-bold text-xl mb-4 text-[var(--color-accent-bronze)] font-header">${prof.name}</h3>
+                        <div class="space-y-4">`;
+                    prof.items.forEach(item => {
+                        content += `
+                            <div class="flex items-start gap-3">
+                                <img src="https://wow.zamimg.com/images/wow/icons/large/${item.icon}.jpg" alt="${item.name}" class="w-10 h-10 rounded-md border border-gray-600">
+                                <div>
+                                    <h4 class="font-semibold text-gray-100">${item.name}</h4>
+                                    <p class="text-sm text-gray-400">${item.desc}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    content += `</div></div>`;
+                });
+                grid.innerHTML = content;
+            }
+
+            function renderFixes() {
+                 const grid = document.getElementById('professions-fixes-grid');
+                 grid.innerHTML = fixesData.map(prof => `
+                    <div class="card p-6">
+                        <div class="flex items-center mb-4">
+                            <img src="https://wow.zamimg.com/images/wow/icons/large/${prof.icon}.jpg" class="w-12 h-12 rounded-lg mr-4 border-2 border-[var(--color-border)]" alt="${prof.name}">
+                            <h3 class="font-bold text-xl text-white font-header">${prof.name}</h3>
+                        </div>
+                        <ul class="details-list text-sm text-gray-300 space-y-3">
+                            ${prof.fixes.map(fix => `<li>${fix}</li>`).join('')}
+                        </ul>
+                    </div>
+                 `).join('');
+            }
+            
+            function renderMasterworkQuests() {
+                const grid = document.getElementById('masterwork-quest-grid');
+                grid.innerHTML = masterworkData.map(quest => {
+                    let stepsHtml = '';
+                    quest.steps.forEach(step => {
+                        stepsHtml += `<div class="mb-4">
+                            <h5 class="font-bold text-base text-gray-200 mb-2">${step.name}</h5>
+                            <div class="space-y-2">` +
+                            step.items.map(item => `
+                                <div class="quest-item border-l-4" style="border-left-color: var(--color-quality-${item.quality})">
+                                    <img src="https://wow.zamimg.com/images/wow/icons/large/${item.icon}.jpg" alt="${item.name}">
+                                    <div>
+                                        <p class="font-semibold ${item.quality}">${item.name}</p>
+                                        <p class="text-xs text-gray-400">${item.source}</p>
+                                    </div>
+                                </div>
+                                <div class="item-stats"><ul>${item.stats.map(stat => `<li class="text-gray-300">${stat}</li>`).join('')}</ul></div>
+                                `).join('') +
+                            `</div></div>`;
+                    });
+
+                    return `<div class="card p-6">
+                        <h3 class="font-bold text-xl mb-4 text-[var(--color-accent-bronze)] font-header">${quest.name}</h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="md:col-span-2">${stepsHtml}</div>
+                            <div class="text-center flex flex-col items-center justify-center">
+                                <p class="font-semibold text-gray-100 mb-2">Final Reward:</p>
+                                <img src="https://wow.zamimg.com/images/wow/icons/large/${quest.finalItem.icon}.jpg" class="w-24 h-24 rounded-lg border-2 border-amber-400 shadow-lg" alt="${quest.finalItem.name}">
+                                <p class="mt-2 text-amber-400 font-bold">${quest.finalItem.name}</p>
+                                <p class="text-xs text-gray-400 italic mt-1">${quest.finalItem.desc}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            renderUtility();
+            renderFixes();
+            renderMasterworkQuests();
+        });
+    </script>
+</body>
+</html>

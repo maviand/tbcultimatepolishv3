@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Rogue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #111827;
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt30a59d89ea912389/60246215c9917d0b89155755/rogue_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #111827 5%, rgba(17, 24, 39, 0.7) 50%, rgba(17, 24, 39, 0.5) 100%);
+        }
+        .glow-poison {
+            text-shadow: 0 0 10px #84cc16, 0 0 15px #65a30d, 0 0 20px #4d7c0f;
+        }
+        .glow-shadow {
+            text-shadow: 0 0 8px #d8b4fe, 0 0 12px #c084fc, 0 0 16px #a855f7;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(31, 41, 55, 0.6);
+            border: 1px solid #374151;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #84cc16;
+        }
+        h3.assassination { color: #a3e635; border-bottom-color: #65a30d; }
+        h3.combat { color: #9ca3af; border-bottom-color: #6b7280; }
+        h3.subtlety { color: #c084fc; border-bottom-color: #7e22ce; }
+        .spec-icon {
+            filter: grayscale(20%) brightness(1.1);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.3);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item.assassination-item { border-left: 3px solid #a3e635; }
+        .change-list-item.combat-item { border-left: 3px solid #9ca3af; }
+        .change-list-item.subtlety-item { border-left: 3px solid #c084fc; }
+        
+        .change-list-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-poison">The Unseen Blade</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-lime-300">A Redesign of the Rogue Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                From the darkest alleys to the heart of the battlefield, the Rogue walks a path of deadly precision. We sharpen their daggers and refine their poisons, ensuring every specialization is a masterclass in subterfuge, subtlety, and slaughter.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-lime-300">Poison, Steel, and Shadow</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Rogue is the master of opportunistic damage and cunning control. Our redesign focuses on elevating the core fantasy of each path: Assassination becomes the master poisoner, Combat the relentless swashbuckler, and Subtlety the ultimate shadow-dancer, providing unique and vital roles in any group.
+            </p>
+        </section>
+
+        <!-- Assassination Rogue -->
+        <section id="assassination" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_rogue_deadlybrew.jpg" alt="Assassination Icon" class="w-32 h-32 rounded-full border-4 border-lime-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-lime-300">Assassination ☠️</h2>
+                        <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Scaling)</p>
+                        <p class="text-lg text-gray-300 mt-2">The meticulous killer who uses potent toxins to dispatch their foes. We fix their gearing frustrations and give them a more satisfying and thematic finishing move.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="assassination text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item assassination-item">
+                            <strong class="change-title">Poisoner's Precision:</strong>
+                            <p class="change-desc">The Improved Poisons talent is reworked to grant spell hit chance for your poisons based on your melee hit, eliminating the need for frustrating split-stat gearing.</p>
+                        </div>
+                        <div class="change-list-item assassination-item">
+                            <strong class="change-title">Reliable Finishers:</strong>
+                            <p class="change-desc">Rupture is improved to apply instantly at 5 combo points, and Mutilate's damage against poisoned targets is increased, creating a smoother damage flow.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="assassination text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item assassination-item">
+                             <strong class="change-title">Modern Ability: Envenom:</strong>
+                            <p class="change-desc">A new finishing move talent that consumes your Deadly Poison stacks to deal a massive burst of Nature damage and temporarily increases poison application chance.</p>
+                        </div>
+                        <div class="change-list-item assassination-item">
+                            <strong class="change-title">Modern Ability: Vendetta:</strong>
+                            <p class="change-desc">A new cooldown talent that marks a target for death, increasing all damage you deal to them by 20% for a short duration. The ultimate single-target execution.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Combat Rogue -->
+        <section id="combat" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_rogue_waylay.jpg" alt="Combat Icon" class="w-32 h-32 rounded-full border-4 border-gray-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-gray-300">Combat 🤺</h2>
+                        <p class="dps-target dps-nerf">Target DPS Tune: -8-12% (Tune Top-End, Improve AoE/Energy)</p>
+                        <p class="text-lg text-gray-300 mt-2">The relentless swashbuckler who overwhelms foes with a flurry of steel. We tune their dominant top-end damage while shoring up their weaknesses in AoE and energy management.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="combat text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item combat-item">
+                            <strong class="change-title">True Blade Flurry:</strong>
+                            <p class="change-desc">Blade Flurry is reworked to cause your single-target attacks to strike up to 2 additional nearby targets, providing meaningful cleave damage on a cooldown.</p>
+                        </div>
+                         <div class="change-list-item combat-item">
+                            <strong class="change-title">Energy Management:</strong>
+                             <p class="change-desc">Combat Potency's proc chance is increased, and Adrenaline Rush now also provides a steady stream of energy, reducing frustrating periods of downtime.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="combat text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item combat-item">
+                            <strong class="change-title">Modern Ability: Killing Spree:</strong>
+                            <p class="change-desc">A new capstone talent. Become an unstoppable whirlwind of steel, teleporting between nearby enemies and striking with both weapons for massive burst damage.</p>
+                        </div>
+                        <div class="change-list-item combat-item">
+                            <strong class="change-title">Modern Ability: Crimson Tempest:</strong>
+                            <p class="change-desc">An optional finishing move talent that unleashes a storm of daggers, dealing instant damage and applying a powerful bleed to all enemies in the area.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Subtlety Rogue -->
+        <section id="subtlety" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_stealth.jpg" alt="Subtlety Icon" class="w-32 h-32 rounded-full border-4 border-purple-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-purple-300 glow-shadow">Subtlety 🤫</h2>
+                         <p class="dps-target dps-neutral">Target: Solidify Role as Unique Utility/Burst DPS</p>
+                         <p class="text-lg text-gray-300 mt-2">The master of shadows who creates opportunities through deception. We elevate them from a PvP-only niche to a vital raid asset with unique debuffs and unparalleled burst windows.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="subtlety text-2xl">Core Fixes & Buffs 🔧</h3>
+                        <div class="change-list-item subtlety-item">
+                            <strong class="change-title">Raid Utility: Hemorrhage Rework:</strong>
+                            <p class="change-desc">Hemorrhage is redesigned to increase all physical damage taken by the target by 5%, giving Subtlety a unique and highly coveted raid debuff.</p>
+                        </div>
+                        <div class="change-list-item subtlety-item">
+                            <strong class="change-title">Modern Ability: Find Weakness:</strong>
+                            <p class="change-desc">Your Ambush and Garrote now apply a massive armor reduction debuff for 10 seconds, creating an incredible opening burst window for your entire raid.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="subtlety text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item subtlety-item">
+                            <strong class="change-title">Modern Ability: Shadow Dance:</strong>
+                            <p class="change-desc">The iconic cooldown. A new talent allows you to use your Stealth abilities like Ambush and Garrote for a short time, even while visible. The ultimate burst window.</p>
+                        </div>
+                        <div class="change-list-item subtlety-item">
+                            <strong class="change-title">Modern Ability: Marked for Death:</strong>
+                            <p class="change-desc">A new talent that instantly generates 5 combo points on your target, allowing for rapid execution of finishers during your burst windows.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+            const colors = ['rgba(132, 204, 22, 0.4)', 'rgba(156, 163, 175, 0.4)', 'rgba(192, 132, 252, 0.4)'];
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade Classic+ | A Proposal</title>
+    <style>
+        /* --- FONT IMPORT --- */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=MedievalSharp&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+        /* --- BASE STYLES & ATMOSPHERE --- */
+        :root {
+            --tbc-purple: #8A2BE2;
+            --tbc-green: #1eff00;
+            --tbc-gold: #FFB800; /* Brighter gold */
+            --stone-bg: #121115;
+            --stone-fg: #1c1a22;
+            --text-color: #d1c9bd;
+            --glow-color: rgba(255, 184, 0, 0.75);
+            --border-color: #4a453b;
+            --border-highlight: #7a715f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--stone-bg);
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b1141ba455/blt727317248d799f2e/60108151afd4986427137452/Shattrath-City.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(12, 10, 15, 0.6) 0%, rgba(12, 10, 15, 0.98) 100%);
+            z-index: 1;
+        }
+
+        /* --- HERO HEADER --- */
+        .hero-header {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            border: 2px solid var(--border-color);
+            border-image: linear-gradient(to bottom, var(--border-highlight), var(--border-color)) 1;
+            background: linear-gradient(180deg, rgba(30, 28, 35, 0.8) 0%, rgba(20, 18, 24, 0.9) 100%), url('https://i.imgur.com/3duUs5s.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        .hero-header h1 {
+            font-family: 'MedievalSharp', cursive;
+            font-size: 3.5rem;
+            color: var(--tbc-gold);
+            text-shadow: 0 0 15px var(--glow-color), 0 0 5px #000;
+            letter-spacing: 3px;
+        }
+        
+        .hero-header p {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.9;
+            margin-top: 1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* --- MAIN HUB GRID --- */
+        #proposal-hub {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+        }
+        
+        /* --- INTERACTIVE OBJECTS / CARDS --- */
+        .proposal-object {
+            background: linear-gradient(145deg, #2e2a35, #1c1a22);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4), inset 0 0 10px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .proposal-object:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 20px var(--glow-color), inset 0 0 15px rgba(0,0,0,0.3);
+            border-color: var(--tbc-gold);
+        }
+
+        .card-artwork {
+            height: 120px;
+            background-color: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .card-artwork img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .proposal-object:hover .card-artwork img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .proposal-object h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--tbc-gold);
+            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .proposal-object p {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        #object-goblin:hover { border-color: var(--tbc-green); box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); }
+        #object-legendary:hover { border-color: #ff8000; box-shadow: 0 0 20px rgba(255, 128, 0, 0.6); }
+
+        /* --- SUB-MENUS / MODAL --- */
+        .submenu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 100;
+            background: linear-gradient(160deg, #25222b, #151318);
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(to top left, var(--border-color), var(--border-highlight), var(--border-color));
+            padding: 1rem;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.95);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .submenu.visible {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .submenu-header {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .submenu-header h3 {
+            font-family: 'MedievalSharp', cursive;
+            font-size: 2.2rem;
+            color: var(--tbc-gold);
+            text-shadow: 0 0 10px var(--glow-color);
+        }
+
+        .submenu-list {
+            list-style: none;
+            padding: 1.5rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .submenu-list li a {
+            display: block;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 0.5rem;
+            background: var(--stone-fg);
+            border: 1px solid #333;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--text-color);
+            font-family: 'Cinzel', serif;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .submenu-list li a:hover {
+            background-color: var(--tbc-gold);
+            color: #000;
+            border-color: var(--tbc-gold);
+            transform: translateX(5px);
+        }
+
+        #submenu-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: brightness(0.6) blur(4px);
+            z-index: 99;
+        }
+        #submenu-backdrop.visible {
+            display: block;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .hero-header { margin-bottom: 2rem; }
+            .hero-header h1 { font-size: 2.5rem; }
+            #proposal-hub { grid-template-columns: 1fr; gap: 1.5rem; }
+            .submenu { width: 95%; }
+        }
+        
+        /* --- AUDIO CONTROLS --- */
+        #audio-control {
+            position: fixed; bottom: 15px; right: 15px; z-index: 101;
+            background: var(--stone-fg); border: 1px solid var(--tbc-gold);
+            color: var(--tbc-gold); padding: 0.5rem; border-radius: 50%;
+            width: 40px; height: 40px; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; font-size: 1.2rem;
+            user-select: none;
+        }
+        #audio-control:hover { background: var(--tbc-gold); color: var(--stone-fg); }
+    </style>
+</head>
+<body>
+    <header class="hero-header">
+        <h1>The Burning Crusade: Classic+</h1>
+        <p>A comprehensive reimagining of The Burning Crusade, featuring new content, sweeping class and system overhauls, and a renewed focus on the entire world of Azeroth.</p>
+    </header>
+
+    <main id="proposal-hub">
+        <!-- Card 1: Lore -->
+        <a href="000 - Lore 1-60 and Faction Leaders.html" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/rzfVlkY.png" alt="Tome of Ages Artwork"></div>
+            <div class="card-content"><h2>Tome of Ages</h2><p>Revisit the foundational stories and key figures leading the charge into Outland.</p></div>
+        </a>
+        
+        <!-- Card 2: Goblins -->
+        <a href="001 - Goblins.html" id="object-goblin" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/yAuJyY7.jpeg" alt="Goblin Artwork"></div>
+            <div class="card-content"><h2>The Goblin Gambit</h2><p>Introducing a new neutral race with explosive potential and enterprising ambitions.</p></div>
+        </a>
+
+        <!-- Card 3: Classes -->
+        <div id="object-classes" class="proposal-object" data-sound="hover" data-submenu-target="#codex-menu">
+            <div class="card-artwork"><img src="https://i.imgur.com/45P9CpZ.png" alt="Class Balance Artwork"></div>
+            <div class="card-content"><h2>Codex of War</h2><p>A complete overhaul of class balance, ensuring every specialization has its place.</p></div>
+        </div>
+
+        <!-- Card 4: Dungeons & Raids -->
+        <div id="object-dungeons" class="proposal-object" data-sound="hover" data-submenu-target="#dungeon-menu">
+            <div class="card-artwork"><img src="https://i.imgur.com/2Ir5cDA.png" alt="Dungeons and Raids Artwork"></div>
+            <div class="card-content"><h2>Call of the Crusade</h2><p>New challenges await in reimagined dungeons and entirely new raid content.</p></div>
+        </div>
+        
+        <!-- Card 5: Professions -->
+        <div id="object-professions" class="proposal-object" data-sound="hover" data-submenu-target="#artisan-menu">
+            <div class="card-artwork"><img src="https://i.imgur.com/jNThiLh.jpeg" alt="Professions Artwork"></div>
+            <div class="card-content"><h2>Artisan's Almanac</h2><p>A deep crafting system rework, making every profession engaging and profitable.</p></div>
+        </div>
+
+        <!-- Card 6: Old World -->
+        <a href="005 - Old World Relevance.html" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/zPvyOvQ.png" alt="Old World Artwork"></div>
+            <div class="card-content"><h2>A Relevant Realm</h2><p>New reasons to return to Azeroth. Invasions, updated quests, and dynamic events.</p></div>
+        </a>
+        
+        <!-- Card 7: Legendaries -->
+        <a href="006 - Legendaries.html" id="object-legendary" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/WcJmiW5.png" alt="Legendaries Artwork"></div>
+            <div class="card-content"><h2>Whispers of Legends</h2><p>Discover new, class-defining legendary items forged in the heart of the Nether.</p></div>
+        </a>
+
+        <!-- Card 8: Pinnacle Quests -->
+        <a href="007 - Pinnacle Quests.html" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/HCxgkQU.jpeg" alt="Pinnacle Quests Artwork"></div>
+            <div class="card-content"><h2>The Hero's Journey</h2><p>Epic, class-specific questlines that challenge your mastery and reward you greatly.</p></div>
+        </a>
+        
+        <!-- Card 9: Factions & QoL -->
+        <a href="08 - Factions Balance & QoL - The Shattrath Concordat.html" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/O4DUhMo.jpeg" alt="Factions and QoL Artwork"></div>
+            <div class="card-content"><h2>Shattrath Concordat</h2><p>Balancing racials, Paladins and Shamans, and quality of life improvements.</p></div>
+        </a>
+        
+        <!-- Card 10: Guilds -->
+        <a href="009 - Guilds.html" class="proposal-object" data-sound="hover">
+            <div class="card-artwork"><img src="https://i.imgur.com/QXLjF14.jpeg" alt="Guilds Artwork"></div>
+            <div class="card-content"><h2>A Banner United</h2><p>Enhanced guild systems, including shared housing, progression, and rewards.</p></div>
+        </a>
+    </main>
+
+    <!-- SUB-MENUS (Initially Hidden) -->
+    <div id="submenu-backdrop"></div>
+
+    <!-- Codex of War Sub-Menu -->
+    <div id="codex-menu" class="submenu">
+        <div class="submenu-header"><h3>Codex of War: Class Changes</h3></div>
+        <ul class="submenu-list">
+            <li><a href="002 - Classes & Specs - Class Balance.html" data-sound="hover">Overall Class Balance Philosophy</a></li>
+            <li><a href="002 - Classes & Specs - Druid Changes.html" data-sound="hover">Druid Changes</a></li>
+            <li><a href="002 - Classes & Specs - Hunter Changes.html" data-sound="hover">Hunter Changes</a></li>
+            <li><a href="002 - Classes & Specs - Mage Changes.html" data-sound="hover">Mage Changes</a></li>
+            <li><a href="002 - Classes & Specs - Paladin Changes.html" data-sound="hover">Paladin Changes</a></li>
+            <li><a href="002 - Classes & Specs - Priest Changes.html" data-sound="hover">Priest Changes</a></li>
+            <li><a href="002 - Classes & Specs - Rogue Changes.html" data-sound="hover">Rogue Changes</a></li>
+            <li><a href="002 - Classes & Specs - Shaman Changes.html" data-sound="hover">Shaman Changes</a></li>
+            <li><a href="002 - Classes & Specs - Warlock Changes.html" data-sound="hover">Warlock Changes</a></li>
+            <li><a href="002 - Classes & Specs - Warrior Changes.html" data-sound="hover">Warrior Changes</a></li>
+        </ul>
+    </div>
+
+    <!-- Dungeons & Raids Sub-Menu -->
+    <div id="dungeon-menu" class="submenu">
+        <div class="submenu-header"><h3>Call of the Crusade: Content</h3></div>
+        <ul class="submenu-list">
+            <li><a href="003 - Dungeons & Raids - New Content.html" data-sound="hover">New Dungeons & Raids</a></li>
+            <li><a href="003 - Dungeons & Raids - Remade.html" data-sound="hover">Classic Dungeons Remade</a></li>
+        </ul>
+    </div>
+
+    <!-- Professions Sub-Menu -->
+    <div id="artisan-menu" class="submenu">
+        <div class="submenu-header"><h3>The Artisan's Almanac</h3></div>
+        <ul class="submenu-list">
+            <li><a href="004 - Profession System Changes.html" data-sound="hover">Profession System Changes</a></li>
+            <li><a href="004 - Professions Items.html" data-sound="hover">New Profession Items</a></li>
+        </ul>
+    </div>
+    
+    <!-- Audio Control Button -->
+    <div id="audio-control" title="Toggle Music">
+        <span>&#x1F50A;</span> <!-- Speaker Icon -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const backgroundMusic = new Audio('https://github.com/rafaelreis-hotmart/Audio-Sample-files/raw/master/sample.mp3');
+            backgroundMusic.loop = true;
+            backgroundMusic.volume = 0.15;
+
+            const hoverSound = new Audio("data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA"); 
+            const clickSound = new Audio("data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhBgAAAAEAsub/7w=="); 
+            
+            let isMusicPlaying = false;
+            const audioControl = document.getElementById('audio-control');
+            const audioIcon = audioControl.querySelector('span');
+
+            audioControl.addEventListener('click', () => {
+                if (isMusicPlaying) {
+                    backgroundMusic.pause();
+                    audioIcon.innerHTML = '&#x1F507;';
+                    audioControl.title = "Play Music";
+                } else {
+                    backgroundMusic.play().catch(e => console.error("Audio autoplay failed:", e));
+                    audioIcon.innerHTML = '&#x1F50A;';
+                    audioControl.title = "Mute Music";
+                }
+                isMusicPlaying = !isMusicPlaying;
+            });
+            
+            document.querySelectorAll('[data-sound="hover"]').forEach(elem => {
+                elem.addEventListener('mouseenter', () => {
+                    if(isMusicPlaying) {
+                      hoverSound.currentTime = 0;
+                      hoverSound.play().catch(e => {});
+                    }
+                });
+            });
+
+            const submenuBackdrop = document.getElementById('submenu-backdrop');
+
+            document.querySelectorAll('[data-submenu-target]').forEach(trigger => {
+                trigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if(isMusicPlaying) {
+                      clickSound.currentTime = 0;
+                      clickSound.play().catch(e => {});
+                    }
+                    const targetMenu = document.querySelector(trigger.dataset.submenuTarget);
+                    if (targetMenu) {
+                        submenuBackdrop.classList.add('visible');
+                        targetMenu.classList.add('visible');
+                    }
+                });
+            });
+
+            const closeAllSubmenus = () => {
+                document.querySelectorAll('.submenu.visible').forEach(menu => {
+                    menu.classList.remove('visible');
+                });
+                submenuBackdrop.classList.remove('visible');
+            };
+
+            submenuBackdrop.addEventListener('click', closeAllSubmenus);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") {
+                    closeAllSubmenus();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

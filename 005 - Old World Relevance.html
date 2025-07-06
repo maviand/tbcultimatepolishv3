@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Unified Azeroth - TBC Polish Addendum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-background-primary: #2a211c; /* Dark Leather */
+            --color-background-secondary: #3e322b; /* Worn Leather */
+            --color-text-primary: #f5eadd; /* Parchment White */
+            --color-text-secondary: #b0a89a; /* Aged Parchment */
+            --color-accent-gold: #ffd700; /* Gold Leaf */
+            --color-accent-bronze: #cd7f32; /* Bronze */
+            --color-border: #5a4a3a;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--color-background-primary);
+            color: var(--color-text-primary);
+            background-image: url('https://www.transparenttextures.com/patterns/old-map.png');
+        }
+        
+        .font-header {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.05em;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .card {
+            background-color: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--color-border);
+            border-radius: 0.25rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+        
+        .section-header {
+            border-bottom: 2px solid var(--color-accent-bronze);
+            padding-bottom: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px -10px var(--color-accent-bronze);
+        }
+
+        .header-icon {
+             width: 3rem; height: 3rem; margin-right: 1rem;
+             filter: drop-shadow(0 0 8px var(--color-accent-bronze));
+        }
+
+        .details-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .details-list li::before {
+            content: '🗺️';
+            position: absolute;
+            left: 0;
+            top: 1px;
+            font-size: 1.1em;
+        }
+        .expandable-card .details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, margin-top 0.5s ease-out;
+            padding-top: 0;
+            margin-top: 0;
+        }
+        .expandable-card.open .details {
+            max-height: 2000px; /* Increased for more content */
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+        .expandable-card summary {
+             cursor: pointer;
+             list-style: none;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+        }
+         .expandable-card summary::-webkit-details-marker {
+            display: none;
+        }
+        .expandable-card summary .arrow { 
+            transition: transform 0.3s ease;
+        }
+        .expandable-card.open summary .arrow { 
+            transform: rotate(180deg); 
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <main class="container mx-auto px-4 py-12 md:py-16">
+
+        <!-- Header Section -->
+        <section id="vision" class="mb-16 md:mb-24 text-center">
+            <div class="flex items-center justify-center mb-6">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-20 h-20 text-[var(--color-accent-gold)] filter drop-shadow-lg"><path d="M12 21.75a9.75 9.75 0 100-19.5 9.75 9.75 0 000 19.5zM3.841 9.422a.75.75 0 01.166-.992 7.502 7.502 0 019.418-2.656.75.75 0 01.416 1.332 6 6 0 00-7.534 2.12.75.75 0 01-1.332-.416.75.75 0 01-.132-.388z" /></svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 font-header"><span class="text-[var(--color-accent-gold)]">A Unified Azeroth:</span> The Complete World Overhaul</h1>
+            <p class="max-w-4xl mx-auto text-lg text-gray-300 leading-relaxed">
+                As a loremaster who has traced the ley lines of Azeroth, a designer who has built worlds from code and dreams, and a writer who has chronicled the fall and rise of heroes, the challenge of keeping the old world relevant in The Burning Crusade is one I embrace with relish. It’s not about tacking on daily quests; it’s about weaving a living, breathing narrative that shows the war for Outland is not a distant conflict, but one whose shadows stretch long and deep across our home world. Here is my vision for a more integrated, dynamic, and dangerous Azeroth during the Burning Crusade.
+            </p>
+        </section>
+
+        <!-- The Legion's Shadow Section -->
+        <section id="legions-shadow" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_demonicempathy.jpg" class="header-icon rounded-lg" alt="Legion Icon">
+                <h2 class="text-3xl md:text-4xl font-bold font-header">Game Feature: <span class="text-[var(--color-accent-gold)]">The Legion's Shadow</span></h2>
+            </div>
+            <div class="card p-8">
+                <p class="text-gray-300 leading-relaxed mb-6">To make the entire old world feel relevant, we introduce a persistent, server-wide feature: The Legion's Shadow. This system causes demonic incursions in zones with a historical Legion presence.</p>
+                <div class="grid md:grid-cols-2 gap-8 text-sm">
+                    <div class="bg-black/20 p-4 rounded">
+                        <h4 class="font-semibold text-lg text-white mb-2">How it Works ⚙️</h4>
+                        <p class="text-gray-400">On a weekly cycle, one or two classic zones (e.g., Felwood, Blasted Lands, Azshara, Desolace) fall under The Legion's Shadow. Demonic lieutenants, dispatched from Outland, establish forward bases. The skybox darkens, Legion banners appear, and new, elite level 70 demonic mobs patrol the area.</p>
+                    </div>
+                    <div class="bg-black/20 p-4 rounded">
+                        <h4 class="font-semibold text-lg text-white mb-2">Gameplay Loop ⚔️</h4>
+                        <p class="text-gray-400">This creates dynamic, emergent world content. Players can band together to assault these bases, disrupt rituals, and slay the commanding lieutenant (a world boss with a multi-day respawn timer). Success grants a server-wide buff (e.g., bonus reputation with Shattered Sun Offensive).</p>
+                    </div>
+                </div>
+                 <div class="mt-6 bg-black/20 p-4 rounded">
+                    <h4 class="font-semibold text-lg text-white mb-2">Story Integration 📜</h4>
+                    <p class="text-sm text-gray-400">This directly ties the fight in Outland to Azeroth. We learn that commanders like Magtheridon and Archimonde had subordinates who escaped death and are now being reactivated by Kil'jaeden's agents. This isn't a new invasion; it's the reawakening of an old, festering wound.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Dungeons and Raids Section -->
+        <section id="new-instances" class="mb-16 md:mb-24 scroll-mt-20">
+             <div class="section-header flex items-center">
+                <img src="https://wow.zamimg.com/images/wow/icons/large/achievement_dungeon_stratholme_heroic.jpg" class="header-icon rounded-lg" alt="Dungeon Icon">
+                <h2 class="text-3xl md:text-4xl font-bold font-header">New Dungeons & <span class="text-[var(--color-accent-gold)]">Raids</span></h2>
+            </div>
+            <div class="space-y-8">
+                <div class="card p-8 expandable-card">
+                    <details>
+                        <summary><h3 class="font-bold text-xl text-white font-header">NEW DUNGEON: The Halls of Damnation (Stratholme) 💀</h3><span class="arrow text-2xl">▼</span></summary>
+                        <div class="details mt-4 border-t border-gray-700/50 pt-4 text-sm text-gray-300 leading-relaxed">
+                            <p class="mb-4">A cabal of surviving dreadlords has returned to Stratholme, using the city's ambient necromantic energy to tear open a permanent gateway to the Twisting Nether. Kael'thas, seeking to curry favor with Kil'jaeden, has dispatched Magister Astromancer Vexil to aid them.</p>
+                            <ul class="details-list">
+                                <li><strong>Wing 1: The Scarlet Breach:</strong> Fight through the corrupted spirits of Scarlet Crusaders, now bound in eternal service to the dreadlords they once fought.</li>
+                                <li><strong>Wing 2: The Sunfury Blight:</strong> The architecture shifts, warped by blood elven magic. Face Sunfury blood mages, mana-starved warlocks, and fel-infused constructs.</li>
+                                <li><strong>Final Boss: Lord Valerius:</strong> A classic dreadlord encounter focused on sleep, mind control, and summoning swarms of carrion bats, but with a new twist: players must use braziers of holy fire, consecrated by A'dal's light, to break his vampiric aura.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+                <div class="card p-8 expandable-card">
+                     <details>
+                        <summary><h3 class="font-bold text-xl text-white font-header">NEW RAID: The Siege of Quel'Danil (10-Player) 🏹</h3><span class="arrow text-2xl">▼</span></summary>
+                         <div class="details mt-4 border-t border-gray-700/50 pt-4 text-sm text-gray-300 leading-relaxed">
+                            <p class="mb-4">With the Sunwell being prepared for Kil'jaeden, Kael'thas moves to eliminate all rival claimants to elven magical lore. He dispatches a brutal commander, Warlord Salaris, to eradicate the high elves of Quel'Danil Lodge and seize their ancient runestones. The Wildhammer dwarves of Aerie Peak join the defense.</p>
+                             <ul class="details-list">
+                                <li><strong>Boss 1: The Fel-Siege:</strong> Players must use Wildhammer cannons to destroy incoming fel-reaver prototypes while fending off waves of Sunfury engineers.</li>
+                                <li><strong>Boss 2: Grand Magister Lyandra:</strong> A powerful blood mage attempting to corrupt the main runestone. The fight involves siphoning her fel energy to prevent the stone from shattering.</li>
+                                <li><strong>Boss 3: The Twin Sentinels:</strong> Two legendary high elven guardians of the lodge are raised and empowered by fel magic. They must be fought apart and utilize coordinated attacks.</li>
+                                <li><strong>Final Boss: Warlord Salaris:</strong> A heavily armored Blood Elf warrior mounted on a massive, armored felboar. The fight has two phases: first defeating his mount, then facing him on foot as he uses brutal, fel-infused bladework.</li>
+                            </ul>
+                         </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Quest Hub & Chain Section -->
+        <section id="new-quest-hub" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                <img src="https://wow.zamimg.com/images/wow/icons/large/inv_misc_draenei_crystal_01.jpg" class="header-icon rounded-lg" alt="Quest Hub Icon">
+                <h2 class="text-3xl md:text-4xl font-bold font-header">New Quest Hub: <span class="text-[var(--color-accent-gold)]">The Exodar's Echo</span></h2>
+            </div>
+            <div class="card p-8 expandable-card">
+                 <details>
+                    <summary><h3 class="font-bold text-xl text-white font-header">Azure-wreck Point, Feralas 🌊</h3><span class="arrow text-2xl">▼</span></summary>
+                    <div class="details mt-4 border-t border-gray-700/50 pt-4 text-sm text-gray-300 leading-relaxed">
+                        <p class="mb-4">A new island quest hub, "Azure-wreck Point," is established off the coast of Feralas. Players discover a group of waking Draenei survivors led by Artificer Zal'naar. The wreckage is attracting local naga, who are twisting the Exodar's technology with Vashj's magic, and agents of the Ethereum, who seek to plunder the arcane secrets.</p>
+                        <ul class="details-list">
+                           <li><strong>Rescue and Recovery:</strong> Players rescue sleeping Draenei from damaged stasis pods and recover key technological components from the naga.</li>
+                           <li><strong>Repelling the Plunderers:</strong> The questline shifts to combating the ethereal incursions, culminating in shutting down a phase-portal they've established to steal technology.</li>
+                           <li><strong>The Core's Call & Dungeon Quest:</strong> Zal'naar realizes a larger shard of the Exodar's power core crashed deep within the Temple of Atal'Hakkar. Players must venture into a level 70 version of the Sunken Temple, where the leaking energy has created bizarre "arcane-troll" hybrids and empowered the Shade of Eranikus. They must retrieve the core fragment before it overloads and destroys the swamp.</li>
+                        </ul>
+                         <p class="mt-4"><strong>Relevance:</strong> This creates a direct link between the Draenei starting experience and the rest of the world, revitalizes Feralas, and re-purposes a classic dungeon with a compelling narrative twist.</p>
+                    </div>
+                 </details>
+            </div>
+        </section>
+
+        <!-- Endgame in Azeroth Section -->
+        <section id="endgame-azeroth" class="mb-16 md:mb-24 scroll-mt-20">
+            <div class="section-header flex items-center">
+                <img src="https://wow.zamimg.com/images/wow/icons/large/inv_misc_relics_libramofjustice.jpg" class="header-icon rounded-lg" alt="Endgame Icon">
+                <h2 class="text-3xl md:text-4xl font-bold font-header">Endgame in Azeroth: <span class="text-[var(--color-accent-gold)]">Level 70 Content</span></h2>
+            </div>
+             <div class="card p-8">
+                <p class="text-gray-300 leading-relaxed mb-8 text-center">The fight for Azeroth doesn't end when you step through the Dark Portal. At level 70, the old world becomes a new frontier, offering unique challenges and rewards for seasoned heroes.</p>
+                <div id="endgame-grid" class="space-y-4">
+                    <!-- Endgame content injected here -->
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <script>
+        document.querySelectorAll('.expandable-card').forEach(card => {
+            const details = card.querySelector('details');
+            details.addEventListener('toggle', (event) => {
+                 if (details.open) {
+                    card.classList.add('open');
+                } else {
+                    card.classList.remove('open');
+                }
+            });
+        });
+
+        const endgameData = [
+             {
+                title: "Heroic Classic Raids: Legends Revisited ⚔️",
+                icon: "achievement_dungeon_coop_classic",
+                content: `
+                    <p class="mb-4 text-sm text-gray-400">The cornerstone of this initiative is re-tuning Classic raids as optional Level 70 Heroic content. Accessed via quests from the Keepers of Time, this system provides a deep well of repeatable endgame content, alternative gearing paths, and a treasure trove of cosmetic and prestige rewards for dedicated champions.</p>
+                    <div class="grid lg:grid-cols-2 gap-4">
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h5 class="font-semibold text-white mb-2">Molten Core (10-Player)</h5>
+                            <p class="text-xs text-gray-400">Garr's adds explode violently; Majordomo's lieutenants reflect spell schools; Ragnaros's Sons spawn faster.</p>
+                        </div>
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h5 class="font-semibold text-white mb-2">Blackwing Lair (25-Player)</h5>
+                            <p class="text-xs text-gray-400">Razorgore's eggs spawn elite dragonkin; Vaelastrasz's debuff is more lethal; Nefarian's class calls are more complex.</p>
+                        </div>
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h5 class="font-semibold text-white mb-2">Ahn'Qiraj (25-Player)</h5>
+                            <p class="text-xs text-gray-400">Skeram's illusions persist; C'Thun's Dark Glare is faster; Ouro's Sand Blast has a shorter cast time.</p>
+                        </div>
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h5 class="font-semibold text-white mb-2">Naxxramas (25-Player)</h5>
+                            <p class="text-xs text-gray-400">Patchwerk requires a three-tank rotation; Grobbulus's poison clouds spread wider; Kel'Thuzad's adds are stronger.</p>
+                        </div>
+                    </div>
+                     <h5 class="font-semibold text-white mt-6 mb-2">Rewards & Loot Philosophy</h5>
+                     <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h6 class="font-bold text-amber-300">Updated Gear 🛡️</h6>
+                            <p class="text-gray-400">Drops ilvl 120-133 epics with TBC stats but iconic vanilla looks.</p>
+                        </div>
+                        <div class="bg-black/20 p-4 rounded-lg">
+                            <h6 class="font-bold text-amber-300">Timeworn Badges 💎</h6>
+                            <p class="text-gray-400">A new currency to purchase replica Tier sets and other cosmetic rewards.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                title: "Dynamic World Systems 🌍",
+                icon: "spell_holy_prayerofhealing",
+                content: `
+                    <p class="mb-4 text-sm text-gray-400">To bridge the gap between Outland and Azeroth, new systems are introduced to encourage players to engage with the entire world, creating a single, cohesive endgame experience.</p>
+                    <ul class="space-y-4">
+                        <li class="p-3 bg-black/20 rounded"><strong>Emissary Quest Chains 📜:</strong> Dailies and weeklies from Shattrath sending players back into Heroic Classic content for Badges and reputation.</li>
+                        <li class="p-3 bg-black/20 rounded"><strong>World PvP Invasions 🔥:</strong> Server-wide demonic and Scourge invasions in classic contested zones, rewarding Honor and unique PvP items.</li>
+                    </ul>
+                `
+            },
+            {
+                title: "Paragon Reputations & Faction Revival 🌟",
+                icon: "inv_misc_wow_tbc_reputation_token",
+                content: `
+                    <p class="mb-4 text-sm text-gray-400">To keep old-world factions relevant, a "Paragon" reputation system is introduced. For every 10,000 reputation earned past Exalted, players receive a unique Paragon Cache containing themed rewards.</p>
+                    <div class="grid md:grid-cols-2 gap-4 text-xs">
+                        <div><strong class="text-amber-300">Argent Dawn:</strong> Shadow Resist patterns, Spectral Charger mount.</div>
+                        <div><strong class="text-amber-300">Thorium Brotherhood:</strong> Fire Resist patterns, advanced repair bot schematics.</div>
+                        <div><strong class="text-amber-300">Cenarion Circle:</strong> Nature Resist patterns, cosmetic enchants, pet.</div>
+                        <div><strong class="text-amber-300">Zandalar Tribe:</strong> Unique food/flask recipes, cosmetic ZG armor.</div>
+                    </div>
+                `
+            },
+            {
+                title: "Further Initiatives for a Living World",
+                icon: "spell_holy_restoration",
+                content: `
+                    <p class="mb-4 text-sm text-gray-400">Adding more layers of repeatable, engaging content to ensure the world always has something new to offer.</p>
+                     <ul class="space-y-4">
+                        <li class="p-3 bg-black/20 rounded"><strong>Weekly Azerothian Dungeon Tour 🗺️:</strong> A high-reward quest from the Bronze Dragonflight to complete a curated set of Heroic Classic dungeons.</li>
+                        <li class="p-3 bg-black/20 rounded"><strong>Class Heritage Quests 🎓:</strong> New questlines from classic trainers that delve into your class lore, rewarding unique cosmetic tabards or spell glyphs.</li>
+                    </ul>
+                `
+            }
+        ];
+
+        const endgameGrid = document.getElementById('endgame-grid');
+        endgameData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card p-6 expandable-card';
+            card.innerHTML = `
+                <details>
+                    <summary>
+                        <div class="flex items-center">
+                            <img src="https://wow.zamimg.com/images/wow/icons/large/${item.icon}.jpg" class="w-8 h-8 rounded-lg mr-4" alt="Icon">
+                            <h4 class="font-bold text-xl text-white font-header">${item.title}</h4>
+                        </div>
+                        <span class="arrow text-2xl">▼</span>
+                    </summary>
+                    <div class="details mt-4 border-t border-gray-700/50 pt-4">
+                        ${item.content}
+                    </div>
+                </details>
+            `;
+            endgameGrid.appendChild(card);
+            
+            const details = card.querySelector('details');
+            details.addEventListener('toggle', (event) => {
+                 if (details.open) {
+                    card.classList.add('open');
+                } else {
+                    card.classList.remove('open');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

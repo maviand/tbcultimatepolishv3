@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Paladin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #dcdcdc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt06a344d565251b3a/60246215886aa80b9c394a50/paladin_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #1a1a1a 5%, rgba(26, 26, 26, 0.7) 50%, rgba(26, 26, 26, 0.5) 100%);
+        }
+        .glow-gold {
+            text-shadow: 0 0 10px #ffeea0, 0 0 15px #ffd700, 0 0 20px #ffc400;
+        }
+        .glow-blue {
+            text-shadow: 0 0 8px #93c5fd, 0 0 12px #60a5fa, 0 0 16px #3b82f6;
+        }
+        .glow-red {
+            text-shadow: 0 0 8px #fca5a5, 0 0 12px #f87171, 0 0 16px #ef4444;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(30, 26, 20, 0.6);
+            border: 1px solid #78350f;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #f59e0b;
+        }
+        h3 {
+            color: #f59e0b;
+            border-bottom: 1px solid #9a3412;
+            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .spec-icon {
+            filter: grayscale(20%) brightness(1.1);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.3);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #d97706;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item:hover {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-gold">The Silver Hand</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-amber-200">A Redesign of the Paladin Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                The Light does not waver. It does not falter. We channel its divine power to reforge its chosen champions, ensuring that whether they stand as a bastion of protection, a beacon of hope, or an instrument of righteous fury, their purpose is clear and their might is absolute.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-amber-400">Faith, Fury, and Fortitude</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Paladin's fantasy in The Burning Crusade was fractured. Holy and Protection were cornerstones of raiding, while Retribution was a legend in its own right—for all the wrong reasons. Our philosophy is to elevate every calling, making each specialization a powerful and desirable embodiment of the Light's will.
+            </p>
+        </section>
+
+        <!-- Holy Paladin -->
+        <section id="holy" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_holybolt.jpg" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-gold">Holy 🙏</h2>
+                        <p class="dps-target dps-neutral">Target: Increase Healing Flexibility & Throughput</p>
+                        <p class="text-lg text-gray-300 mt-2">The steadfast bastion of light, focusing immense power to prevent death. We grant them new tools to extend their grace beyond a single target, becoming true beacons of hope for the entire raid.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Increased Throughput:</strong>
+                            <p class="change-desc">Holy Shock's healing is increased and its cooldown reduced. Key talents like Illumination and Holy Guidance are buffed to improve mana return and spell power scaling.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Light of the Martyr:</strong>
+                            <p class="change-desc">An optional talent providing a powerful, instant emergency heal at the cost of the Paladin's own health—a true sacrifice for the Light.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item">
+                             <strong class="change-title">Modern Ability: Aura Mastery:</strong>
+                            <p class="change-desc">A new talent that empowers the Paladin's active Aura for a short duration, providing powerful situational utility like interrupt immunity or increased damage reduction.</p>
+                        </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Guardian Spirit:</strong>
+                            <p class="change-desc">A powerful single-target save. Increases healing received and if the target would die, the spirit sacrifices itself to heal them for 50% max health.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Protection Paladin -->
+        <section id="protection" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_paladin_shieldofthetemplar.jpg" alt="Protection Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-blue">Protection 🛡️</h2>
+                        <p class="dps-target dps-neutral">Target: Enhance Survivability & Group Utility</p>
+                        <p class="text-lg text-gray-300 mt-2">The divine fortress, drawing strength from the blows of their enemies. We reinforce their shield and bolster their command, making them an unyielding anchor in any battle.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Bolstered Threat & Utility:</strong>
+                            <p class="change-desc">Avenger's Shield cooldown is reduced and its silence duration increased. Hammer of the Righteous and Blessing of Sanctuary are buffed to improve threat and survivability.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Empowered Auras:</strong>
+                            <p class="change-desc">Improved Devotion Aura now provides a passive spell resistance bonus to the party, adding a layer of magical mitigation to their physical defense.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Ardent Defender:</strong>
+                            <p class="change-desc">This talent is reworked into a "cheat death" mechanic. An attack that would kill you is negated, reducing you to 15% health instead. A true last stand.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Capstone: Guardian of Ancient Kings:</strong>
+                            <p class="change-desc">A new 41-point talent. Summon a spirit guardian for 12 seconds that reduces damage taken by the Paladin and nearby allies. A powerful personal and group defensive cooldown.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Retribution Paladin -->
+        <section id="retribution" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_avengingwrath.jpg" alt="Retribution Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-red">Retribution ⚔️</h2>
+                         <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Mechanics)</p>
+                         <p class="text-lg text-gray-300 mt-2">The holy warrior, judging foes with righteous fury. We fix their mechanical flaws, address their mana issues, and unleash their potential to be a true credit to the team, not just a buff.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Reliable Seals & Judgements:</strong>
+                            <p class="change-desc">Seal of Command procs are normalized for consistency and scale better. Judgements now refresh Seals automatically, a massive quality-of-life improvement.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Mana Management Solution:</strong>
+                            <p class="change-desc">Key abilities have their mana costs reduced through talents, and Judgement of the Wise's mana return is increased, finally addressing the spec's chronic mana starvation.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Divine Storm:</strong>
+                            <p class="change-desc">This iconic talent replaces Repentance (which becomes baseline), hitting nearby enemies and healing allies. This provides Retribution with desperately needed AoE damage and cleave healing.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Streamlined "Hand" System:</strong>
+                            <p class="change-desc">Short-term blessings (Freedom, Protection, etc.) are converted to a "Hand" system, simplifying buff management and allowing for more tactical application in combat.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+            this.color = 'rgba(245, 158, 11, 0.5)'; // Paladin Gold
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

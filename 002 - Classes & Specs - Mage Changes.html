@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Mage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d0d12;
+            color: #c8c8d0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt30a5c78b64933930/602462153139360c733633e7/mage_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #0d0d12 5%, rgba(13, 13, 18, 0.6) 50%, rgba(13, 13, 18, 0.4) 100%);
+        }
+        .glow-gold {
+            text-shadow: 0 0 8px #ffd700, 0 0 12px #ffc400, 0 0 16px #ffae00;
+        }
+        .glow-purple {
+            text-shadow: 0 0 8px #a78bfa, 0 0 12px #8b5cf6, 0 0 16px #7c3aed;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(24, 18, 30, 0.6);
+            border: 1px solid #583a4f;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: #a78bfa;
+        }
+        .btn-stone {
+            background: linear-gradient(145deg, #3a3a42, #2c2c32);
+            border: 2px solid #5a4a2f;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.05);
+            color: #e0c896;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .btn-stone:hover {
+            background: linear-gradient(145deg, #4c4c54, #3a3a42);
+            border-color: #ffc400;
+            color: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.1), 0 0 15px #ffc400;
+            transform: translateY(-2px) scale(1.02);
+        }
+        h3 {
+            color: #c084fc;
+            border-bottom: 1px solid #6b21a8;
+            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .spec-icon {
+            filter: grayscale(30%) brightness(1.2);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.4);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #8b5cf6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d8b4fe;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-purple">The Arcane Artificer</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-violet-300">A Redesign of the Mage Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                The Kirin Tor opens its archives. We peer into the foundational energies of the Mage, refining their mastery over Arcane, Fire, and Frost. Each specialization is polished to not only be a weapon of immense power, but a unique and compelling path of study.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-violet-400">Power, Precision, and Purpose</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Mage is the quintessential caster, a glass cannon of devastating potential. Our philosophy is to sharpen the identity of each school of magic. Arcane becomes more dynamic, Fire more explosive, and Frost a viable threat in all content, ensuring the Mage is always a master of their chosen element.
+            </p>
+        </section>
+
+        <!-- Arcane Mage -->
+        <section id="arcane" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_arcaneintellect.jpg" alt="Arcane Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300 glow-purple">Arcane 🔮</h2>
+                        <p class="dps-target dps-nerf">Target DPS Tune: -0-4% (Focus on QoL/Rotation)</p>
+                        <p class="text-lg text-gray-300 mt-2">The high-risk, high-reward master of raw magic. We introduce more dynamism and control, transforming the spec from a static turret into a cunning temporal weaver.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Arcane Blast Mana Scaling:</strong>
+                            <p class="change-desc">The stacking mana cost penalty is reduced, and Evocation's cooldown is shortened, making mana management less punishing and more strategic.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Arcane Tree Refinement:</strong>
+                            <p class="change-desc">Lackluster talents are consolidated or improved, such as allowing Improved Arcane Missiles to also reduce spell pushback, creating more meaningful talent choices.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item">
+                             <strong class="change-title">Modern Ability: Arcane Barrage:</strong>
+                            <p class="change-desc">A new instant-cast talent that provides much-needed mobile damage and a way to strategically reset Arcane Blast stacks without halting DPS.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Temporal Shield:</strong>
+                            <p class="change-desc">A powerful defensive cooldown that absorbs damage for a short duration and then heals the Mage back, rewarding skillful timing to negate massive hits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Fire Mage -->
+        <section id="fire" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_fire_flamebolt.jpg" alt="Fire Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300 glow-gold">Fire 🔥</h2>
+                        <p class="dps-target dps-buff">Target: Improve Rotational Dynamics & Burst</p>
+                        <p class="text-lg text-gray-300 mt-2">The joyful pyromaniac who revels in the inferno. We ignite their potential with dynamic procs and explosive cooldowns, making them masters of chained critical strikes.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Ignite Without "Munching":</strong>
+                            <p class="change-desc">The Ignite DoT is fixed to "roll over." New crits now add their damage to the existing Ignite, preventing lost damage and rewarding high crit rates.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Living Bomb Becomes Baseline:</strong>
+                            <p class="change-desc">This iconic DoT that explodes on expiration is now a core ability, giving Fire a more engaging AoE and multi-dotting playstyle from the start.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Hot Streak:</strong>
+                            <p class="change-desc">Scoring two consecutive crits makes your next Pyroblast instant! This adds an exhilarating, reactive element to the rotation, turning good luck into massive damage.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Combustion:</strong>
+                            <p class="change-desc">A new cooldown that combines all active Fire DoTs on a target into a single, super-powered DoT for incredible, controlled burst damage based on your setup.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Meteor:</strong>
+                            <p class="change-desc">Call down a meteor from the heavens to strike a target location, dealing heavy AoE damage and leaving a burning patch of ground. An epic, impactful nuke.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Frost Mage -->
+        <section id="frost" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_frost_frostbolt02.jpg" alt="Frost Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300 glow-blue">Frost ❄️</h2>
+                         <p class="dps-target dps-buff">Target: Full PvE Raid Viability</p>
+                         <p class="text-lg text-gray-300 mt-2">The master of control, shattering frozen foes. We elevate Frost from a PvP niche to a fully viable PvE specialization, armed with unique boss damage tools and engaging mechanics.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes & Buffs 🧊</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Fingers of Frost Buff:</strong>
+                            <p class="change-desc">Ice Lance now deals TRIPLE damage (up from double) when consuming a Fingers of Frost charge, making their core "shatter" combo significantly more rewarding.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Improved Proc Rates:</strong>
+                            <p class="change-desc">The base proc chance for Fingers of Frost is increased, leading to a more consistent and engaging rotation with fewer "dry spells."</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Deep Freeze:</strong>
+                            <p class="change-desc">A new capstone talent. Stuns players, but deals MASSIVE damage to stun-immune bosses, giving Frost a reliable, high-damage nuke for raid encounters.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Frozen Orb:</strong>
+                            <p class="change-desc">Launch an orb of swirling ice that travels forward, slowing and damaging all enemies in its path and generating Fingers of Frost charges. A fantastic tool for both AoE and single-target setups.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = Math.random() * 1 - 0.5;
+            this.speedY = Math.random() * 1 - 0.5;
+            this.color = 'rgba(167, 139, 250, 0.4)'; // Arcane Purple
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

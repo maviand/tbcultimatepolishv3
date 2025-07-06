@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lost Legends of Outland</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to supplement Tailwind */
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #0c0a09; /* A very dark, near-black color */
+            color: #e2e8f0; /* Light gray for text */
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(252, 211, 77, 0.4);
+        }
+
+        .cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Parallax-like effect for backgrounds */
+        .section-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Rune styling and hover effect */
+        .rune {
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(252, 211, 77, 0.3);
+            background-color: rgba(17, 24, 39, 0.5);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rune:hover {
+            transform: scale(1.1);
+            border-color: #facc15; /* Brighter gold on hover */
+            box-shadow: 0 0 20px var(--glow-color, #facc15);
+        }
+
+        .rune-svg {
+            width: 50px;
+            height: 50px;
+            stroke: #facc15;
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .rune:hover .rune-svg {
+            filter: drop-shadow(0 0 5px var(--glow-color, #facc15));
+        }
+
+        /* 3D model simulation */
+        .model-image {
+            animation: rotate-subtle 25s linear infinite, float 6s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px var(--glow-color, #facc15));
+            max-width: 80%;
+            margin: auto;
+        }
+
+        @keyframes rotate-subtle {
+            from { transform: rotateY(20deg) rotateX(5deg) translateY(0px); }
+            to { transform: rotateY(-20deg) rotateX(-5deg) translateY(0px); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Quest log styling */
+        .quest-log {
+            background: rgba(15, 23, 42, 0.7);
+            border: 2px solid #334155;
+            border-image: linear-gradient(to bottom right, #ca8a04, #4a044e, #044e4a) 1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .quest-step {
+            opacity: 0.5;
+            transition: all 0.5s ease-in-out;
+            max-height: 50px;
+            overflow: hidden;
+            border-left: 4px solid #475569; /* Dimmed border */
+        }
+
+        .quest-step.active {
+            opacity: 1;
+            max-height: 500px; /* Allow it to expand */
+            border-left: 4px solid var(--glow-color, #facc15);
+        }
+
+        .quest-step.completed {
+            opacity: 0.4;
+            text-decoration: line-through;
+            border-left: 4px solid #16a34a; /* Green for completed */
+        }
+        
+        .quest-step.completed .quest-title {
+            text-decoration: line-through;
+        }
+        
+        .quest-step.active .quest-title::before {
+            content: '► ';
+            color: var(--glow-color, #facc15);
+        }
+
+        /* Modal styling */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        
+        .tooltip-stats {
+            background-color: rgba(10, 5, 20, 0.8);
+            border: 1px solid #4a044e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .tooltip-stats .stat-line {
+            color: #ffffff;
+        }
+        .tooltip-stats .stat-line.legendary {
+            color: #ff8000; /* Legendary Orange */
+        }
+        .tooltip-stats .stat-line.equip {
+            color: #1eff00; /* Green Equip text */
+        }
+        .tooltip-stats .stat-line.chance {
+            color: #1eff00;
+        }
+        .tooltip-stats .stat-line.use {
+            color: #1eff00;
+        }
+        .tooltip-stats .stat-line.set-bonus {
+            color: #ffd700; /* Gold Set Bonus text */
+        }
+        
+        /* Map highlighting */
+        .map-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: var(--glow-color, #facc15);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 15px 5px var(--glow-color, #facc15);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+        .map-point.visible {
+            opacity: 1;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(252, 211, 77, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 10px 10px rgba(252, 211, 77, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(252, 211, 77, 0); }
+        }
+
+        /* Gemini feature styling */
+        .backstory-container {
+            background-color: rgba(10, 5, 20, 0.5);
+            border: 1px solid var(--glow-color, #facc15);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            display: none; /* Initially hidden */
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--glow-color, #facc15);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-stone-950">
+
+    <!-- Landing Section -->
+    <section id="landing" class="h-screen w-full flex flex-col items-center justify-center p-4 section-bg" style="background-image: url('https://placehold.co/1920x1080/000000/222222?text=The+Dark+Portal');">
+        <div class="text-center text-white z-10">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl mb-4 text-amber-300">The Lost Legends of Outland</h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto">Rediscover the epic journeys behind Outland's most powerful artifacts. A new era of heroism awaits those brave enough to walk the path of legends.</p>
+        </div>
+
+        <div class="mt-12 md:mt-20 p-6 rounded-lg bg-black/30 backdrop-blur-sm border border-slate-700">
+            <h2 class="text-2xl text-center mb-6 text-amber-400">Choose Your Destiny</h2>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8">
+                <!-- Rune for Vessel -->
+                <div onclick="scrollToSection('vessel')" class="rune" style="--glow-color: #67e8f9;">
+                    <svg class="rune-svg" viewBox="0 0 24 24" style="stroke: #67e8f9;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18"></path><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 9h17"></path><path stroke-linecap="round" stroke-linejoin="round" d="M3.5 15h17"></path></svg>
+                </div>
+                <!-- Rune for Thori'dal -->
+                <div onclick="scrollToSection('thoridal')" class="rune" style="--glow-color: #a78bfa;">
+                    <svg class="rune-svg" viewBox="0 0 24 24" style="stroke: #a78bfa;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"></path></svg>
+                </div>
+                <!-- Rune for Warglaives -->
+                <div onclick="scrollToSection('warglaives')" class="rune" style="--glow-color: #4ade80;">
+                    <svg class="rune-svg" viewBox="0 0 24 24" style="stroke: #4ade80;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0l6.402-6.402a3.75 3.75 0 00-5.304-5.304L4.098 14.6z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M19.902 4.098a3.75 3.75 0 00-5.304 0L8.196 10.5M14.25 18.75l-1.125-1.125"></path></svg>
+                </div>
+                <!-- Rune for Fang -->
+                <div onclick="scrollToSection('fang')" class="rune" style="--glow-color: #f87171;">
+                    <svg class="rune-svg" viewBox="0 0 24 24" style="stroke: #f87171;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 8.682a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"></path></svg>
+                </div>
+                <!-- Rune for Crown -->
+                <div onclick="scrollToSection('crown')" class="rune" style="--glow-color: #c084fc;">
+                    <svg class="rune-svg" viewBox="0 0 24 24" style="stroke: #c084fc;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM18 13.5l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 18l-1.035.259a3.375 3.375 0 00-2.456 2.456L18 21.75l-.259-1.035a3.375 3.375 0 00-2.456-2.456L14.25 18l1.035-.259a3.375 3.375 0 002.456-2.456L18 13.5z"></path></svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legendary Sections -->
+    <div id="legendary-sections">
+        <!-- Vessel of the Forgotten Light -->
+        <section id="vessel" class="min-h-screen w-full py-20 px-4 flex items-center section-bg" style="background-image: url('https://placehold.co/1920x1080/0f172a/67e8f9?text=Blade\'s+Edge+Crystals'); --glow-color: #67e8f9;">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center">
+                    <img src="https://placehold.co/600x600/000000/ffffff?text=Vessel+of+the+Forgotten+Light" alt="Vessel of the Forgotten Light" class="model-image">
+                    <h2 class="text-4xl lg:text-5xl mt-8 text-cyan-200">Vessel of the Forgotten Light</h2>
+                    <p class="text-cyan-100 text-lg mt-2">A fallen Naaru's heart, reborn as a conduit of pure restorative energy.</p>
+                </div>
+                <div class="quest-log p-6 rounded-lg">
+                    <h3 class="text-3xl mb-6 text-cyan-300">Questline: The Echo of X'era</h3>
+                    <ul class="space-y-4 quest-container" data-legendary="vessel">
+                        <!-- Quest steps will be injected by JS -->
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="openModal('vessel')" class="w-full bg-cyan-800/80 hover:bg-cyan-700/80 text-white font-bold py-2 px-4 rounded transition-all">View Details</button>
+                        <button onclick="generateBackstory('vessel')" class="w-full bg-amber-600/80 hover:bg-amber-500/80 text-white font-bold py-2 px-4 rounded transition-all">✨ Generate Backstory</button>
+                    </div>
+                    <div id="backstory-vessel" class="backstory-container" style="--glow-color: #67e8f9;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Thori'dal, the Stars' Fury -->
+        <section id="thoridal" class="min-h-screen w-full py-20 px-4 flex items-center section-bg" style="background-image: url('https://placehold.co/1920x1080/1e1b4b/a78bfa?text=Sunwell+Plateau'); --glow-color: #a78bfa;">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:order-2">
+                    <img src="https://placehold.co/600x600/000000/ffffff?text=Thori\'dal,+the+Stars\'+Fury" alt="Thori'dal, the Stars' Fury" class="model-image">
+                    <h2 class="text-4xl lg:text-5xl mt-8 text-violet-200">Thori'dal, the Stars' Fury</h2>
+                    <p class="text-violet-100 text-lg mt-2">The Sunwell's essence given form, a bow that whispers with the music of the spheres.</p>
+                </div>
+                <div class="quest-log p-6 rounded-lg md:order-1">
+                    <h3 class="text-3xl mb-6 text-violet-300">Questline: The Bow of the Sunwell</h3>
+                    <ul class="space-y-4 quest-container" data-legendary="thoridal">
+                        <!-- Quest steps will be injected by JS -->
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="openModal('thoridal')" class="w-full bg-violet-800/80 hover:bg-violet-700/80 text-white font-bold py-2 px-4 rounded transition-all">View Details</button>
+                        <button onclick="generateBackstory('thoridal')" class="w-full bg-amber-600/80 hover:bg-amber-500/80 text-white font-bold py-2 px-4 rounded transition-all">✨ Generate Backstory</button>
+                    </div>
+                    <div id="backstory-thoridal" class="backstory-container" style="--glow-color: #a78bfa;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Warglaives of Azzinoth -->
+        <section id="warglaives" class="min-h-screen w-full py-20 px-4 flex items-center section-bg" style="background-image: url('https://placehold.co/1920x1080/14532d/4ade80?text=The+Black+Temple'); --glow-color: #4ade80;">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center">
+                    <img src="https://placehold.co/600x600/000000/ffffff?text=Warglaives+of+Azzinoth" alt="Warglaives of Azzinoth" class="model-image">
+                    <h2 class="text-4xl lg:text-5xl mt-8 text-green-200">Warglaives of Azzinoth</h2>
+                    <p class="text-green-100 text-lg mt-2">The Betrayer's own fury, forged into twin blades of devastating power.</p>
+                </div>
+                <div class="quest-log p-6 rounded-lg">
+                    <h3 class="text-3xl mb-6 text-green-300">Questline: The Betrayer's Mark</h3>
+                    <ul class="space-y-4 quest-container" data-legendary="warglaives">
+                        <!-- Quest steps will be injected by JS -->
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="openModal('warglaives')" class="w-full bg-green-800/80 hover:bg-green-700/80 text-white font-bold py-2 px-4 rounded transition-all">View Details</button>
+                        <button onclick="generateBackstory('warglaives')" class="w-full bg-amber-600/80 hover:bg-amber-500/80 text-white font-bold py-2 px-4 rounded transition-all">✨ Generate Backstory</button>
+                    </div>
+                    <div id="backstory-warglaives" class="backstory-container" style="--glow-color: #4ade80;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Echoing Fang -->
+        <section id="fang" class="min-h-screen w-full py-20 px-4 flex items-center section-bg" style="background-image: url('https://placehold.co/1920x1080/7f1d1d/f87171?text=Zul\'Gurub+Wilds'); --glow-color: #f87171;">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center md:order-2">
+                    <img src="https://placehold.co/600x600/000000/ffffff?text=The+Echoing+Fang" alt="The Echoing Fang" class="model-image">
+                    <h2 class="text-4xl lg:text-5xl mt-8 text-red-200">The Echoing Fang</h2>
+                    <p class="text-red-100 text-lg mt-2">The primal fury of Goldrinn, the Wolf God, harnessed in weapons of pure savagery.</p>
+                </div>
+                <div class="quest-log p-6 rounded-lg md:order-1">
+                    <h3 class="text-3xl mb-6 text-red-300">Questline: The Call of the Wolf</h3>
+                    <ul class="space-y-4 quest-container" data-legendary="fang">
+                        <!-- Quest steps will be injected by JS -->
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="openModal('fang')" class="w-full bg-red-800/80 hover:bg-red-700/80 text-white font-bold py-2 px-4 rounded transition-all">View Details</button>
+                        <button onclick="generateBackstory('fang')" class="w-full bg-amber-600/80 hover:bg-amber-500/80 text-white font-bold py-2 px-4 rounded transition-all">✨ Generate Backstory</button>
+                    </div>
+                    <div id="backstory-fang" class="backstory-container" style="--glow-color: #f87171;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crown of the Sunken Star -->
+        <section id="crown" class="min-h-screen w-full py-20 px-4 flex items-center section-bg" style="background-image: url('https://placehold.co/1920x1080/2e1065/c084fc?text=Zangarmarsh+Depths'); --glow-color: #c084fc;">
+            <div class="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+                <div class="text-center">
+                    <img src="https://placehold.co/600x600/000000/ffffff?text=Crown+of+the+Sunken+Star" alt="Crown of the Sunken Star" class="model-image">
+                    <h2 class="text-4xl lg:text-5xl mt-8 text-purple-200">Crown of the Sunken Star</h2>
+                    <p class="text-purple-100 text-lg mt-2">Cosmic power from a fallen star, granting dominion over the arcane and the abyss.</p>
+                </div>
+                <div class="quest-log p-6 rounded-lg">
+                    <h3 class="text-3xl mb-6 text-purple-300">Questline: The Abyss of the Mind</h3>
+                    <ul class="space-y-4 quest-container" data-legendary="crown">
+                        <!-- Quest steps will be injected by JS -->
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <button onclick="openModal('crown')" class="w-full bg-purple-800/80 hover:bg-purple-700/80 text-white font-bold py-2 px-4 rounded transition-all">View Details</button>
+                        <button onclick="generateBackstory('crown')" class="w-full bg-amber-600/80 hover:bg-amber-500/80 text-white font-bold py-2 px-4 rounded transition-all">✨ Generate Backstory</button>
+                    </div>
+                    <div id="backstory-crown" class="backstory-container" style="--glow-color: #c084fc;"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Outland Map Section -->
+    <footer class="py-12 bg-stone-950 border-t border-slate-800">
+        <div class="container mx-auto text-center">
+            <h2 class="text-4xl text-amber-300 mb-6">The Theater of Legends</h2>
+            <div id="map-container" class="relative w-full max-w-4xl mx-auto aspect-video rounded-lg overflow-hidden border-2 border-amber-800/50">
+                <img src="https://static.wikia.nocookie.net/wowpedia/images/e/e9/Chronicle_Map_of_Outland.jpg/revision/latest" alt="Map of Outland" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/000000/333333?text=Map+of+Outland';">
+                <!-- Map points will be dynamically shown here -->
+                <div id="map-point-vessel" class="map-point" style="top: 35%; left: 60%; --glow-color: #67e8f9;"></div>
+                <div id="map-point-thoridal" class="map-point" style="top: 15%; left: 85%; --glow-color: #a78bfa;"></div>
+                <div id="map-point-warglaives" class="map-point" style="top: 75%; left: 25%; --glow-color: #4ade80;"></div>
+                <div id="map-point-fang" class="map-point" style="top: 65%; left: 45%; --glow-color: #f87171;"></div>
+                <div id="map-point-crown" class="map-point" style="top: 50%; left: 15%; --glow-color: #c084fc;"></div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Modal for Loremaster's Notes -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="fixed inset-0 modal-backdrop" onclick="closeModal()"></div>
+        <div class="relative w-full max-w-2xl bg-slate-900 border-2 border-amber-400/50 rounded-lg shadow-2xl shadow-amber-500/10 p-6">
+            <h3 id="modal-title" class="text-3xl mb-4 text-amber-300"></h3>
+            <div id="modal-content" class="text-slate-300 space-y-4 max-h-[70vh] overflow-y-auto pr-4">
+            </div>
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Data for quests, lore, and stats
+        const legendaryData = {
+            vessel: {
+                title: "Vessel of the Forgotten Light",
+                quests: [
+                    { title: "The Dimmed Crystal", description: "Acquire the Dimmed Naaru Crystal from the Shattered Halls or Black Temple." },
+                    { title: "A Light in the Darkness", description: "Bring the crystal to A'dal in Shattrath to learn of its origin." },
+                    { title: "The Path of the Vindicator", description: "Cleanse the corrupted holy sites of Karabor, Auchindoun, and Farahlon." },
+                    { title: "The Shadow's Grasp", description: "Defend the crystal from a Shadow Council assault in a challenging solo scenario." },
+                    { title: "The Focusing Lens", description: "Craft a lens from Tears of Elune, a Sun-Kissed Sapphire, and a Khorium Core." },
+                    { title: "The Heart of the Mountain", description: "Venture into a hidden cave in Blade’s Edge to find the Heart of X'era." },
+                    { title: "The Unshackling", description: "With a 5-player group, defeat the void entity Mal'gath the Unshackled." },
+                    { title: "The Vessel of Light", description: "With the Heart freed, forge the crystal and lens into the legendary mace." },
+                ],
+                lore: "The Draenei's flight from Argus was a tragedy of cosmic scale. Not all of the benevolent Naaru who guided them survived the journey. X'era, a prime Naaru of immense compassion, fell in the Twisting Nether, its fractured form coming to rest in the shattered wastes of Outland. For millennia, its light has dimmed, a beacon of hope nearly extinguished. This quest is a pilgrimage to reclaim that lost light, to race against the Shadow Council who would see it twisted into a weapon of despair, and to restore a forgotten pillar of faith.",
+                stats: [
+                    { class: 'legendary', text: 'Vessel of the Forgotten Light' },
+                    { class: 'stat-line', text: 'Legendary One-Hand Mace' },
+                    { class: 'stat-line', text: '74 - 138 Damage (Speed 1.80)' },
+                    { class: 'stat-line', text: '(58.9 damage per second)' },
+                    { class: 'stat-line', text: '+45 Intellect' },
+                    { class: 'stat-line', text: '+38 Stamina' },
+                    { class: 'stat-line', text: '+50 Spirit' },
+                    { class: 'equip', text: 'Equip: Increases healing done by spells and effects by up to 355.' },
+                    { class: 'equip', text: 'Equip: Restores 15 mana per 5 sec.' },
+                    { class: 'chance', text: "Chance on Heal: Your direct healing spells have a chance to imbue your target with X'era's Favor, storing 15% of all your overhealing on that target for 10 seconds. When X'era's Favor expires or the target takes damage, the stored healing is released, healing up to 3 nearby allies." },
+                ]
+            },
+            thoridal: {
+                title: "Thori'dal, the Stars' Fury",
+                quests: [
+                    { title: "The Sun-Spark", description: "Obtain the Sun-Spark from the defeated Kil'jaeden in the Sunwell Plateau." },
+                    { title: "An Ancient Design", description: "Find the schematic for Thori'dal, held by an ancient spirit within the Sunwell's antechamber." },
+                    { title: "The Stave of Stars", description: "Craft a stave from Stardust Motes of Netherstorm and the Heartwood of an Ancient from Mount Hyjal." },
+                    { title: "The Dragon-Sinew Bowstring", description: "Acquire Perfect Sinew from Razorgore and have it woven by the dragon Theresiana." },
+                    { title: "The Trial of a Hundred Targets", description: "Prove your mastery in a challenging solo scenario on the Isle of Quel'Danas." },
+                    { title: "Gathering the Light", description: "Awaken the bow by gathering the Essences of Living, Dying, and Unwavering Light." },
+                    { title: "The Final Anointing", description: "Defend the unenchanted bow from Ethereal Echoes at the heart of the Sunwell." },
+                    { title: "The Stars' Fury", description: "Dip the bow into the Sunwell itself, creating the legendary weapon." },
+                ],
+                lore: "Thori'dal is not a weapon of mortal hands, but a poem written in starlight. When the Sunwell was restored, its energies did not merely heal the Sin'dorei; they resonated with the very fabric of the cosmos. This bow is the ultimate expression of that renewed power. Its creation is a testament to a hunter's bond with the world: the patience to find an ancient design, the skill to hunt legendary beasts for its components, and the purity of heart to have it blessed by the fount of all Sin'dorei magic. To wield it is to command the fury of a star.",
+                stats: [
+                    { class: 'legendary', text: "Thori'dal, the Stars' Fury" },
+                    { class: 'stat-line', text: 'Legendary Bow' },
+                    { class: 'stat-line', text: '148 - 275 Damage (Speed 2.70)' },
+                    { class: 'stat-line', text: '(78.3 damage per second)' },
+                    { class: 'equip', text: "Equip: Thori'dal generates its own ammunition, harnessing the eternal energies of the Sunwell." },
+                ]
+            },
+            warglaives: {
+                title: "Warglaives of Azzinoth",
+                quests: [
+                    { title: "The Warden's Writ", description: "Find the Warden's Writ of Execution on Illidan Stormrage." },
+                    { title: "The Eye of the Assassin", description: "Craft an Eye to track the disguised demon, Xylos the Condemned." },
+                    { title: "The Path of Shadows", description: "Infiltrate the Black Temple in a solo stealth mission to find Xylos's sanctum." },
+                    { title: "The Trial of Fury", description: "Prove your combat prowess by defeating an Echo of the Betrayer in a duel." },
+                    { title: "A Necessary Sacrifice", description: "Destroy Xylos's three hidden phylacteries in SSC, The Eye, and Mount Hyjal." },
+                    { title: "The Unbound Demon", description: "Face and defeat the powerful Xylos in a demanding solo challenge." },
+                    { title: "The Heart of the Condemned", description: "Claim the demonic heart of Xylos, pulsing with chaotic energy." },
+                    { title: "The Forging of Fury", description: "Present the heart to Illidan, who forges it into the legendary Warglaives." },
+                ],
+                lore: "The Illidari creed is simple: all must be sacrificed for the sake of victory. The Warglaives are the ultimate embodiment of this philosophy. They are not merely weapons; they are a mark of absolute dedication, earned through trials that would break lesser mortals. This journey forces a champion to adopt the Betrayer's own methods—stealth, assassination, and overwhelming force—to hunt a demon so powerful even the Wardens could not hold it. Only by proving you can out-hunt the ultimate hunter can you earn the right to wield his iconic blades.",
+                stats: [
+                    { class: 'legendary', text: 'Warglaives of Azzinoth' },
+                    { class: 'stat-line', text: 'Legendary One-Hand Sword Set' },
+                    { class: 'stat-line', text: ' ' },
+                    { class: 'stat-line', text: 'Main Hand:' },
+                    { class: 'stat-line', text: '135 - 251 Damage (Speed 2.80)' },
+                    { class: 'stat-line', text: '(68.9 damage per second)' },
+                    { class: 'stat-line', text: '+22 Agility' },
+                    { class: 'stat-line', text: '+23 Stamina' },
+                    { class: 'equip', text: 'Equip: Improves haste rating by 21.' },
+                    { class: 'equip', text: 'Equip: Increases attack power by 44.' },
+                    { class: 'stat-line', text: ' ' },
+                    { class: 'stat-line', text: 'Off Hand:' },
+                    { class: 'stat-line', text: '96 - 179 Damage (Speed 2.00)' },
+                    { class: 'stat-line', text: '(68.8 damage per second)' },
+                    { class: 'stat-line', text: '+21 Agility' },
+                    { class: 'stat-line', text: '+22 Stamina' },
+                    { class: 'equip', text: 'Equip: Improves haste rating by 21.' },
+                    { class: 'equip', text: 'Equip: Increases attack power by 44.' },
+                    { class: 'stat-line', text: ' ' },
+                    { class: 'set-bonus', text: 'Set (2): Your melee attacks have a chance to increase your haste rating by 450 for 10 sec.' },
+                    { class: 'set-bonus', text: 'Set (2): Increases attack power by 200 against Demons.' },
+                ]
+            },
+            fang: {
+                title: "The Echoing Fang",
+                quests: [
+                    { title: "The Primal Whisper", description: "Obtain the Primal Whisper from The Big Bad Wolf in Karazhan." },
+                    { title: "The Great Hunt", description: "Prove your worth to Hemet Nesingwary by completing the Ultimate Nagrand Safari." },
+                    { title: "Echoes of the Pack", description: "Commune with the spirit of the Wolf God, Goldrinn, at three sacred sites in Azeroth." },
+                    { title: "The Blood of the God", description: "Enter a level 70 Zul'Gurub and defeat the Bloodlord to claim the Untainted Blood of Hakkar." },
+                    { title: "The Trial of the Alpha", description: "Survive a solo trial against the spectral spirits of a Bear, Tiger, and Wolf simultaneously." },
+                    { title: "The Forging of Bone and Sinew", description: "Gather the Perfect Fang from Gruul, the Flawless Claw from Nightbane, and the Unbreakable Hide from Magtheridon." },
+                    { title: "The Blessing of the Packlord", description: "Perform a ritual in Ashenvale and defeat the Corrupted Echo of Goldrinn." },
+                    { title: "The Echoing Fang", description: "Receive the blessing of the true Wolf God, forging your components into legendary weapons." },
+                ],
+                lore: "Before the Titans, before the Elves, there were the Primal Gods. Goldrinn, the great Wolf, was the spirit of the hunt, the embodiment of savagery and fury. Though his physical form is long gone, his echo resonates in the Emerald Dream and calls to the most ferocious champions of the mortal world. To answer the call is to embark on a primal journey, to prove oneself as the alpha predator, and to earn the right to wield weapons blessed by the untamed spirit of the wild itself.",
+                stats: [
+                    { class: 'legendary', text: 'The Echoing Fang' },
+                    { class: 'stat-line', text: 'Legendary One-Hand Fist Weapon / Dagger' },
+                    { class: 'stat-line', text: '112 - 168 Damage (Speed 1.90)' },
+                    { class: 'stat-line', text: '(73.7 damage per second)' },
+                    { class: 'stat-line', text: '+30 Agility' },
+                    { class: 'stat-line', text: '+25 Stamina' },
+                    { class: 'equip', text: 'Equip: Increases attack power by 52.' },
+                    { class: 'equip', text: 'Equip: Improves critical strike rating by 20.' },
+                    { class: 'chance', text: 'Chance on Hit: Your critical strikes have a chance to awaken the Echo of Goldrinn, causing your next 3 melee attacks to also apply a bleed effect that deals 330 damage over 6 seconds. This effect can stack up to 3 times.' },
+                ]
+            },
+            crown: {
+                title: "Crown of the Sunken Star",
+                quests: [
+                    { title: "The Abyssal Pearl", description: "Find the Abyssal Pearl within Serpentshrine Cavern." },
+                    { title: "The Scryer's Apparatus", description: "Work with the Scryers to build a device to locate the source of the pearl's visions." },
+                    { title: "The Pressure of the Deep", description: "Craft a Bathysphere Helm to survive the crushing depths of the Sunken Vault." },
+                    { title: "The Sunken Vault", description: "Navigate a dark, solo underwater maze, hunted by unseen horrors." },
+                    { title: "The Three Glyphs of Warding", description: "Solve three puzzles of light, memory, and navigation to break the vault's seals." },
+                    { title: "The Lure of the Star", description: "Resist the maddening whispers of the Sunken Star as you draw near." },
+                    { title: "The Guardian of the Abyss", description: "Defeat the Lurker Below, a massive horror guarding the star, in a solo encounter." },
+                    { title: "The Crown of Stars", description: "Claim the star and have it set upon your helm, creating the legendary Crown." },
+                ],
+                lore: "The cosmos is vast and filled with wonders and horrors beyond mortal comprehension. Ages ago, a star fell from the sky, not of fire, but of cold, arcane light. It plunged into the deepest trench of Zangarmarsh's hidden ocean, its cosmic radiation twisting the very fabric of thought and reality around it. This is not a quest for glory, but a descent into madness. It is a journey to the silent, crushing abyss to claim a power that was never meant for mortal minds, and to wear the heart of a fallen star as a crown.",
+                stats: [
+                    { class: 'legendary', text: 'Crown of the Sunken Star' },
+                    { class: 'stat-line', text: 'Legendary Cloth Helm' },
+                    { class: 'stat-line', text: '188 Armor' },
+                    { class: 'stat-line', text: '+55 Intellect' },
+                    { class: 'stat-line', text: '+48 Stamina' },
+                    { class: 'equip', text: 'Equip: Improves spell critical strike rating by 35.' },
+                    { class: 'equip', text: 'Equip: Improves spell hit rating by 28.' },
+                    { class: 'equip', text: 'Equip: Increases damage and healing done by magical spells and effects by up to 68.' },
+                    { class: 'use', text: 'Use: Gaze into the abyss, increasing your spell haste by 350 for 12 seconds. When the effect ends, you suffer from Psionic Feedback, silencing you for 2 seconds. (2 Minute Cooldown)' },
+                ]
+            }
+        };
+
+        // Function to scroll to a specific section
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Function to initialize all quest logs
+        function initializeQuestLogs() {
+            const questContainers = document.querySelectorAll('.quest-container');
+            questContainers.forEach(container => {
+                const legendaryId = container.dataset.legendary;
+                const data = legendaryData[legendaryId];
+                if (!data) return;
+
+                data.quests.forEach((quest, index) => {
+                    const step = document.createElement('li');
+                    step.className = 'quest-step p-4 rounded-md';
+                    step.innerHTML = `
+                        <h4 class="quest-title font-bold text-lg cursor-pointer">${index + 1}. ${quest.title}</h4>
+                        <p class="quest-description mt-2 text-sm text-slate-400">${quest.description}</p>
+                    `;
+                    step.style.setProperty('--glow-color', getComputedStyle(document.getElementById(legendaryId)).getPropertyValue('--glow-color'));
+                    
+                    if (index === 0) {
+                        step.classList.add('active');
+                    }
+
+                    step.querySelector('.quest-title').addEventListener('click', () => completeStep(step, container));
+                    
+                    container.appendChild(step);
+                });
+            });
+        }
+
+        // Function to handle quest step completion
+        function completeStep(stepElement, container) {
+            if (stepElement.classList.contains('completed') || !stepElement.classList.contains('active')) {
+                return; // Can't complete a non-active or already completed step
+            }
+
+            stepElement.classList.remove('active');
+            stepElement.classList.add('completed');
+
+            const nextStep = stepElement.nextElementSibling;
+            if (nextStep) {
+                nextStep.classList.add('active');
+            }
+        }
+
+        // Modal functions
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+
+        function openModal(legendaryId) {
+            const data = legendaryData[legendaryId];
+            if (!data) return;
+
+            modalTitle.innerText = `Details: ${data.title}`;
+            
+            let statsHtml = '<div class="tooltip-stats">';
+            data.stats.forEach(stat => {
+                statsHtml += `<p class="stat-line ${stat.class}">${stat.text}</p>`;
+            });
+            statsHtml += '</div>';
+
+            modalContent.innerHTML = `
+                <h4 class="text-2xl text-amber-400 cinzel">Item Properties</h4>
+                ${statsHtml}
+                <h4 class="text-2xl text-amber-400 cinzel mt-6">Loremaster's Notes</h4>
+                <p>${data.lore}</p>
+            `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        // Gemini API Function
+        async function generateBackstory(legendaryId) {
+            const data = legendaryData[legendaryId];
+            if (!data) return;
+
+            const backstoryContainer = document.getElementById(`backstory-${legendaryId}`);
+            backstoryContainer.style.display = 'block';
+            backstoryContainer.innerHTML = '<div class="loader"></div>';
+
+            const prompt = `Write a short, epic backstory (around 150 words) for a fictional World of Warcraft character who completed the difficult quest to acquire the legendary item "${data.title}". Describe their personality, their final trial, and how they felt wielding the item for the first time. The tone should be heroic and mythic.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Left empty as per instructions
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    backstoryContainer.innerHTML = `<h4 class="text-xl text-amber-300 cinzel mb-2">A Hero's Tale</h4><p class="text-slate-300">${text.replace(/\n/g, '<br>')}</p>`;
+                } else {
+                    throw new Error("Invalid response structure from API.");
+                }
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                backstoryContainer.innerHTML = `<p class="text-red-400">Failed to generate backstory. The Nether is turbulent today. Please try again later.</p>`;
+            }
+        }
+
+
+        // Map highlighting with Intersection Observer
+        function initializeMapObserver() {
+            const sections = document.querySelectorAll('#legendary-sections section');
+            
+            const observer = new IntersectionObserver((entries) => {
+                // First, hide all points
+                document.querySelectorAll('.map-point').forEach(p => p.classList.remove('visible'));
+                
+                // Then, show the point for the intersecting element
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        const mapPoint = document.getElementById(`map-point-${id}`);
+                        if(mapPoint) {
+                            mapPoint.classList.add('visible');
+                        }
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+
+
+        // Initialize the page on load
+        window.onload = () => {
+            initializeQuestLogs();
+            initializeMapObserver();
+        };
+    </script>
+</body>
+</html>

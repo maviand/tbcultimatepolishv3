@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Druid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d0d12;
+            color: #c8c8d0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt95e799799484a861/602462150a83690b9e842035/druid_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #0d0d12 5%, rgba(13, 13, 18, 0.6) 50%, rgba(13, 13, 18, 0.4) 100%);
+        }
+        .glow-gold {
+            text-shadow: 0 0 8px #ffd700, 0 0 12px #ffc400, 0 0 16px #ffae00;
+        }
+        .glow-blue {
+            text-shadow: 0 0 8px #00aaff, 0 0 12px #0077cc, 0 0 16px #0055aa;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(18, 18, 24, 0.6);
+            border: 1px solid #4a3a1f;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            border-color: #c89b3c;
+        }
+        .btn-stone {
+            background: linear-gradient(145deg, #3a3a42, #2c2c32);
+            border: 2px solid #5a4a2f;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.05);
+            color: #e0c896;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+        .btn-stone:hover {
+            background: linear-gradient(145deg, #4c4c54, #3a3a42);
+            border-color: #ffc400;
+            color: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.1), 0 0 15px #ffc400;
+            transform: translateY(-2px) scale(1.02);
+        }
+        h3 {
+            color: #c89b3c;
+            border-bottom: 1px solid #5a4a2f;
+            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .spec-icon {
+            filter: grayscale(30%) brightness(1.2);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.4);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #00aaff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item:hover {
+            background-color: rgba(0, 170, 255, 0.1);
+        }
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #a0b0c0;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-gold">The Wild Heart</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-amber-200">A Redesign of the Druid Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                In the fires of the Burning Crusade, nature itself is reforged. We delve into the primal essence of the Druid, polishing their identity to a razor's edge, ensuring every form, every spell, and every roar echoes with purpose across Azeroth and Outland.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-amber-400">Preserving the Core, Unleashing the Power</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Druid is the ultimate hybrid, a master of shapeshifting, capable of filling any role. Our design philosophy honors this flexibility while addressing long-standing issues. We aim to make every specialization—Balance, Feral, and Restoration—not just viable, but desirable and deeply engaging, fulfilling the promise of a true master of the wild.
+            </p>
+        </section>
+
+        <!-- Balance Druid -->
+        <section id="balance" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_nature_starfall.jpg" alt="Balance Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-blue">Balance  बैलेंस</h2>
+                        <p class="dps-target dps-buff">Target DPS Buff: +16-20%</p>
+                        <p class="text-lg text-gray-300 mt-2">The sage of sun and stars, commanding celestial fury. No longer will the Moonkin be shackled by a thirst for mana; they will be a relentless torrent of arcane and nature power.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">The "Oomkin" Problem Solved:</strong>
+                            <p class="change-desc">Dreamstate and Moonglow are merged into a single, potent talent: 'Lunar Guidance,' providing significant mana regeneration and cost reduction. No more gasping for mana mid-fight.</p>
+                        </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">Reliable Eclipse Mechanic:</strong>
+                            <p class="change-desc">A simple, low-RNG version of Eclipse is introduced. Casting Starfire or Wrath consecutively empowers the opposite spell, adding a dynamic rhythm to the rotation.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item">
+                             <strong class="change-title">Modern Ability: Starsurge:</strong>
+                            <p class="change-desc">An instant-cast, high-damage Arcane spell on a short cooldown. It generates 100% threat reduction for the Druid, allowing them to unleash their power without fear.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Solar/Lunar Empowerment:</strong>
+                            <p class="change-desc">A new talent option that enhances the Eclipse mechanic, allowing spells to generate charges that empower others, adding depth for skilled players.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Empowered Moonkin Form:</strong>
+                            <p class="change-desc">The Moonkin aura is enhanced to provide a 3% spell haste buff to the entire raid, solidifying their role as essential caster support.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Feral Druid -->
+        <section id="feral" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_racial_bearform.jpg" alt="Feral Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-gold">Feral 🐾</h2>
+                        <p class="dps-target dps-buff">Target DPS Buff (Cat): +0-4%</p>
+                        <p class="text-lg text-gray-300 mt-2">The primeval shapeshifter, seamlessly adapting between tenacious bear and savage cat. We sharpen both claw and hide, making Feral a master of its chosen form.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Guardian (Bear) Enhancements 🐻</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Thrash:</strong>
+                            <p class="change-desc">A new baseline Bear ability that deals initial physical damage and applies a bleed to all nearby enemies, generating significant multi-target threat on a short cooldown.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Survival Instincts:</strong>
+                            <p class="change-desc">A powerful new talent granting a 50% damage reduction cooldown with two charges. This provides the crucial defensive button Bears need to survive the heaviest blows.</p>
+                        </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">Threat Consistency:</strong>
+                            <p class="change-desc">The Leader of the Pack talent now also grants a 10% threat bonus while in Bear Form, and Mangle's baseline threat is increased, ensuring a solid hold on enemies.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Predator (Cat) Enhancements 😼</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Powershifting Refined:</strong>
+                            <p class="change-desc">The clunky "powershifting" rotation is smoothed out. Shifting into Cat Form now instantly grants 20 energy, making the opener fluid and less punishing.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Savage Roar:</strong>
+                            <p class="change-desc">A new finishing move talent that consumes combo points to grant a 30% physical damage buff. This adds a layer of skilled management to the DPS rotation, rewarding proactive players.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Itemization Fix:</strong>
+                            <p class="change-desc">More leather gear will now include Feral Attack Power, and Agility will provide a higher baseline conversion to FAP, broadening gearing options.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Restoration Druid -->
+        <section id="restoration" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_nature_healingtouch.jpg" alt="Restoration Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300 glow-blue">Restoration 🌱</h2>
+                         <p class="text-lg text-gray-300 mt-2">The nurturing guardian of life, cultivating a garden of healing energies. We empower their ability to react to sudden danger, making them masters of both sustained and burst healing.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes & Buffs 🌿</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Improved Responsiveness:</strong>
+                            <p class="change-desc">Swiftmend's global cooldown is reduced, allowing for quicker reactions. The final bloom from Lifebloom is increased, rewarding the spec's core HoT-stacking gameplay.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Empowered Tree of Life:</strong>
+                            <p class="change-desc">This capstone cooldown is reworked into a temporary transformation that makes Healing Touch instant and reduces mana costs, providing a massive healing surge when needed most.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Throughput Boost:</strong>
+                             <p class="change-desc">Talents like 'Intensity' and 'Empowered Rejuvenation' have their effects increased, boosting overall healing throughput and mana efficiency from critical heals.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Wild Growth:</strong>
+                            <p class="change-desc">A new talent that unleashes a powerful "smart" heal, healing up to 5 of the most injured allies over time. This gives Restoration the group-wide burst heal they desperately needed.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Tactical Swiftmend:</strong>
+                            <p class="change-desc">Consuming a HoT with Swiftmend now provides a secondary tactical benefit, such as leaving a healing patch on the ground or granting a temporary armor buff, making the choice more strategic.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = Math.random() * 1 - 0.5;
+            this.speedY = Math.random() * 1 - 0.5;
+            this.color = 'rgba(200, 155, 60, 0.4)';
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

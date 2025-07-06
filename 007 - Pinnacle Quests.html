@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TBC Pinnacle Quests: The Path of the Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to evoke the TBC aesthetic */
+        body {
+            background-color: #0a0806;
+            background-image: url('https://i.imgur.com/16eMVJv.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: 'Roboto', sans-serif;
+            color: #c7b377;
+        }
+        
+        /* Font similar to WoW's UI font */
+        .font-wow {
+            font-family: 'Cinzel', serif;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        /* Main container styling */
+        .main-container {
+            background-color: rgba(10, 8, 6, 0.85);
+            border: 2px solid #4a4130;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+        }
+        
+        /* Class and Spec Icon Styling */
+        .class-icon, .spec-icon {
+            transition: transform 0.2s ease, filter 0.2s ease;
+            border: 2px solid transparent;
+        }
+
+        .class-icon:hover, .spec-icon:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+        }
+        
+        .class-icon.active {
+            border-color: #f8b700;
+            box-shadow: 0 0 10px #f8b700;
+        }
+
+        .spec-icon.active {
+            border-color: #f8b700;
+            box-shadow: 0 0 10px #f8b700;
+            transform: scale(1.1);
+        }
+        
+        /* Tooltip styling to mimic in-game tooltips */
+        .tooltip {
+            background-color: #0c1014;
+            border: 1px solid #7a7161;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        .tooltip-epic { border-color: #a335ee; }
+        .tooltip-legendary { border-color: #ff8000; }
+        
+        /* Text colors for item quality and stats */
+        .text-epic { color: #a335ee; }
+        .text-legendary { color: #ff8000; }
+        .text-stat { color: #ffffff; }
+        .text-equip { color: #1eff00; }
+        .text-use { color: #1eff00; }
+        .text-cooldown { color: #808080; }
+        .text-flavor { color: #f8b700; }
+        
+        /* Custom button styling */
+        .phase-button {
+            background-color: #2a2115;
+            border: 1px solid #6a6150;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        
+        .phase-button:hover {
+            background-color: #3a3125;
+            border-color: #f8b700;
+        }
+        
+        .phase-button.active {
+            background-color: #4a4130;
+            border-color: #f8b700;
+            color: #f8b700;
+            box-shadow: 0 0 8px #f8b700;
+        }
+
+        /* Quest section styling */
+        .quest-step {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #6a6150;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8">
+
+    <div class="main-container max-w-7xl mx-auto rounded-lg p-4 sm:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="font-wow text-4xl sm:text-5xl lg:text-6xl text-yellow-400 tracking-wider">Pinnacle Quests</h1>
+            <h2 class="font-wow text-2xl sm:text-3xl text-yellow-500 mt-2">The Path of the Master</h2>
+        </header>
+
+        <!-- Introduction -->
+        <p class="text-lg text-center max-w-4xl mx-auto mb-10 leading-relaxed text-gray-300">
+            In the heart of Shattrath City, Archmage Khadgar calls upon the champions of Azeroth. The threats of Outland require a new level of mastery. Undertake a series of trials, a "Pinnacle Quest," to hone your skills, unlock the very essence of your power, and earn a <span class="font-bold text-yellow-300">Soul-Sigil</span> attuned to your destiny.
+        </p>
+
+        <!-- Class & Spec Selection -->
+        <div id="class-selection" class="mb-10">
+            <div id="class-icons-container" class="flex flex-wrap justify-center gap-4 mb-6">
+                <!-- Class icons will be injected here by JS -->
+            </div>
+            <div id="spec-icons-container" class="flex flex-wrap justify-center gap-4 min-h-[68px]">
+                <!-- Spec icons will be injected here by JS -->
+            </div>
+        </div>
+
+        <!-- Main Content Display -->
+        <main id="main-content" class="grid grid-cols-1 lg:grid-cols-5 gap-8 min-h-[500px]">
+            <!-- Default message -->
+            <div id="default-message" class="lg:col-span-5 flex items-center justify-center h-full">
+                <p class="font-wow text-2xl text-gray-500">Select a Specialization to begin your journey.</p>
+            </div>
+            
+            <!-- Questline will be injected here -->
+            <div id="quest-container" class="lg:col-span-3 hidden"></div>
+            
+            <!-- Reward will be injected here -->
+            <div id="reward-container" class="lg:col-span-2 hidden"></div>
+        </main>
+    </div>
+
+    <script>
+        // --- DATA STORE ---
+        // All quest and item data is stored here. This makes it easy to manage and update.
+        const pinnacleData = {
+            warrior: {
+                name: "Warrior",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_warrior.jpg',
+                specs: {
+                    arms: {
+                        name: "Arms",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_warrior_savageblow.jpg',
+                        questline: {
+                            title: "The Master of the Blade",
+                            description: "The path of the Arms warrior is one of precision, timing, and overwhelming force at the decisive moment. Your trials will test your mastery over your weapon and your ability to exploit an enemy's weakness.",
+                            steps: [
+                                "<strong>Phase 1 - A Test of Steel:</strong> Khadgar sends you to a solo scenario in the Ring of Trials in Nagrand. You will face a series of three ethereal weaponsmasters. You cannot simply out-gear them; you must use Charge/Intercept at the right times, Disarm them during their most powerful abilities, and time your Overpowers after their dodges to win.",
+                                "<strong>Phase 2 - Sharpened by Fel Iron:</strong> You must gather 20x Fel Iron Ore, 5x Primal Fire, and a `Vial of Vashj's Corrupted Water` from Serpentshrine Cavern. A master blacksmith in Shattrath will forge a `Fel-Tempered Whetstone`. You must then travel to the Bone Wastes of Terokkar Forest, find a specific elite Bone-Gnasher, and use the whetstone. This will grant the creature a powerful bleed aura. You must defeat it before the bleed overwhelms you, testing your damage throughput.",
+                                "<strong>Phase 3 - The Unstoppable Force:</strong> From Archimonde in Hyjal Summit, you must recover the `Grip of the World-Breaker`. You will take this to the Black Temple, where you must find a dormant Fel Cannon. Using the Grip, you will activate the cannon's targeting sequence. You have 60 seconds to destroy the focusing crystal before the cannon fires, a pure DPS race requiring perfect execution.",
+                                "<strong>Phase 4 - The Duelist's Soul:</strong> With a `Shard of the Sunwell` from Kil'jaeden, you will face a final trial. You will be transported to a spectral arena to face an echo of Grom Hellscream. This is a pure duel. He will use Bladestorm, which must be kited, and Mortal Strike, which must be endured. You must use all of your abilities to defeat this legendary blademaster."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Blademaster",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Strength", equip: "Your Mortal Strike has a 10% chance to make your next Slam instant." },
+                                { quality: 'epic', level: 128, stats: "+50 Strength", equip: "Your Mortal Strike has a 15% chance to make your next Slam instant.", use: "Instantly grants you 20 rage.", cooldown: "2 min cooldown" },
+                                { quality: 'epic', level: 141, stats: "+60 Strength<br>+25 Critical Strike Rating", equip: "Your Mortal Strike has a 20% chance to make your next Slam instant.", use: "Instantly grants you 30 rage.", cooldown: "2 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+75 Strength<br>+35 Critical Strike Rating", equip: "Your Mortal Strike has a 25% chance to make your next Slam instant.<br>Your critical strikes with weapons have a chance to grant you `Decisive Moment`, making your next Mortal Strike cost no rage and deal 20% additional damage." }
+                            ]
+                        }
+                    },
+                    fury: {
+                        name: "Fury",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_warrior_unrelentingassault.jpg',
+                        questline: {
+                            title: "The Unrelenting Berserker",
+                            description: "The Fury warrior is a whirlwind of destruction, a master of dual-wielding fury who thrives in the heart of battle. Your trials are about sustained aggression and managing your rage.",
+                            steps: [
+                                "<strong>Phase 1 - The Endless Onslaught:</strong> In a solo scenario, you are placed in the center of the Circle of Blood in Blade's Edge. You will be swarmed by endless waves of weak, but numerous, demons. The goal is to survive for 3 minutes. You must manage your rage, use Sweeping Strikes and Whirlwind effectively, and time your Bloodthirst for healing to stay alive.",
+                                "<strong>Phase 2 - Heart of the Rage:</strong> You must craft a `Blood-Soaked Charm` using 10x Primal Life, 10x Primal Shadow, and `Kael'thas's Verdant Sphere`. You must take this charm to the Throne of Kil'jaeden in Hellfire Peninsula and use it on yourself. You will be afflicted with `Burning Blood`, a debuff that constantly drains your health but massively increases your rage generation. You must defeat the summoned elite demon before you die.",
+                                "<strong>Phase 3 - The Eye of the Storm:</strong> You must obtain `Illidan's Burning Resolve` from the Black Temple. You will take this to the Netherstorm, to the top of Tempest Keep. There, you must survive a 2-minute onslaught from ethereal phantoms that phase in and out of reality, testing your ability to maintain uptime and target switch.",
+                                "<strong>Phase 4 - The Berserker's Zenith:</strong> With a `Shard of the Sunwell`, you will face a final trial against a manifestation of your own rage. This creature will grow stronger the more rage you have. You must carefully balance generating enough rage to do damage while spending it quickly with Heroic Strike and Bloodthirst to prevent the echo from becoming too powerful."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Unrelenting",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Strength", equip: "Your melee attacks have a chance to grant a stack of `Unrelenting Fury`, increasing your Attack Power by 15 for 10 sec. Stacks up to 5 times." },
+                                { quality: 'epic', level: 128, stats: "+50 Strength<br>+20 Haste Rating", equip: "Your melee attacks have a chance to grant a stack of `Unrelenting Fury`, increasing your Attack Power by 20 for 10 sec. Stacks up to 5 times." },
+                                { quality: 'epic', level: 141, stats: "+60 Strength<br>+30 Haste Rating", equip: "Your melee attacks have a chance to grant a stack of `Unrelenting Fury`, increasing your Attack Power by 25 for 10 sec. Stacks up to 10 times." },
+                                { quality: 'legendary', level: 159, stats: "+75 Strength<br>+40 Haste Rating", equip: "Your melee attacks have a chance to grant a stack of `Unrelenting Fury`, increasing your Attack Power by 30 for 10 sec. Stacks up to 10 times.<br>When you activate Death Wish or Recklessness, you gain 300 Armor Penetration for the duration." }
+                            ]
+                        }
+                    },
+                    protection: {
+                        name: "Protection",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_warrior_defensivestance.jpg',
+                        questline: {
+                            title: "The Unbreakable Bulwark",
+                            description: "The Protection warrior is a shield, a guardian who stands between their allies and certain death. Your trials are about control, survival, and tactical defense.",
+                            steps: [
+                                "<strong>Phase 1 - The Unwavering Protector:</strong> In a solo scenario, you must protect a vulnerable Mag'har orphan in Nagrand from waves of ravagers. You must use Taunt, Mocking Blow, and Intervene to keep the beasts off the child. Some will cast debilitating poisons that must be interrupted with Shield Bash. The child's survival, not your own, determines success.",
+                                "<strong>Phase 2 - The Adamant Shield:</strong> You must have a Blacksmith craft an `Adamantite Shield Spike` from 10x Adamantite Bars and 5x Primal Earth. You must also obtain `The Tidestone of Golganneth` from the Lurker Below in SSC. You must take these to the entrance of Gruul's Lair and challenge a 'Gronn-Lord's Chosen'. This elite giant will periodically attempt to shatter your shield; you must use Shield Block at the perfect moment to reflect the damage and weaken him.",
+                                "<strong>Phase 3 - Holding the Tide:</strong> In the Battle for Mount Hyjal, you must plant a `Steadfast Banner` (given by Khadgar) near the Horde/Alliance base before the final wave. This summons an elite Dreadlord, 'Mal'ganis's Echo,' which only you can taunt. You must tank this Dreadlord, using all your cooldowns to survive its powerful shadow attacks and fears, while the raid defeats Archimonde.",
+                                "<strong>Phase 4 - The Last Bastion:</strong> With a `Shard of the Sunwell`, you will make your final stand. On the Isle of Quel'Danas, you must stand before a demonic portal. For 3 minutes, an unending stream of demons will pour out. You must use every tool—Thunder Clap, Demo Shout, Shield Wall, Last Stand, consumables—to hold the line and prevent any from passing you."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Bulwark",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Stamina", equip: "Increases your block value by 50." },
+                                { quality: 'epic', level: 128, stats: "+55 Stamina", equip: "Increases your block value by 70 and your defense rating by 20." },
+                                { quality: 'epic', level: 141, stats: "+65 Stamina", equip: "Increases your block value by 90 and your defense rating by 30.", use: "For the next 10 sec, blocking an attack generates 5 rage.", cooldown: "2 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+75 Stamina", equip: "Increases your block value by 110 and your defense rating by 40.<br>Blocking an attack has a chance to make your next Shield Slam a guaranteed critical strike.", use: "Resets the cooldown of your Shield Wall.", cooldown: "5 min cooldown" }
+                            ]
+                        }
+                    }
+                }
+            },
+            paladin: {
+                name: "Paladin",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_paladin.jpg',
+                specs: {
+                    holy: {
+                        name: "Holy",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_holybolt.jpg',
+                        questline: {
+                            title: "The Beacon of Light",
+                            description: "The Holy paladin is a steadfast font of healing, a conduit for the Light's restorative power. Your trials will test your mana efficiency, triage healing, and unwavering faith under pressure.",
+                            steps: [
+                                "<strong>Phase 1 - The Light's Judgment:</strong> Khadgar sends you to a purified glade in Terokkar Forest. Here, a group of 4 friendly NPCs are afflicted with a stacking shadow DoT. You must keep all 4 alive for 2 minutes. One will randomly take massive spike damage, forcing you to use Divine Favor and Holy Shock. You must manage your mana and use Blessing of Protection and Divine Shield on yourself to cleanse stacks and continue healing.",
+                                "<strong>Phase 2 - Quenching the Soul:</strong> You must obtain a `Tainted Core of Water` from Morogrim Tidewalker in SSC and an `Ashes of the Phoenix` from Al'ar in TK. You will combine these to create a `Purified Soul-Totem`. You must take this to the Skettis region and find an NPC wracked by shadow magic. You must channel a heal on him for 1 minute straight, during which time Arakkoa spirits will attack you. You must use stuns, consecration, and your shield to survive without interrupting your channel.",
+                                "<strong>Phase 3 - The Redeemed Soul:</strong> You must obtain a `Fragment of the Betrayer's Torment` from Illidan Stormrage. You take this to the Altar of Sha'tar in Shadowmoon Valley and use it to summon the spirit of a fallen paladin. This is a healing challenge where the spirit fights a demon. You cannot heal the spirit directly. Instead, you must heal the demon, which transfers the healing to the paladin at 50% effectiveness, testing your raw healing output and mana management.",
+                                "<strong>Phase 4 - The Sun's Embrace:</strong> With a `Shard of the Sunwell`, you face a final trial. You stand with an echo of Turalyon as he defends a point against an endless wave of demons. You must keep him alive. He will be afflicted with mortal wounds, fears, and stuns that you must cleanse. The intensity ramps up, forcing you to use every cooldown from Lay on Hands to Divine Illumination perfectly."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Beacon",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Intellect", equip: "Increases healing done by Holy Light by 55." },
+                                { quality: 'epic', level: 128, stats: "+45 Intellect<br>+25 Spirit", equip: "Increases healing done by Holy Light by 77.<br>Your Holy Shock criticals refund 50% of their mana cost." },
+                                { quality: 'epic', level: 141, stats: "+50 Intellect<br>+30 Spirit<br>+22 Mp5", equip: "Increases healing done by Holy Light and Flash of Light by 88.<br>Your Holy Shock criticals refund 50% of their mana cost." },
+                                { quality: 'legendary', level: 159, stats: "+60 Intellect<br>+35 Spirit<br>+28 Mp5", equip: "Increases healing done by Holy Light and Flash of Light by 110.<br>When you cast Judgement of Light, you gain `Divine Purpose`, reducing the cast time of your next Holy Light by 0.5 sec." }
+                            ]
+                        }
+                    },
+                    protection: {
+                        name: "Protection",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_devotionaura.jpg',
+                        questline: {
+                            title: "The Aegis of Righteousness",
+                            description: "The Protection paladin is a holy juggernaut, using sacred shields and righteous fury to hold the attention of evil. Your trials are about multi-target control, spell damage mitigation, and sustained threat.",
+                            steps: [
+                                "<strong>Phase 1 - Consecrated Ground:</strong> In a solo scenario at the Bone Wastes, you must defend a holy relic from waves of undead. The undead will ignore you and run for the relic. You must use Avenger's Shield, Consecration, and skillful body-blocking to hold them all. Some casters will stand at range, forcing you to use stuns and interrupts to maintain control.",
+                                "<strong>Phase 2 - The Indomitable Will:</strong> You must gather 20x Khorium Ore, 5x Primal Mana, and `Kael'thas's Royal Signet` from Tempest Keep. You must have these items enchanted by an Aldor/Scryer quartermaster. You will then travel to the Arklon Ruins in Netherstorm and use the signet to challenge a powerful phase-reaver. This creature deals almost exclusively spell damage, testing your spell mitigation and ability to generate threat with holy damage.",
+                                "<strong>Phase 3 - The Shield of Humanity:</strong> During the Battle for Mount Hyjal, you must obtain an `Unfired Hyjal Brazier`. Before the wave against Azgalor, you must place this brazier. It will summon five 'Lesser Doomguards'. You must tank all five at once, using Holy Wrath, Consecration, and your shield to survive their combined assault for 90 seconds.",
+                                "<strong>Phase 4 - The Light's Vindicator:</strong> With a `Shard of the Sunwell`, you will face a final trial on the Isle of Quel'Danas. You must fight a powerful Eredar sorcerer. He will summon waves of imps that you must AoE tank, while also interrupting his powerful fel firebolts and moving out of his fel volcanos. This is a test of everything: single target threat, AoE threat, interrupts, and movement."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Righteous Aegis",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Stamina", equip: "Increases the damage of your Consecration by 15%." },
+                                { quality: 'epic', level: 128, stats: "+55 Stamina<br>+20 Defense Rating", equip: "Increases the damage of your Consecration by 25%.<br>Your Avenger's Shield has a 25% chance to reset the cooldown of your Holy Shield." },
+                                { quality: 'epic', level: 141, stats: "+65 Stamina<br>+30 Defense Rating", equip: "Increases your spell damage by 40.<br>Your Avenger's Shield has a 25% chance to reset the cooldown of your Holy Shield." },
+                                { quality: 'legendary', level: 159, stats: "+75 Stamina<br>+40 Defense Rating", equip: "Increases your spell damage by 60.<br>When you use Holy Shield, you gain `Righteous Vengeance`, causing your next 3 melee attacks to deal additional Holy damage based on your block value." }
+                            ]
+                        }
+                    },
+                    retribution: {
+                        name: "Retribution",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_auraoflight.jpg',
+                        questline: {
+                            title: "The Divine Crusader",
+                            description: "The Retribution paladin is the wrath of the Light made manifest, a holy warrior who judges their foes with seal and blade. Your trials will test your burst damage, utility, and ability to sustain a long fight.",
+                            steps: [
+                                "<strong>Phase 1 - The Path of Vengeance:</strong> In a solo scenario, you must hunt down a demon 'assassin' in a spectral version of the Undercity. The demon will periodically vanish and reappear to attack a friendly spirit. You must use Judgement of Justice to keep it from escaping, stun it with Hammer of Justice, and burst it down. You must also cleanse the poisons it leaves on the spirits.",
+                                "<strong>Phase 2 - The Blood-Tempered Seal:</strong> You must obtain a `Tome of the Damned` from Leotheras the Blind in SSC and a `Crystal of the Nethermancer` from High Astromancer Solarian in TK. You will use these to learn a ritual. You must perform this ritual in the Shadow Labyrinth, which will summon a 'Shade of the Grand Crusader'. This enemy has high armor but is vulnerable to holy damage. He will periodically enter a defensive stance, requiring you to stop attacking and use your healing and blessings to survive until he becomes vulnerable again.",
+                                "<strong>Phase 3 - Wrath's Judgment:</strong> You must obtain `Akkama's Vengeful Prayer` from the Ashtongue Deathsworn after defeating Illidan. You must take this prayer to the Hand of Gul'dan in Shadowmoon Valley. You will fight a powerful doomguard who is immune to damage until you've judged him with Seal of Command, Seal of Righteousness, and Seal of Blood/Vengeance. You must twist seals and time your burst for when he is vulnerable.",
+                                "<strong>Phase 4 - The Blade of Dawn:</strong> With a `Shard of the Sunwell`, you face a final trial against a powerful corrupted Blood Knight. The fight is a DPS race. He will periodically shield himself, becoming immune to damage until you destroy a series of blood crystals around the room. He will also call for aid, forcing you to use your divine shield and blessings to survive overwhelming odds and continue your assault."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Crusader",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Strength", equip: "Your Judgement abilities have a 10% chance to make your next Crusader Strike a guaranteed critical strike." },
+                                { quality: 'epic', level: 128, stats: "+50 Strength<br>+25 Critical Strike Rating", equip: "Your Judgement abilities have a 15% chance to make your next Crusader Strike a guaranteed critical strike." },
+                                { quality: 'epic', level: 141, stats: "+60 Strength<br>+35 Critical Strike Rating", equip: "Your Judgement abilities have a 20% chance to make your next Crusader Strike a guaranteed critical strike.", use: "Your next 3 Crusader Strikes will also cast a free Seal of Command, regardless of your active Seal.", cooldown: "2 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+75 Strength<br>+45 Critical Strike Rating", equip: "Your Judgement abilities have a 25% chance to make your next Crusader Strike a guaranteed critical strike.<br>When your Avenging Wrath is active, your critical strikes have a chance to extend its duration by 1 sec, up to a maximum of 5 additional seconds." }
+                            ]
+                        }
+                    }
+                }
+            },
+            hunter: {
+                name: "Hunter",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_hunter.jpg',
+                specs: {
+                    beastmastery: {
+                        name: "Beast Mastery",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_hunter_beasttaming.jpg',
+                         questline: {
+                            title: "The Primal Bond",
+                            description: "The Beast Mastery hunter and their pet are two halves of a whole, a perfect hunting team. Your trials will test your ability to control your pet and work in tandem to overcome impossible odds.",
+                            steps: [
+                                "<strong>Phase 1 - The Perfect Team:</strong> In a solo scenario in the wilds of Nagrand, you and your pet must hunt a massive, cunning Clefthoof. The beast will periodically charge, which your pet must intercept. It will also enrage, requiring you to use Intimidation. It will also try to flee and heal, requiring you to use your stings and concussive shot to keep it in combat. You must manage your pet's health and your own focus to succeed.",
+                                "<strong>Phase 2 - The Serpent's Kiss:</strong> You must craft a `Primal Anti-Venom` using 20x Netherbloom, 10x Primal Life, and a `Vial of Hydross's Essence` from SSC. You must then travel to the Coilfang Reservoir and find a hidden nest. You will find a powerful hydra guarding it. You must use the anti-venom on your pet, making it immune to the hydra's poison. You must then kite the hydra, keeping it away from your pet while your pet does the majority of the damage.",
+                                "<strong>Phase 3 - The Alpha's Challenge:</strong> You must obtain the `Scent of the Beast-God` from the essence of Nalorakk, Akil'zon, Jan'alai, or Halazzi in Zul'Aman. You will take this to the untamed wilds of Blade's Edge Mountains to challenge the 'Spirit of the Ravager-Lord'. This is a pet-tanking challenge. You must use Mend Pet, your traps, and misdirection to ensure your pet can survive tanking this incredibly powerful foe.",
+                                "<strong>Phase 4 - The Primal Union:</strong> With a `Shard of the Sunwell`, you will face a final trial. You and your pet will fight an Annihilan Pit Lord. The demon will attempt to banish your pet, which you must interrupt. It will also cast a powerful fear, which your pet must break with Bestial Wrath. At 20%, it will enrage, and you must use every tool you have to burn it down before your pet is overwhelmed."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Savage Hunt",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Agility", equip: "Your Kill Command has a 15% chance to not trigger its cooldown." },
+                                { quality: 'epic', level: 128, stats: "+55 Agility<br>+20 Critical Strike Rating", equip: "Your Kill Command has a 20% chance to not trigger its cooldown." },
+                                { quality: 'epic', level: 141, stats: "+65 Agility<br>+30 Critical Strike Rating", equip: "Your Kill Command has a 25% chance to not trigger its cooldown.", use: "Instantly resets the cooldown of Bestial Wrath.", cooldown: "3 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+80 Agility<br>+40 Critical Strike Rating", equip: "Your Kill Command has a 30% chance to not trigger its cooldown.<br>While Bestial Wrath is active, your pet's attacks cleave to a nearby target for 30% damage, and you gain 15% haste." }
+                            ]
+                        }
+                    },
+                    marksmanship: {
+                        name: "Marksmanship",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_hunter_aimedshot.jpg',
+                        questline: {
+                            title: "The Sniper's Eye",
+                            description: "The Marksmanship hunter is a master of the ranged weapon, a patient sniper who can deliver devastating shots from afar. Your trials will test your aim, your positioning, and your ability to control the battlefield from a distance.",
+                            steps: [
+                                "<strong>Phase 1 - The Impossible Shot:</strong> In a solo scenario, you are placed on a ledge overlooking a canyon in Hellfire Peninsula. A friendly caravan is being attacked below. You must snipe the attackers without hitting the friendlies. Some attackers will be carrying explosives; hitting them will cause an AoE explosion that could harm the caravan. You must use Aimed Shot and Steady Shot with perfect precision.",
+                                "<strong>Phase 2 - The Wind's Guidance:</strong> You must obtain a `Gyro-Stabilized Scope` from the engineering supplies near Void Reaver in TK and a `Feather of the Sky-Lord` from Al'ar. You will combine these to create a `True-Flight Arrow`. You must then go to the highest peak in Nagrand and fire this arrow at a specific elite windroc that only appears during a storm. You must lead your target and account for 'wind shear' (a random debuff that pushes you) to land the shot.",
+                                "<strong>Phase 3 - Silencing the Summoners:</strong> In the Black Temple, during the Illidan encounter, you must use a `Resonating Crystal` on the Flames of Azzinoth. This will reveal a 'Fel-Rune of Summoning' behind them. You have a very short window to fire a Silencing Shot at the rune, interrupting a cast that would otherwise empower Illidan. You must do this for both flames within one fight.",
+                                "<strong>Phase 4 - The Unseen Arrow:</strong> With a `Shard of the Sunwell`, you face a final trial. You must assassinate a powerful Eredar General on the Isle of Quel'Danas. He is surrounded by an impenetrable shield and patrols a courtyard full of elites. You must use your traps to CC patrols, your aspect to navigate, and find a perfect vantage point. The shield drops for only 5 seconds at a time. You must use your Trueshot Aura and Rapid Fire to deliver enough damage in these short windows to kill him."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the True-Shot",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Agility", equip: "Reduces the mana cost of your Steady Shot by 10%." },
+                                { quality: 'epic', level: 128, stats: "+55 Agility<br>+25 Critical Strike Rating", equip: "Reduces the mana cost of your Steady Shot by 15%.<br>Your Aimed Shot criticals grant you 100 mana." },
+                                { quality: 'epic', level: 141, stats: "+65 Agility<br>+35 Critical Strike Rating", equip: "Reduces the mana cost of your Steady Shot by 20%.<br>Your Aimed Shot criticals grant you 200 mana." },
+                                { quality: 'legendary', level: 159, stats: "+80 Agility<br>+45 Critical Strike Rating", equip: "Your Steady Shot has a 10% chance to cause your next Aimed Shot to be instant cast.", use: "Your next Aimed Shot will not trigger a cooldown and will deal 50% additional damage.", cooldown: "2 min cooldown" }
+                            ]
+                        }
+                    },
+                    survival: {
+                        name: "Survival",
+                        icon: 'https://i.imgur.com/zAcj0DU.jpeg',
+                        questline: {
+                            title: "The Master Trapper",
+                            description: "The Survival hunter is a cunning and resourceful master of the wild, using traps, explosives, and debilitating stings to control their enemies. Your trials will test your ingenuity, your preparation, and your ability to turn the environment against your foes.",
+                            steps: [
+                                "<strong>Phase 1 - The Perfect Ambush:</strong> In a solo scenario in Zangarmarsh, you must defend a small camp from an onslaught of Fen Striders. You have 1 minute to place your traps. You must use Immolation, Frost, and Freezing traps in clever combinations to control the flow of enemies and survive.",
+                                "<strong>Phase 2 - The Wyvern's Sting:</strong> You must craft a `Potent Toxin Gland` with 15x Ancient Lichen, 10x Primal Nether, and the `Stinger of the Leotheras` from Leotheras the Blind in SSC. You will take this to the Wyvern breeding grounds in Blade's Edge Mountains and coat a trap with it. You must lure the 'Matriarch of the Skies' into the trap. This will not damage her, but will enrage her, causing her to fixate on you. You must kite her for 2 minutes, using your traps and stings to keep her at bay without killing her.",
+                                "<strong>Phase 3 - The Explosive Solution:</strong> You must obtain 5x `Unstable Hellfire Cores` from the trash mobs in the Black Temple and an `Engineer's Schematic: Adamantite Grenade` from a master engineer. You will craft a `Massive Demolition Charge`. In Hyjal Summit, during the Rage Winterchill fight, you must place this charge on a frozen-over cave. The heat from Death and Decay will arm it. You must then kite a ghoul over it to detonate it, revealing a powerful friendly NPC who aids in the fight.",
+                                "<strong>Phase 4 - The Cunning Predator:</strong> With a `Shard of the Sunwell`, you face a final trial against a spectral echo of the legendary troll hunter, Vol'jin. He will constantly use traps, stealth, and ranged attacks. You must use your Flare to reveal him, your traps to counter his, and your pet to harry him. This is a battle of wits and resourcefulness, not just DPS."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Cunning Predator",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Agility", equip: "Your Explosive Trap and Immolation Trap have a 25% chance not to be consumed on use." },
+                                { quality: 'epic', level: 128, stats: "+55 Agility<br>+20 Hit Rating", equip: "Your Explosive Trap and Immolation Trap have a 35% chance not to be consumed on use." },
+                                { quality: 'epic', level: 141, stats: "+65 Agility<br>+30 Hit Rating", equip: "Your Explosive Trap and Immolation Trap have a 50% chance not to be consumed on use.<br>The damage from your Wyvern Sting is increased by 100%." },
+                                { quality: 'legendary', level: 159, stats: "+80 Agility<br>+40 Hit Rating", equip: "When you successfully trap an enemy with Freezing Trap or Wyvern Sting, you gain 200 Attack Power for 10 sec.", use: "Instantly resets the cooldown of all your traps.", cooldown: "3 min cooldown" }
+                            ]
+                        }
+                    }
+                }
+            },
+            rogue: {
+                name: "Rogue",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_rogue.jpg',
+                specs: {
+                    assassination: {
+                        name: "Assassination",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_rogue_deadlybrew.jpg',
+                        questline: {
+                            title: "The Silent Killer",
+                            description: "The path of the Assassin is paved with potent venoms and calculated strikes. Your trials will test your mastery of poisons and your ability to maintain relentless pressure on your target.",
+                            steps: [
+                                "<strong>Phase 1 - A Perfect Toxin:</strong> You must gather rare reagents: 10x Black Lotus, 20x Plaguebloom, and the `Untouched Venom Sac` from Nightbane in Karazhan. You will deliver these to a master apothecary in Shattrath to create a `Concentrated Death-Juice`. You must then apply this to your weapons and defeat a specific Fel Orc Blademaster in Hellfire Peninsula. The poison deals massive damage but also damages you over time, testing your self-healing and DPS throughput.",
+                                "<strong>Phase 2 - The Poisoner's Gauntlet:</strong> In a solo scenario within a hidden chamber of Serpentshrine Cavern, you must navigate a room filled with poison gas vents. You must use Cloak of Shadows to bypass certain sections and your own poisons to disable pressure plates. At the end, you must defeat a Naga guardian who is immune to all but Nature damage, forcing reliance on your poisons.",
+                                "<strong>Phase 3 - The Marked Target:</strong> You must obtain a `Mark of the Betrayer` from Illidan's personal effects in the Black Temple. You must then infiltrate the opposite faction's city and apply this mark to a specific NPC captain. This will trigger an elite guard response. You must defeat the captain and escape the city alive, using Vanish and Sprint to survive.",
+                                "<strong>Phase 4 - The Heart's Toxin:</strong> With a `Shard of the Sunwell`, you must face a final trial against a Nether Dragon immune to physical damage. You must apply and maintain all of your poisons on the target. The dragon will periodically cleanse itself, forcing you to reapply them quickly. The fight is a pure test of your poison uptime and energy management."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Venomheart",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Agility", equip: "Your Envenom has a 20% chance to refund 1 combo point." },
+                                { quality: 'epic', level: 128, stats: "+55 Agility<br>+20 Hit Rating", equip: "Your Envenom has a 25% chance to refund 1 combo point." },
+                                { quality: 'epic', level: 141, stats: "+65 Agility<br>+30 Hit Rating", equip: "Your Envenom has a 30% chance to refund 1 combo point.<br>Increases the damage dealt by your Deadly Poison by 15%." },
+                                { quality: 'legendary', level: 159, stats: "+80 Agility<br>+40 Hit Rating", equip: "Your Envenom has a 35% chance to refund 1 combo point.<br>Your successful melee attacks have a chance to apply `Concentrated Toxin`, dealing Nature damage over 6 sec. This effect can stack up to 5 times." }
+                            ]
+                        }
+                    },
+                    combat: {
+                        name: "Combat",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_rogue_waylay.jpg',
+                        questline: {
+                            title: "The Master Duelist",
+                            description: "The Combat rogue is a swashbuckling master of arms, thriving in the thick of battle with a flurry of steel. Your trials will test your endurance, your cooldown management, and your skill in sustained combat.",
+                            steps: [
+                                "<strong>Phase 1 - The Pirate's Challenge:</strong> You must find a message in a bottle in the waters of Zangarmarsh, leading you to a ghost pirate on a sunken ship. He will challenge you to a duel. You must use Riposte to disarm him and Blade Flurry to handle the spectral crewmates he summons.",
+                                "<strong>Phase 2 - The Adrenaline Rush:</strong> You must obtain the `Essence of the Void` from Void Reaver in Tempest Keep. You must drink it, which will grant you `Unstable Energy`, increasing your haste by 50% but also increasing your damage taken by 50% for 2 minutes. You must survive a solo encounter against a powerful Ethereal swordsman while under this effect.",
+                                "<strong>Phase 3 - A Dance of Steel:</strong> During the Shade of Akama fight in Black Temple, you must successfully interrupt 5 `Destructive Debuffs` with Kick. After the encounter, a `Medallion of the Ashtongue` will be lootable. Taking this to Akama reveals a final test: defeat a master of the Ashtongue in a duel where they will use a variety of rogue and warrior abilities.",
+                                "<strong>Phase 4 - The Unending Flurry:</strong> With a `Shard of the Sunwell`, you will face a final trial against a Legion Blade-master. This demon will summon two mirror images of itself. You must use Blade Flurry and Adrenaline Rush to manage all three targets, as killing the images will weaken the master. The fight is a test of cleave damage and cooldown timing."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Swift Blade",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Agility<br>+20 Strength", equip: "Your Sinister Strike has a 10% chance to grant an extra combo point." },
+                                { quality: 'epic', level: 128, stats: "+50 Agility<br>+25 Strength", equip: "Your Sinister Strike has a 15% chance to grant an extra combo point." },
+                                { quality: 'epic', level: 141, stats: "+60 Agility<br>+30 Strength<br>+25 Haste Rating", equip: "Your Sinister Strike has a 20% chance to grant an extra combo point.", use: "Your next 3 finishing moves cost no energy.", cooldown: "3 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+75 Agility<br>+35 Strength<br>+35 Haste Rating", equip: "Your Sinister Strike has a 25% chance to grant an extra combo point.<br>Activating Adrenaline Rush also grants you Blade Flurry for its duration." }
+                            ]
+                        }
+                    },
+                    subtlety: {
+                        name: "Subtlety",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_stealth.jpg',
+                        questline: {
+                            title: "The Unseen Hand",
+                            description: "The Subtlety rogue is a ghost, a master of shadows and control who strikes from nowhere and vanishes without a trace. Your trials will test your stealth, your control, and your devastating burst from the shadows.",
+                            steps: [
+                                "<strong>Phase 1 - In Plain Sight:</strong> You must infiltrate the Mana-Tombs and steal a specific `Arcane Orb` from Pandemonius's chamber without killing any of the trash mobs in the final room. You must use Sap, Blind, and Distract to navigate the patrol paths and get out undetected.",
+                                "<strong>Phase 2 - The Dance of Shadows:</strong> In a solo scenario, you are in a room with 3 hostile NPCs and 1 friendly NPC. You must keep the 3 hostile NPCs locked down using Sap, Gouge, Blind, and Cheap Shot for 2 minutes, preventing them from ever touching the friendly NPC. This is a pure CC management test.",
+                                "<strong>Phase 3 - The Shadow's Step:</strong> You must obtain a `Blink-Translocator` from the trash in Hyjal Summit. You must take this to the roof of the Black Temple. This will allow you to see a series of phased platforms. You must navigate this jumping puzzle using the device and your Safe Fall ability to reach a hidden assassin and defeat them.",
+                                "<strong>Phase 4 - The Perfect Opening:</strong> With a `Shard of the Sunwell`, you face a final trial. You must assassinate a powerful demon who is only vulnerable for 5 seconds after being struck from stealth. You must use all your cooldowns to maximize your damage in this short window. After 5 seconds, he becomes immune and summons adds, forcing you to Vanish and repeat the process."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Unseen",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+45 Agility", equip: "Reduces the cooldown of your Vanish by 30 sec." },
+                                { quality: 'epic', level: 128, stats: "+55 Agility<br>+20 Crit Rating", equip: "Reduces the cooldown of your Vanish and Blind by 30 sec." },
+                                { quality: 'epic', level: 141, stats: "+65 Agility<br>+30 Crit Rating", equip: "Reduces the cooldown of your Vanish, Blind, and Cloak of Shadows by 30 sec." },
+                                { quality: 'legendary', level: 159, stats: "+80 Agility<br>+40 Crit Rating", equip: "Reduces the cooldown of Vanish, Blind, and Cloak of Shadows by 45 sec.<br>Your attacks from stealth have a 50% chance to grant you `Shadow's Embrace`, causing your next Eviscerate or Envenom to cost no energy." }
+                            ]
+                        }
+                    }
+                }
+            },
+            priest: {
+                name: "Priest",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_priest.jpg',
+                specs: {
+                    discipline: {
+                        name: "Discipline",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_powerwordshield.jpg',
+                        questline: {
+                            title: "The Unbreakable Will",
+                            description: "The Discipline priest is a master of prevention and absorption, shielding allies from harm before it lands. Your trials will test your foresight, mana efficiency, and ability to weave damage with defense.",
+                            steps: [
+                                "<strong>Phase 1 - The Shield of Faith:</strong> In a solo scenario, you must protect a friendly NPC who is channeling a spell for 2 minutes. The NPC will be bombarded by constant, low-damage shadow bolts. You can only use Power Word: Shield to protect them. You must perfectly time your shields to maximize absorption and manage your mana.",
+                                "<strong>Phase 2 - A Painful Lesson:</strong> You must obtain a `Manual of Focused Thought` from Kael'thas's library in TK. Reading it teaches you a ritual. You must perform it in Auchenai Crypts, summoning a spirit that constantly drains your mana. You must defeat it using only Smite and Holy Fire, while using your shield on yourself to mitigate its attacks, testing your mana efficiency under extreme duress.",
+                                "<strong>Phase 3 - The Light and the Void:</strong> You must obtain the `Essence of Inner Focus` from the Mother Shahraz encounter. You must take this to the Altar of Shadows in Shadowmoon Valley. You will fight a being of pure shadow. It is immune to damage. You must shield yourself and deal damage to it with Smite. The damage you deal is converted into a healing absorb shield on the creature. Once the absorb shield is large enough, you must use Dispel Magic on the creature, causing the shield to explode and damage it. You must repeat this process.",
+                                "<strong>Phase 4 - The Final Penance:</strong> With a `Shard of the Sunwell`, you must face a final trial. You will face an echo of your own doubt, a creature that attacks your allies with spells that must be absorbed. For every point of damage you absorb with Power Word: Shield, you gain a stacking buff. Only with 100 stacks can you cast a special version of Penance that will defeat the creature."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Stalwart Will",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Intellect", equip: "Increases the damage absorbed by your Power Word: Shield by 10%." },
+                                { quality: 'epic', level: 128, stats: "+45 Intellect<br>+25 Spirit", equip: "Increases the damage absorbed by your Power Word: Shield by 15%.<br>When your Power Word: Shield is fully consumed, you gain 150 mana." },
+                                { quality: 'epic', level: 141, stats: "+50 Intellect<br>+30 Spirit<br>+22 Mp5", equip: "Increases the damage absorbed by your Power Word: Shield by 20%.<br>When your Power Word: Shield is fully consumed, you gain 250 mana." },
+                                { quality: 'legendary', level: 159, stats: "+60 Intellect<br>+35 Spirit<br>+28 Mp5", equip: "Increases the damage absorbed by your Power Word: Shield by 25%.<br>When you cast Power Word: Shield on a target, you also gain `Aegis of Light`, absorbing 20% of the shielded amount on yourself." }
+                            ]
+                        }
+                    },
+                    holy: {
+                        name: "Holy",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_guardianspirit.jpg',
+                        questline: {
+                            title: "The Divine Hymn",
+                            description: "The Holy priest is a conduit of pure restorative energy, specializing in versatile and powerful group healing. Your trials will test your triage skills, your mana endurance, and your connection to the divine.",
+                            steps: [
+                                "<strong>Phase 1 - The Spirit's Anchor:</strong> In a solo scenario, you must heal a group of 5 spectral defenders at the Circle of Blood. They will take constant, pulsing AoE damage. You must use Prayer of Healing and your own wits to keep them all alive for 3 minutes. One will randomly be feared, which you must dispel.",
+                                "<strong>Phase 2 - The Lightwell's Font:</strong> You must imbue a `Crystal Phial` with water from the sacred pools in SSC and from the Sunfury Aqueducts in TK. You must take this phial to the middle of the Botanica and place it, creating a `Font of Pure Light`. You must defend this font from waves of ethereal parasites that seek to corrupt it, using your healing and holy damage to keep them at bay.",
+                                "<strong>Phase 3 - The Choir of Souls:</strong> During the Hyjal Summit waves, you must use a `Blessed Tuning Fork` on the corpses of fallen allies and enemies. After collecting 20 'Soul Echoes', you must use the fork during the Archimonde fight. This summons a 'Choir of Spirits' that will perform a Divine Hymn, granting your raid a powerful healing buff. You must protect the Choir from Archimonde's attacks.",
+                                "<strong>Phase 4 - The Guardian Spirit:</strong> With a `Shard of the Sunwell`, you face a final trial. You must keep a friendly NPC, 'The Last Defender', alive against a powerful demon. The defender will take fatal blows periodically, which you must prevent by casting Guardian Spirit at the perfect moment. The demon will also inflict a stacking healing absorb debuff on the defender that you must out-heal."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Divine Hymn",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Intellect", equip: "Reduces the mana cost of your Prayer of Healing by 10%." },
+                                { quality: 'epic', level: 128, stats: "+45 Intellect<br>+25 Spirit", equip: "Reduces the mana cost of your Prayer of Healing by 15%.<br>Your Circle of Healing has a 20% chance to not trigger its cooldown." },
+                                { quality: 'epic', level: 141, stats: "+50 Intellect<br>+30 Spirit<br>+22 Mp5", equip: "Reduces the mana cost of Prayer of Healing and Circle of Healing by 15%.<br>Your Circle of Healing has a 30% chance to not trigger its cooldown." },
+                                { quality: 'legendary', level: 159, stats: "+60 Intellect<br>+35 Spirit<br>+28 Mp5", equip: "Your Circle of Healing has a 50% chance to not trigger its cooldown.<br>Casting Prayer of Healing grants you `Serendipity`, reducing the cast time of your next Greater Heal by 35%." }
+                            ]
+                        }
+                    },
+                    shadow: {
+                        name: "Shadow",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_shadowform.jpg',
+                        questline: {
+                            title: "The Hungering Void",
+                            description: "The Shadow priest wields the power of the void, draining life and sanity from their foes with debilitating maladies. Your trials will test your multi-dotting prowess, your mana regeneration, and your control over the shadows.",
+                            steps: [
+                                "<strong>Phase 1 - Echoes of the Damned:</strong> In Karazhan, you must use a `Soul Catcher` on the shades in the servant's quarters. Once filled, you must use it in the Opera Hall during an encounter. This summons three 'Lingering Apparitions'. You must apply and maintain Shadow Word: Pain on all three for 1 minute to win.",
+                                "<strong>Phase 2 - The Siphon of Life:</strong> You must create a `Vampiric Fetish` from a `Heart of the Bog-Lord` from Zangarmarsh and an `Essence of the Nether` from TK. You must take this to the Shadow Labyrinth and use it on yourself. It will grant you immense shadow power but disable all healing effects on you except your own Vampiric Embrace. You must defeat the summoned demon using only your own siphoned health to survive.",
+                                "<strong>Phase 3 - The Maddening Whispers:</strong> You must obtain a `Whispering Drape` from the Essence of Souls encounter in Black Temple. Wearing this drape in Shadowmoon Valley will allow you to see 'Harbingers of the Void'. You must defeat one. During the fight, it will summon adds that are immune to damage. You must fear them and keep them away while you focus down the Harbinger.",
+                                "<strong>Phase 4 - The Devouring Plague:</strong> With a `Shard of the Sunwell`, you face a final trial. You must fight a being of pure light that is highly resistant to damage. The only way to defeat it is to apply Devouring Plague. The plague will then jump to nearby light-spawn, and you must kill the adds to transfer the damage to the boss. This is a test of multi-dotting, crowd control, and target swapping."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Hungering Void",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Mind Flay has a chance to grant you 150 mana." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Increases the mana returned by your Vampiric Touch by 10%." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Increases the mana returned by your Vampiric Touch by 20%.<br>Your Mind Flay critical strikes reduce the cast time of your next Mind Blast by 50%." },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Increases the mana returned by your Vampiric Touch by 30%.<br>When your Shadow Word: Pain deals damage, it has a chance to summon a Shadowy Apparition that floats towards the target and explodes for Shadow damage." }
+                            ]
+                        }
+                    }
+                }
+            },
+            shaman: {
+                name: "Shaman",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_shaman.jpg',
+                specs: {
+                    elemental: {
+                        name: "Elemental",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_lightning.jpg',
+                        questline: {
+                            title: "The Eye of the Maelstrom",
+                            description: "The Elemental shaman is a living conduit for the destructive power of the elements. Your trials will test your command over lightning and lava, and your mastery of totemic power.",
+                            steps: [
+                                "<strong>Phase 1 - The Totemic Trial:</strong> In a solo scenario in Nagrand, you must defend a point from waves of elementals. Fire elementals must be slowed with Earthbind Totem. Water elementals must have their casts absorbed by Grounding Totem. Air elementals must be stunned by Earth Shock. You must use the correct tools for each foe.",
+                                "<strong>Phase 2 - The Heart of the Storm:</strong> You must obtain a `Charged Core` from the Nether-wraiths in TK and a `Seed of the World-Tree` from the Botanica. You must take these to the Throne of the Elements in Nagrand. This will summon a Greater Air Elemental. You must defeat it. It will periodically shield itself, which can only be broken by purging it with Purge.",
+                                "<strong>Phase 3 - The Cleansing Flame:</strong> You must obtain `Archimonde's Defiled Ash` from Hyjal Summit. You must take this to the heart of a volcano in Shadowmoon Valley. This summons a powerful demon wreathed in shadowflame. You must use your Fire Nova Totem to periodically cleanse patches of corrupted ground to give yourself room to fight.",
+                                "<strong>Phase 4 - The Perfect Storm:</strong> With a `Shard of the Sunwell`, you must face a final trial against a powerful storm giant. The giant is immune to damage until you build up 10 stacks of `Static Charge` by casting Lightning Bolt. Once charged, you can unleash a massive Chain Lightning to make him vulnerable. He will also summon adds that must be controlled with totems and shocks."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Maelstrom",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Lightning Bolt has a 10% chance to make your next Chain Lightning instant." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Lightning Bolt has a 15% chance to make your next Chain Lightning instant." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Lightning Bolt has a 20% chance to make your next Chain Lightning instant.", use: "Your next 3 spell casts will trigger Elemental Overload.", cooldown: "3 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Lightning Bolt has a 25% chance to make your next Chain Lightning instant.<br>Reduces the cooldown of Elemental Mastery by 1 minute." }
+                            ]
+                        }
+                    },
+                    enhancement: {
+                        name: "Enhancement",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_lightningshield.jpg',
+                        questline: {
+                            title: "The Spirit Wolf's Fury",
+                            description: "The Enhancement shaman is a ferocious warrior who clashes with their foes, empowered by the spirits and their totems. Your trials will test your hybrid nature, weaving spells and steel together seamlessly.",
+                            steps: [
+                                "<strong>Phase 1 - The Ancestor's Guidance:</strong> You must travel to the Ancestral Grounds in Nagrand and meditate. You will be challenged by a Spirit Wolf. You must defeat it by weaving your shocks and melee attacks. It will periodically enrage, which you must purge.",
+                                "<strong>Phase 2 - The Living Weapon:</strong> You must imbue your weapons at the forge in Karazhan's Opera hall, then at the forge in Gruul's Lair. This grants you the `Spirit-Forged` buff. You must then defeat a specific elite in the Blade's Edge Mountains within 10 minutes before the buff fades. The elite is highly resistant to physical damage, forcing you to rely on your spell damage from shocks and Windfury.",
+                                "<strong>Phase 3 - The Shaman's Rage:</strong> You must obtain a `Vial of Primal Rage` from the Zul'Aman bear boss. Drinking this in the Caverns of Time during the Hyjal encounter will put you into a permanent state of `Shamanistic Rage`. You must survive for 2 minutes against waves of ghouls, using your enhanced mana regeneration to constantly heal yourself and cast shocks.",
+                                "<strong>Phase 4 - The Dance of Elements:</strong> With a `Shard of the Sunwell`, you face a final trial against an Ethereal Spell-thief. The Ethereal will constantly shift its elemental resistances. You must pay attention and use the correct shock (Frost or Flame) to damage it, while maintaining melee uptime and totem control. This is a test of reaction speed and situational awareness."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Spirit Wolf",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Agility", equip: "Your Stormstrike has a 15% chance to not trigger its cooldown." },
+                                { quality: 'epic', level: 128, stats: "+50 Agility<br>+20 Crit Rating", equip: "Your Stormstrike has a 20% chance to not trigger its cooldown." },
+                                { quality: 'epic', level: 141, stats: "+60 Agility<br>+30 Crit Rating", equip: "Your Stormstrike has a 25% chance to not trigger its cooldown.<br>Your Shocks have a 10% chance to reset the cooldown of Stormstrike." },
+                                { quality: 'legendary', level: 159, stats: "+75 Agility<br>+40 Crit Rating", equip: "Your Stormstrike has a 30% chance to not trigger its cooldown.<br>When you use Shamanistic Rage, your melee attacks have a 100% chance to trigger Windfury Weapon for the duration." }
+                            ]
+                        }
+                    },
+                    restoration: {
+                        name: "Restoration",
+                        icon: 'https://i.imgur.com/2msDhl4.png',
+                        questline: {
+                            title: "The Tidal Spirit",
+                            description: "The Restoration shaman is a master of water and life, using totems and chain heals to support their allies. Your trials will test your group healing, mana management, and totemic utility.",
+                            steps: [
+                                "<strong>Phase 1 - The Linked Souls:</strong> In a solo scenario, you must heal a chain of 5 friendly NPCs. Damage dealt to one NPC is also dealt to the others. You must use Chain Heal to effectively heal them all at once. If any one of them dies, you fail.",
+                                "<strong>Phase 2 - The Mana Spring:</strong> You must create a `Living Mana Totem` from a `Branch of the World-Tree` from the Botanica and an `Essence of the Lurker` from SSC. You must place this totem in the middle of the Underbog. It will grant immense mana regeneration, but attract waves of creatures. You must survive for 3 minutes, using the mana to constantly heal yourself and fight back.",
+                                "<strong>Phase 3 - The Spirit Link:</strong> During the Illidan encounter, you must place a `Spirit Link Totem` between the two raid tanks during the demon phase. This totem will split the damage between them, but you must keep it alive from adds. This requires you to heal the tanks, the totem, and yourself.",
+                                "<strong>Phase 4 - The Riptide:</strong> With a `Shard of the Sunwell`, you face a final trial. You must heal a group of 5 NPCs standing in a pool of fel-water that constantly damages them. The pool will also spawn 'Tidal Spirits' that will heal the NPCs. You must use Earth Shock to interrupt the spirits' heals while keeping the NPCs alive with your own. It is a test of triage healing and quick reactions."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Tidal Spirit",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Intellect", equip: "Increases healing done by Chain Heal by 77." },
+                                { quality: 'epic', level: 128, stats: "+45 Intellect<br>+25 Spirit", equip: "Increases healing done by Chain Heal by 110.<br>Your Water Shield has 2 extra charges." },
+                                { quality: 'epic', level: 141, stats: "+50 Intellect<br>+30 Spirit<br>+22 Mp5", equip: "Increases healing done by Chain Heal by 143.<br>Your Water Shield has 3 extra charges." },
+                                { quality: 'legendary', level: 159, stats: "+60 Intellect<br>+35 Spirit<br>+28 Mp5", equip: "Your Chain Heal has a 25% chance to not lose effectiveness on each jump.<br>When you drop Mana Tide Totem, you also gain 30% of its effect personally." }
+                            ]
+                        }
+                    }
+                }
+            },
+            mage: {
+                name: "Mage",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_mage.jpg',
+                specs: {
+                    arcane: {
+                        name: "Arcane",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_magicalsentry.jpg',
+                        questline: {
+                            title: "The Ley-Line's Master",
+                            description: "The Arcane mage manipulates the very fabric of magic, balancing immense power with careful mana control. Your trials will test your intellect, your control over magical flows, and your ability to unleash devastating burst.",
+                            steps: [
+                                "<strong>Phase 1 - The Spellthief's Gambit:</strong> In a solo scenario in the Mana-Tombs, you must face an Ethereal sorcerer who is protected by a powerful barrier. You must use Spellsteal to remove the barrier, which grants you a short buff of immense power. You must defeat him by stealing and using his own power against him.",
+                                "<strong>Phase 2 - The Mana Conundrum:</strong> You must craft a `Ley-Line Tap` from materials found in Karazhan's library and the Arcatraz. You must use this device on a Mana Node in Netherstorm. This will begin a challenge where your mana is constantly shifting, from full to empty and back again over 2 minutes. You must defeat the summoned Mana-Wraith by casting spells only when you have the mana to do so, testing your timing and conservation.",
+                                "<strong>Phase 3 - The Unraveling:</strong> During the Kael'thas encounter in Tempest Keep, you must use a `Scrying Orb` on Kael'thas himself. This will reveal the 'Threads of Magic' that empower him. You must use Arcane Missiles to unravel these threads without being interrupted by the encounter's mechanics.",
+                                "<strong>Phase 4 - The Arcane Overload:</strong> With a `Shard of the Sunwell`, you face a final trial. You must defeat a creature of pure arcane energy. It is immune to damage. You must build up stacks of `Arcane Charge` by casting Arcane Blast. At 10 stacks, you can use a special version of Arcane Power that makes the creature vulnerable for 10 seconds, during which you must unleash your full burst."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Ley-Walker",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Arcane Blast has a 10% chance to make your next Arcane Missiles channel twice as fast." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Arcane Blast has a 15% chance to make your next Arcane Missiles channel twice as fast." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Arcane Blast has a 20% chance to make your next Arcane Missiles channel twice as fast.", use: "Your next spell cast costs no mana and has a 100% critical strike chance.", cooldown: "3 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Arcane Blast has a 25% chance to make your next Arcane Missiles channel twice as fast.<br>Activating Arcane Power also makes your spells cost 50% less mana for its duration and restores 5% of your maximum mana every time you critically strike with a spell." }
+                            ]
+                        }
+                    },
+                    fire: {
+                        name: "Fire",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_fire_firebolt02.jpg',
+                        questline: {
+                            title: "The Infernal Heart",
+                            description: "The Fire mage is a pyromaniac, a master of critical strikes and overwhelming fiery destruction. Your trials will test your ability to spread flames, manage your burst, and control the battlefield with fire.",
+                            steps: [
+                                "<strong>Phase 1 - The Chain Reaction:</strong> In a solo scenario in Hellfire Peninsula, you must face a group of 5 fel orcs. They are immune to damage, but if you get a critical strike on one with Fireball, it will apply a debuff, `Volatile Fuel`. You must then use Blast Wave to cause a chain reaction, killing them all at once.",
+                                "<strong>Phase 2 - The Living Bomb:</strong> You must obtain the `Unstable Flare` from the Phoenixes surrounding Al'ar in TK. You must use this to learn the `Living Bomb` ability. You must then face a powerful demon in Blade's Edge. You must apply Living Bomb, then keep the demon alive until it explodes, dealing massive damage. The challenge is to not kill it too early.",
+                                "<strong>Phase 3 - The World in Flames:</strong> During the Archimonde fight, you must use a `Seed of Flame` on one of the Doomfires that he summons. This will cause it to become a `Worldflame`. You must then kite this Worldflame through the rest of the Doomfires, spreading the flame to all of them, without letting it touch you or your raid members.",
+                                "<strong>Phase 4 - The Great Conflagration:</strong> With a `Shard of the Sunwell`, you face a final trial against a powerful Frost Lord. The lord is immune to damage and constantly slows you. You must use Scorch to build up stacks of `Improved Scorch` on him. At 5 stacks, you can use a special version of Combustion that melts his ice armor, making him vulnerable to a massive Ignite. You must build up a huge Ignite before he refreezes."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Inferno",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Scorch has a 10% chance to make your next Fireball instant." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Scorch has a 15% chance to make your next Fireball instant." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Scorch has a 20% chance to make your next Fireball instant.<br>Your Molten Armor has a chance to grant you `Hot Streak` when struck, making your next Pyroblast instant." },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Scorch has a 25% chance to make your next Fireball instant.<br>Activating Combustion also resets the cooldown of Dragon's Breath and Blast Wave." }
+                            ]
+                        }
+                    },
+                    frost: {
+                        name: "Frost",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_frost_frostbolt02.jpg',
+                        questline: {
+                            title: "The Winter's Bite",
+                            description: "The Frost mage is a master of control, using ice to shatter their foes and protect themselves from harm. Your trials will test your kiting, your control, and your ability to survive against impossible odds.",
+                            steps: [
+                                "<strong>Phase 1 - The Shattered Labyrinth:</strong> In a solo scenario, you must navigate a maze of ice. You will be chased by a powerful, unkillable melee creature. You must use Frost Nova, Cone of Cold, and your Water Elemental's Freeze to keep it at bay as you find the exit.",
+                                "<strong>Phase 2 - The Deep Freeze:</strong> You must obtain a `Shard of Pure Ice` from Hydross the Unstable in SSC and a `Breath of the Void` from Void Reaver in TK. You will use these to learn `Deep Freeze`. You must then travel to the highest peak of Alterac Mountains and use Deep Freeze on a specific elite yeti, freezing it solid. You then have 10 seconds to deal as much damage as possible with Shatter combos.",
+                                "<strong>Phase 3 - The Cold Snap:</strong> During the Mother Shahraz encounter, you will be afflicted with a unique debuff, `Fatal Touch`, a 10-second DoT that will kill you. You must use Ice Block to remove it. A few seconds later, you will be afflicted again. You must use Cold Snap to reset Ice Block's cooldown and use it again to survive.",
+                                "<strong>Phase 4 - The Glacial Prison:</strong> With a `Shard of the Sunwell`, you face a final trial. You must fight a powerful fire elemental. It is immune to damage and is constantly casting a powerful pyroblast. You must use Counterspell and your Water Elemental to interrupt its casts. After 5 successful interrupts, it will become frozen and vulnerable. You must use Icy Veins and your shatter combos to defeat it before it thaws."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Winter's Heart",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Frostbolt has a 5% chance to grant you a charge of Fingers of Frost." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Frostbolt has a 10% chance to grant you a charge of Fingers of Frost." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Frostbolt has a 15% chance to grant you a charge of Fingers of Frost.<br>Your Water Elemental's Freeze ability now also applies to the main target." },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Frostbolt has a 20% chance to grant you a charge of Fingers of Frost.<br>When you use Ice Block, the cooldown of Icy Veins is reset." }
+                            ]
+                        }
+                    }
+                }
+            },
+            warlock: {
+                name: "Warlock",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_warlock.jpg',
+                specs: {
+                    affliction: {
+                        name: "Affliction",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_deathcoil.jpg',
+                        questline: {
+                            title: "The Master of Maladies",
+                            description: "The Affliction warlock revels in the slow, agonizing decay of their enemies, mastering curses and draining life. Your trials will test your endurance and your ability to manage multiple debilitating effects.",
+                            steps: [
+                                "<strong>Phase 1 - The Unstable Curse:</strong> You must obtain a `Cursed Effigy` from Terestian Illhoof in Karazhan. Using it in the Deadwind Pass will summon a 'Tormented Spirit'. You must apply Curse of Agony, Corruption, and Siphon Life to the spirit, then keep it alive for 2 minutes. If any DoT falls off, the spirit enrages and kills you.",
+                                "<strong>Phase 2 - The Soul Siphon:</strong> You must craft a `Soul-Drinker's Chalice` from materials in SSC and the Arcatraz. You must use this chalice during the Leotheras the Blind fight. When he enters his demon form, you must use the chalice to siphon his chaotic energy. This will grant you a powerful buff but drain your health. You must survive the fight while managing this health drain with Drain Life.",
+                                "<strong>Phase 3 - The Plague's Spread:</strong> During the Gurtogg Bloodboil fight in Black Temple, you must allow yourself to be targeted by his Fel-Acid Geyser. This will transform your Corruption spell into `Contagious Corruption`. You must then cast it on Gurtogg and have it spread to at least 5 other raid members (who must survive).",
+                                "<strong>Phase 4 - The Endless Agony:</strong> With a `Shard of the Sunwell`, you face a final trial. You must defeat a powerful Naaru who has fallen to the void. The Naaru is immune to damage. It will summon waves of adds. You must apply Unstable Affliction to the adds. When they die, the backlash damage from UA is the only thing that can harm the Naaru. You must manage a chaotic battlefield of adds and DoTs."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Afflicted",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Corruption has a 10% chance to cause your next Shadow Bolt to be instant." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Corruption has a 15% chance to cause your next Shadow Bolt to be instant." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Corruption has a 20% chance to cause your next Shadow Bolt to be instant.<br>Your Drain Soul deals 25% more damage to targets below 25% health." },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Corruption has a 25% chance to cause your next Shadow Bolt to be instant.<br>When Unstable Affliction is dispelled, the dispeller is feared for 3 sec in addition to taking damage." }
+                            ]
+                        }
+                    },
+                    demonology: {
+                        name: "Demonology",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_metamorphosis.jpg',
+                        questline: {
+                            title: "The Demonic Pact",
+                            description: "The Demonology warlock commands the fell powers of the Twisting Nether, binding powerful demons to their will. Your trials will test your command over your minions and your own ability to harness demonic power.",
+                            steps: [
+                                "<strong>Phase 1 - The True Name:</strong> You must find fragments of a 'Demon's True Name' in the libraries of Karazhan and the Slave Pens. Once assembled, you must go to the summoning circle in Shadow Labyrinth and summon the demon. You must defeat it and force it into your service, proving your mastery.",
+                                "<strong>Phase 2 - The Felguard's Might:</strong> You must craft a `Fel-Infused Collar` with materials from the Mechanar and the Blacksmiths of the Burning Legion in Shadowmoon Valley. You must equip this on your Felguard. This will grant it immense power but cause it to periodically enrage and attack you. You must subdue it with Enslave Demon without killing it.",
+                                "<strong>Phase 3 - The Soul Link:</strong> During the Teron Gorefiend encounter in Black Temple, you must let your pet be killed by his Crushing Shadows. You must then use Soulstone to resurrect it. This will forge a `Perfected Soul Link`. For the rest of the fight, 100% of the damage you take is transferred to your pet. You must keep your pet alive to survive.",
+                                "<strong>Phase 4 - The Master's Command:</strong> With a `Shard of the Sunwell`, you face a final trial. You must fight a powerful demon prince who will attempt to turn your own demons against you. You must use Enslave Demon to break his control, while commanding your Felguard to intercept his most powerful attacks. The fight is a test of pet control under extreme pressure."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Demon-Master",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Increases the damage of your Felguard's Cleave by 15%." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Stamina", equip: "Increases the damage of your Felguard's Cleave and Intercept by 20%." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+30 Stamina", equip: "Increases all damage dealt by your primary demon by 5%.", use: "Your demon becomes enraged, increasing its damage by 20% for 15 sec.", cooldown: "2 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+40 Stamina", equip: "Increases all damage dealt by your primary demon by 10%.<br>When your Soul Link is active, 10% of the damage your demon deals heals you." }
+                            ]
+                        }
+                    },
+                    destruction: {
+                        name: "Destruction",
+                        icon: 'https://i.imgur.com/bgfImSv.png',
+                        questline: {
+                            title: "The Architect of Ruin",
+                            description: "The Destruction warlock is a pure conduit of fel fire and shadow, unleashing devastating blasts of power. Your trials will test your ability to deal massive burst damage and control the battlefield with chaos.",
+                            steps: [
+                                "<strong>Phase 1 - The Soul Fire:</strong> You must gather `Essences of Shadow` from the Shadow Labyrinth and `Essences of Flame` from the Shattered Halls. You must combine them to learn `Empowered Soul Fire`. You must then defeat a specific elite in Nagrand using only Soul Fire, testing your ability to manage Soul Shards.",
+                                "<strong>Phase 2 - The Rain of Chaos:</strong> During the Archimonde fight in Hyjal, you must place a `Demonic Focusing Crystal` on the ground. When he casts Rain of Fire, the crystal will absorb it. After the fight, you can retrieve the `Charged Crystal`. Using it summons a powerful demon that you must defeat. It will constantly summon imps, forcing you to use your own Rain of Fire to control them.",
+                                "<strong>Phase 3 - The Shadow's Fury:</strong> You must obtain a `Shard of the Void` from the trash mobs before Illidan. You must use this shard during the Illidan fight. It will allow you to see 'Rifts of Shadow'. You must cast Shadowfury into these rifts to close them before they summon powerful demons.",
+                                "<strong>Phase 4 - The Conflagration:</strong> With a `Shard of the Sunwell`, you face a final trial. You must fight a powerful crystal golem. It is immune to damage. You must cast Immolate on it, then use Conflagrate. This will shatter a piece of its armor, making it vulnerable for a few seconds. You must repeat this process, timing your burst damage perfectly in the short windows of vulnerability."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of Ruin",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Conflagrate has a 15% chance to not consume your Immolate effect." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Conflagrate has a 20% chance to not consume your Immolate effect." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Conflagrate has a 25% chance to not consume your Immolate effect.<br>Your Shadowfury also applies the Immolate effect to all targets it hits." },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Conflagrate has a 30% chance to not consume your Immolate effect.<br>Your Chaos Bolt critical strikes reduce the cast time of your next Soul Fire by 100%." }
+                            ]
+                        }
+                    }
+                }
+            },
+            druid: {
+                name: "Druid",
+                icon: 'https://wow.zamimg.com/images/wow/icons/large/classicon_druid.jpg',
+                specs: {
+                    balance: {
+                        name: "Balance",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_starfall.jpg',
+                        questline: {
+                            title: "The Celestial Accord",
+                            description: "The Balance druid walks the path between sun and moon, nature and the arcane, commanding stellar energies to vanquish their foes. Your trials will test your ability to adapt and manage the flow of cosmic power.",
+                            steps: [
+                                "<strong>Phase 1 - The Sun and the Moon:</strong> In a solo scenario, you must fight two elementals at once, a fire elemental and an arcane elemental. The fire elemental is immune to Nature damage, and the arcane elemental is immune to Arcane damage. You must weave Wrath and Starfire to defeat them simultaneously.",
+                                "<strong>Phase 2 - The Emerald Dream's Call:</strong> You must gather a `Sleeping Hibiscus` from the Botanica and a `Nightmare Vine` from the Slave Pens. You must consume them, entering a mini-version of the Emerald Dream. Here you must defeat a 'Shade of the Nightmare', a creature that will periodically put you to sleep. You must use your shapeshifting abilities to break the effect and defeat it.",
+                                "<strong>Phase 3 - The Wrath of the Stars:</strong> During the High Astromancer Solarian fight in TK, you must use a `Celestial Lens` to absorb her arcane energy. Then, during the Archimonde fight in Hyjal, you must use the charged lens to absorb his nature damage. This creates a `Lens of Cosmic Fury`. Using it summons a powerful Constellar you must defeat.",
+                                "<strong>Phase 4 - The Eclipse:</strong> With a `Shard of the Sunwell`, you face a final trial. You must fight a being of pure energy that constantly shifts between a 'Lunar' and 'Solar' phase. During the Lunar phase, it is only vulnerable to Nature damage (Wrath). During the Solar phase, it is only vulnerable to Arcane damage (Starfire). You must adapt your rotation perfectly to its shifting phases to win."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Celestial Cycle",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+35 Spell Damage", equip: "Your Wrath and Starfire critical strikes have a 10% chance to apply `Stardust`, dealing Arcane damage over 8 sec." },
+                                { quality: 'epic', level: 128, stats: "+45 Spell Damage<br>+20 Crit Rating", equip: "Your Wrath and Starfire critical strikes have a 15% chance to apply `Stardust`, dealing Arcane damage over 8 sec." },
+                                { quality: 'epic', level: 141, stats: "+55 Spell Damage<br>+25 Crit Rating", equip: "Your Wrath and Starfire critical strikes have a 20% chance to apply `Stardust`, dealing Arcane damage over 8 sec. This effect can stack.", use: "Enter a state of Eclipse, increasing your Nature and Arcane damage by 15% for 15 sec.", cooldown: "3 min cooldown" },
+                                { quality: 'legendary', level: 159, stats: "+70 Spell Damage<br>+35 Crit Rating", equip: "Your Wrath and Starfire critical strikes have a 25% chance to apply `Stardust`, dealing Arcane damage over 8 sec. This effect can stack.<br>Casting Moonfire has a chance to summon a beam of light, and casting Insect Swarm has a chance to summon a swarm of insects, to assist you for 10 sec." }
+                            ]
+                        }
+                    },
+                    feral: {
+                        name: "Feral",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/ability_racial_bearform.jpg',
+                        questline: {
+                            title: "The Primal Instinct",
+                            description: "The Feral druid is a shapeshifting master of tooth and claw, embodying the savagery of the wild as both a relentless predator and a tenacious guardian. Your trials will test your adaptability and mastery of all forms.",
+                            steps: [
+                                "<strong>Phase 1 - The Alpha's Challenge:</strong> You must challenge the 'Alpha Beasts' of Outland. In Cat Form, you must defeat the Alpha Ravager of Blade's Edge by out-damaging its regeneration. In Bear Form, you must defeat the Alpha Clefthoof of Nagrand by surviving its massive charge.",
+                                "<strong>Phase 2 - The Hunter and the Hunted:</strong> In a solo scenario in a spectral Zangarmarsh, you are hunted by a powerful predator. You must use Prowl to set up an ambush. The predator will also periodically vanish, forcing you to use your bleeds to track it. This tests both your stealth and your sustained damage.",
+                                "<strong>Phase 3 - The Unbreakable Hide:</strong> You must obtain the `Hide of the Bear-God` from Nalorakk in Zul'Aman. You must take this to a master leatherworker to craft `Reinforced Bear-Hide`. In Bear Form, you must then travel to the Bone Wastes and tank a 'Gronnling Matron' and her two children for 2 minutes, testing your multi-target threat and mitigation.",
+                                "<strong>Phase 4 - The Perfect Instinct:</strong> With a `Shard of the Sunwell`, you face a final trial against a spectral 'Primal God'. This being will shift its tactics. In its 'Caster' phase, you must be in Cat Form to interrupt its spells. In its 'Melee' phase, you must be in Bear Form to survive its attacks. In its 'Kiting' phase, you must use Travel Form to keep up. This is the ultimate test of shapeshifting."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Wilds",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Strength<br>+40 Agility", equip: "Your Mangle ability has a 10% chance to refund 20 energy or 5 rage." },
+                                { quality: 'epic', level: 128, stats: "+50 Strength<br>+50 Agility", equip: "Your Mangle ability has a 15% chance to refund 25 energy or 7 rage." },
+                                { quality: 'epic', level: 141, stats: "+60 Strength<br>+60 Agility<br>+25 Crit Rating", equip: "Your Mangle ability has a 20% chance to refund 30 energy or 10 rage.<br>Your Rip and Lacerate abilities have a chance to make your next Ferocious Bite or Maul a critical strike." },
+                                { quality: 'legendary', level: 159, stats: "+75 Strength<br>+75 Agility<br>+35 Crit Rating", equip: "Your Mangle ability has a 25% chance to refund 35 energy or 12 rage.<br>When you shapeshift into Cat Form, you gain 200 Agility for 12 sec. When you shapeshift into Bear Form, you gain 200 Stamina for 12 sec. This effect can only occur once every 30 seconds." }
+                            ]
+                        }
+                    },
+                    restoration: {
+                        name: "Restoration",
+                        icon: 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_healingtouch.jpg',
+                        questline: {
+                            title: "The Seed of Life",
+                            description: "The Restoration druid is a living embodiment of the Emerald Dream's healing power, nurturing life with potent heals-over-time. Your trials will test your pre-healing, mana efficiency, and mobility.",
+                            steps: [
+                                "<strong>Phase 1 - The Garden of Life:</strong> In a solo scenario, you must heal a grove of 10 saplings that are slowly dying. You must apply Rejuvenation and Regrowth to all of them, keeping them all alive for 3 minutes. This is a test of your HoT management.",
+                                "<strong>Phase 2 - The Bloom of Zangarmarsh:</strong> You must gather a `Spore of the Bog-Giant` from Zangarmarsh and a `Phial of Pure Water` from SSC. You must combine them to create a `Seed of Tranquility`. You must plant this seed in the middle of the Serpent Lake. It will bloom into a massive flower that heals all friendly creatures in the area, but also attracts hostile ones. You must defend it for 3 minutes.",
+                                "<strong>Phase 3 - The Nightmare's End:</strong> During the Illidan encounter, you must cast Abolish Poison on the raid members affected by Parasitic Shadowfiend. Each successful cleanse grants you a stack of `Dreamer's Clarity`. At 5 stacks, you can cast a special version of Tranquility that also makes your raid immune to fear for its duration.",
+                                "<strong>Phase 4 - The Tree of Life:</strong> With a `Shard of the Sunwell`, you face a final trial. You must protect a young World Tree sapling from being corrupted by waves of demons. The demons will leave patches of fel-fire on the ground, forcing you to constantly move. You must heal the sapling while avoiding the fire, testing your ability to heal on the move. At the end, you must use Tree of Life form to channel a massive heal and purify the sapling."
+                            ]
+                        },
+                        reward: {
+                            name: "Sigil of the Verdant Dream",
+                            phases: [
+                                { quality: 'epic', level: 115, stats: "+40 Intellect", equip: "Increases healing done by your Rejuvenation by 55." },
+                                { quality: 'epic', level: 128, stats: "+45 Intellect<br>+25 Spirit", equip: "Increases healing done by your Rejuvenation by 77.<br>Your Lifebloom's final bloom has a 20% chance to also cast a free Rejuvenation on the target." },
+                                { quality: 'epic', level: 141, stats: "+50 Intellect<br>+30 Spirit<br>+22 Mp5", equip: "Increases healing done by your Rejuvenation and Lifebloom by 88.<br>Your Lifebloom's final bloom has a 30% chance to also cast a free Rejuvenation on the target." },
+                                { quality: 'legendary', level: 159, stats: "+60 Intellect<br>+35 Spirit<br>+28 Mp5", equip: "Your Lifebloom's final bloom has a 50% chance to also cast a free Rejuvenation on the target.<br>When you shift into Tree of Life form, the cooldown of Swiftmend is reset." }
+                            ]
+                        }
+                    }
+                }
+            }
+        };
+
+        // --- DOM ELEMENTS ---
+        const classIconsContainer = document.getElementById('class-icons-container');
+        const specIconsContainer = document.getElementById('spec-icons-container');
+        const mainContent = document.getElementById('main-content');
+        const defaultMessage = document.getElementById('default-message');
+        const questContainer = document.getElementById('quest-container');
+        const rewardContainer = document.getElementById('reward-container');
+
+        let activeClass = null;
+        let activeSpec = null;
+
+        // --- RENDER FUNCTIONS ---
+
+        /**
+         * Renders the main class selection icons.
+         */
+        function renderClassIcons() {
+            classIconsContainer.innerHTML = ''; // Clear existing icons before rendering
+            for (const classKey in pinnacleData) {
+                const classData = pinnacleData[classKey];
+                const icon = document.createElement('img');
+                icon.src = classData.icon;
+                icon.alt = classData.name;
+                icon.title = classData.name;
+                icon.className = 'class-icon w-16 h-16 rounded-full cursor-pointer';
+                icon.dataset.classKey = classKey;
+                icon.addEventListener('click', () => handleClassClick(classKey, icon));
+                classIconsContainer.appendChild(icon);
+            }
+        }
+
+        /**
+         * Renders the specialization icons for the selected class.
+         * @param {string} classKey - The key for the selected class (e.g., 'warrior').
+         */
+        function renderSpecIcons(classKey) {
+            specIconsContainer.innerHTML = '';
+            const specs = pinnacleData[classKey].specs;
+            for (const specKey in specs) {
+                const specData = specs[specKey];
+                const icon = document.createElement('img');
+                icon.src = specData.icon;
+                icon.alt = specData.name;
+                icon.title = specData.name;
+                icon.className = 'spec-icon w-12 h-12 rounded-lg cursor-pointer';
+                icon.dataset.classKey = classKey;
+                icon.dataset.specKey = specKey;
+                icon.addEventListener('click', () => handleSpecClick(classKey, specKey, icon));
+                specIconsContainer.appendChild(icon);
+            }
+        }
+
+        /**
+         * Renders the questline for the selected specialization.
+         * @param {object} questData - The quest data object for the spec.
+         */
+        function renderQuestline(questData) {
+            let questHTML = `
+                <h3 class="font-wow text-3xl text-yellow-400 mb-2">${questData.title}</h3>
+                <p class="text-gray-400 mb-6 italic">${questData.description}</p>
+                <div class="space-y-4">
+            `;
+            questData.steps.forEach(step => {
+                questHTML += `<div class="quest-step p-4 rounded-md">${step}</div>`;
+            });
+            questHTML += `</div>`;
+            questContainer.innerHTML = questHTML;
+        }
+
+        /**
+         * Renders the interactive reward tooltip for the selected specialization.
+         * @param {object} rewardData - The reward data object for the spec.
+         */
+        function renderReward(rewardData) {
+            const rewardHTML = `
+                <div class="sticky top-8">
+                    <div id="tooltip-container" class="tooltip p-4 rounded-lg">
+                        <!-- Tooltip content will be injected here -->
+                    </div>
+                    <div id="phase-buttons" class="flex justify-center gap-2 mt-4">
+                        <button data-phase="0" class="phase-button active px-4 py-2 rounded-md font-bold">Phase 1</button>
+                        <button data-phase="1" class="phase-button px-4 py-2 rounded-md font-bold">Phase 2</button>
+                        <button data-phase="2" class="phase-button px-4 py-2 rounded-md font-bold">Phase 3</button>
+                        <button data-phase="3" class="phase-button px-4 py-2 rounded-md font-bold">Phase 4</button>
+                    </div>
+                </div>
+            `;
+            rewardContainer.innerHTML = rewardHTML;
+            
+            // Add event listeners to the newly created phase buttons
+            document.querySelectorAll('.phase-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    updateTooltip(rewardData, parseInt(button.dataset.phase));
+                    // Update active button style
+                    document.querySelectorAll('.phase-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+            
+            // Initial render of the tooltip for phase 1
+            updateTooltip(rewardData, 0);
+        }
+
+        /**
+         * Updates the tooltip content based on the selected phase.
+         * @param {object} rewardData - The reward data object for the spec.
+         * @param {number} phaseIndex - The index of the selected phase (0-3).
+         */
+        function updateTooltip(rewardData, phaseIndex) {
+            const tooltipContainer = document.getElementById('tooltip-container');
+            const phase = rewardData.phases[phaseIndex];
+            
+            let tooltipHTML = `
+                <h4 class="font-bold text-lg ${phase.quality === 'legendary' ? 'text-legendary' : 'text-epic'}">${rewardData.name}</h4>
+                <p class="text-stat">Item Level ${phase.level}</p>
+                <p class="text-gray-400">Unique</p>
+                <p class="text-gray-400">Trinket</p>
+                <div class="mt-4 space-y-2">
+                    ${phase.stats ? `<p class="text-stat">${phase.stats}</p>` : ''}
+                    ${phase.equip ? `<p><span class="text-equip">Equip:</span> ${phase.equip}</p>` : ''}
+                    ${phase.use ? `<p><span class="text-use">Use:</span> ${phase.use}</p>` : ''}
+                    ${phase.cooldown ? `<p class="text-cooldown">${phase.cooldown}</p>` : ''}
+                </div>
+            `;
+            
+            tooltipContainer.innerHTML = tooltipHTML;
+            tooltipContainer.className = `tooltip p-4 rounded-lg ${phase.quality === 'legendary' ? 'tooltip-legendary' : 'tooltip-epic'}`;
+        }
+        
+        // --- EVENT HANDLERS ---
+
+        /**
+         * Handles clicking on a class icon.
+         * @param {string} classKey - The key for the selected class.
+         * @param {HTMLElement} element - The clicked icon element.
+         */
+        function handleClassClick(classKey, element) {
+            // If the same class is clicked again, do nothing
+            if (activeClass === classKey) return;
+
+            activeClass = classKey;
+            activeSpec = null; // Reset spec when class changes
+
+            // Update active styles for class icons
+            document.querySelectorAll('.class-icon').forEach(icon => icon.classList.remove('active'));
+            element.classList.add('active');
+
+            // Render spec icons for the new class
+            renderSpecIcons(classKey);
+
+            // Hide the content until a spec is chosen
+            questContainer.classList.add('hidden');
+            rewardContainer.classList.add('hidden');
+            defaultMessage.classList.remove('hidden');
+        }
+
+        /**
+         * Handles clicking on a specialization icon.
+         * @param {string} classKey - The key for the selected class.
+         * @param {string} specKey - The key for the selected spec.
+         * @param {HTMLElement} element - The clicked icon element.
+         */
+        function handleSpecClick(classKey, specKey, element) {
+            activeSpec = specKey;
+
+            // Update active styles for spec icons
+            document.querySelectorAll('.spec-icon').forEach(icon => icon.classList.remove('active'));
+            element.classList.add('active');
+
+            // Get the data for the selected spec
+            const specData = pinnacleData[classKey].specs[specKey];
+
+            // Render the content
+            renderQuestline(specData.questline);
+            renderReward(specData.reward);
+
+            // Show the content containers
+            defaultMessage.classList.add('hidden');
+            questContainer.classList.remove('hidden');
+            rewardContainer.classList.remove('hidden');
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderClassIcons();
+        });
+    </script>
+</body>
+</html>

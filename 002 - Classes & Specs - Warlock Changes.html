@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Warlock</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #dcdcdc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt6bef5323a6b577b2/60246216a494740b97771b61/warlock_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #1a1a1a 5%, rgba(26, 26, 26, 0.7) 50%, rgba(26, 26, 26, 0.5) 100%);
+        }
+        .glow-green {
+            text-shadow: 0 0 10px #4ade80, 0 0 15px #22c55e, 0 0 20px #16a34a;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(26, 20, 30, 0.6);
+            border: 1px solid #5b21b6;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #a78bfa;
+        }
+        h3 {
+            color: #a78bfa;
+            border-bottom: 1px solid #6d28d9;
+            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .spec-icon {
+            filter: grayscale(20%) brightness(1.1);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.3);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #7c3aed;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item:hover {
+            background-color: rgba(124, 58, 237, 0.1);
+        }
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-green">The Dark Harvest</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-lime-300">A Redesign of the Warlock Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                Power has its price. We delve into the forbidden arts to refine the Warlock, ensuring that their command over afflictions, demons, and raw destruction is not only potent but also mechanically compelling and true to their dark pacts.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-lime-400">Corruption, Command, and Chaos</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Warlock is a master of dark power, bringing indispensable utility and devastating damage to any raid. Our philosophy enhances the distinct identity of each pact: Affliction's slow decay, Demonology's symbiotic mastery, and Destruction's overwhelming force are all polished to a razor's edge.
+            </p>
+        </section>
+
+        <!-- Affliction Warlock -->
+        <section id="affliction" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_unstableaffliction_3.jpg" alt="Affliction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300">Affliction 💀</h2>
+                        <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Ramp-up)</p>
+                        <p class="text-lg text-gray-300 mt-2">The patient torturer, weaving a symphony of suffering. We smooth out their rotation and enhance their execute phase, making their DoT management more fluid and satisfying.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">"Pandemic" Quality-of-Life:</strong>
+                            <p class="change-desc">A new passive talent allows you to refresh your DoTs without "clipping" them, adding the remaining duration of the old spell to the new one. A massive improvement to rotational flow.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Soul Shard Economy:</strong>
+                            <p class="change-desc">Drain Soul ticks now have a chance to generate Soul Shards, and Shadowburn will refund a shard if it lands a killing blow, making shard management less punishing.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item">
+                             <strong class="change-title">Modern Ability: Haunt:</strong>
+                            <p class="change-desc">A new baseline spell that haunts a target, increasing all of your Shadow DoT damage against them by 20%. This provides a clear burst window to manage.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Empowered Drain Soul:</strong>
+                            <p class="change-desc">Your Drain Soul ability now refreshes the duration of your core DoTs during the execute phase, making it a powerful culmination of your suffering, not a replacement for it.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Demonology Warlock -->
+        <section id="demonology" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_felguard.jpg" alt="Demonology Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300">Demonology 👿</h2>
+                        <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on Pet Scaling/Utility)</p>
+                        <p class="text-lg text-gray-300 mt-2">The true demon master, fighting alongside a powerful minion. We elevate this spec from a support role to a true symbiotic powerhouse, fulfilling the fantasy of demonic transformation.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Massive Pet Scaling Buff:</strong>
+                            <p class="change-desc">The Felguard and other demons now inherit 100% of the Warlock's Spell Power as Attack Power and significantly more Stamina/Armor, making them a true extension of the master's power.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Improved Felguard Threat:</strong>
+                            <p class="change-desc">Your Felguard now generates significantly more threat, making it a viable tank for solo content and a more reliable off-tank in dungeons.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Metamorphosis:</strong>
+                            <p class="change-desc">A new capstone talent. Transform into a powerful demon for 30 seconds, gaining increased damage, armor, and enhanced abilities. The ultimate payoff for a Demonologist.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Demonic Empowerment:</strong>
+                            <p class="change-desc">A new baseline spell that instantly empowers your active demon, increasing its haste and healing it. Provides on-demand pet burst and survivability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Destruction Warlock -->
+        <section id="destruction" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_chaosbolt.jpg" alt="Destruction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-violet-300">Destruction 🔥</h2>
+                         <p class="dps-target dps-nerf">Target DPS Tune: -12-16% (Tune burst, improve utility)</p>
+                         <p class="text-lg text-gray-300 mt-2">The pyromancer of fel fire, seeking only to unmake the world. We refine their arsenal to provide more tactical flexibility and control over their immense, chaotic power.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes & Buffs 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Improved Searing Pain:</strong>
+                            <p class="change-desc">Searing Pain's scaling is improved, making it a more viable filler spell for high-threat situations or when movement is required.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Backdraft Rework:</strong>
+                            <p class="change-desc">Casting Conflagrate now triggers Backdraft, massively increasing your casting speed for your next 3 spells. This provides a crucial window for burst or mobile casting.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Chaos Bolt:</strong>
+                            <p class="change-desc">A new capstone talent. Fires a bolt of pure chaos that cannot be resisted and pierces through all absorption effects. A reliable and iconic nuke.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Havoc:</strong>
+                            <p class="change-desc">A new talent that curses a target, causing your single-target spells to also strike the Havoc'd target for a percentage of their damage. Unlocks powerful cleave potential.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+            this.color = 'rgba(134, 239, 172, 0.5)'; // Fel Green
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

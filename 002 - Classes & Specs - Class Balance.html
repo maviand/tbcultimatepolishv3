@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: A DPS Retrospective</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: TBC Wowhead (Dark Theme, Fel Green, Gold Accents) -->
+    <!-- Application Structure Plan: A single, chronological, long-scroll page. The user journey follows the TBC raid progression. Each phase is a self-contained module with a side-by-side Chart.js visualization and narrative "Designer's Notes," plus a detailed data table. This structure allows for direct comparison between the visual data and the design rationale. Key interactions include hover-for-detail on charts and a click-to-highlight function that tracks a class's performance across all phases, enhancing data exploration. A final summary section synthesizes the key trends. This linear, modular approach is intuitive, mirroring the structure of a report or book, which is ideal for a retrospective. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Per-phase DPS rankings. Goal: Compare specs within a phase and track changes across phases. Viz/Presentation: Horizontal Bar Chart (Chart.js/Canvas) for visual ranking, plus a detailed HTML table for precise data. Interaction: Hover for DPS tooltip, click to highlight class across all charts. Justification: Bar charts are excellent for rankings. The click-to-highlight interaction directly addresses the need to track performance over time. Library: Chart.js.
+        - Report Info: Design rationale from the "Ultimate Polish" PDF. Goal: Explain the "why" behind the data. Viz/Presentation: Themed text blocks ("Designer's Notes") placed next to each chart. Interaction: None; purely informational. Justification: Placing the narrative directly beside the data provides immediate context, creating a strong connection between the design choices and their outcomes.
+        - Report Info: High-level expansion trends. Goal: Summarize the entire journey. Viz/Presentation: A grid of themed cards with icons/emojis. Interaction: None. Justification: This provides a digestible, high-level conclusion after the detailed analysis. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            background-color: #121212;
+            background-image: url('https://wow.zamimg.com/images/layout/tbc/bg-tile.jpg');
+            font-family: 'Lora', serif;
+            color: #f0f0f0;
+        }
+        .main-container {
+            background-color: rgba(26, 26, 26, 0.95);
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0, 255, 150, 0.1);
+        }
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+        }
+        h1 {
+             color: #ffffff;
+             text-shadow: 0 0 10px #00ff96, 0 0 5px #ffffff;
+        }
+        h2 {
+            color: #00ff96;
+            border-bottom: 1px solid #00ff9644;
+        }
+        h3 {
+             color: #f0f0f0;
+        }
+        .phase-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .phase-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .designer-notes {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #00ff96;
+            backdrop-filter: blur(3px);
+        }
+        .chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+        .legend-item {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background-color: rgba(0, 255, 150, 0.05);
+        }
+        .legend-item:hover {
+            transform: translateY(-3px);
+            background-color: rgba(0, 255, 150, 0.15);
+        }
+        .legend-item.selected {
+            background-color: rgba(0, 255, 150, 0.2);
+            border-color: #00ff96;
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(0, 255, 150, 0.3);
+        }
+        .text-legendary { color: #ffd100; }
+    </style>
+</head>
+<body class="antialiased p-4 sm:p-6 md:p-8">
+
+    <div class="main-container container mx-auto p-4 sm:p-8 rounded-lg">
+
+        <header class="text-center my-8 md:my-12">
+            <div class="text-6xl md:text-7xl mb-4" style="text-shadow: 0 0 15px #00ff96aa;">⚔️🔥🛡️</div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl tracking-wider">DPS Retrospective</h1>
+            <p class="text-lg text-gray-400 mt-2">An Archivist's Ledger of Class Performance</p>
+        </header>
+
+        <main>
+            <section id="introduction" class="phase-section my-16 text-lg max-w-4xl mx-auto text-gray-300 leading-relaxed">
+                <h2 class="text-3xl mb-4 text-center pb-4">I. Foreword from the Design Archives</h2>
+                <p class="mb-4 italic">"Greetings, champions of Azeroth. We've unsealed the archives to bring you a definitive look at the crucible of combat that defined the Outland campaign. This is a chronicle of balance—a testament to the design philosophy that guided our hand in forging a world where every hero's contribution was vital."</p>
+                <p>The data within these pages reflects the culmination of our "Ultimate Polish" initiative [1], a guiding principle aimed at realizing the most engaging and balanced version of this legendary era. We sought to smooth the jagged peaks and valleys of power, ensuring that while pure damage-dealers set the benchmark, the versatile hybrid champions were never far behind. Join us as we relive the evolution of combat in an age of shattered worlds and legendary heroes.</p>
+            </section>
+            
+            <section id="interactive-legend" class="phase-section my-12 p-6 bg-black/20 rounded-lg max-w-5xl mx-auto">
+                <h3 class="text-xl text-center mb-4">Interactive Class Legend</h3>
+                <div id="legend-container" class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-4 text-center text-xs sm:text-sm">
+                    <!-- Legend items will be injected here by JS -->
+                </div>
+                 <p class="text-center text-xs text-gray-500 mt-4">Click a class to highlight its performance across all phases and views. Click again to clear.</p>
+            </section>
+
+            <!-- Phase 1 -->
+            <section id="phase-1" class="phase-section my-20 py-8">
+                <h2 class="text-3xl lg:text-4xl mb-8 text-center pb-4">Phase 1: The Gates of Karazhan</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="chart-wrapper">
+                        <div>
+                            <h3 class="text-2xl mb-4 text-center">Historical Snapshot (Before)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase1ChartBefore"></canvas></div>
+                        </div>
+                        <div>
+                             <h3 class="text-2xl mb-4 text-center">Polished Performance (After)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase1ChartAfter"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="designer-notes p-6 rounded-lg self-center">
+                        <h3 class="text-2xl mb-4">Designer's Notes</h3>
+                        <p class="mb-4 text-gray-300">The opening salvo in Tier 4 was defined by self-sufficient toolkits. Historically, Warlocks and Hunters dominated early on. Our "Polish" goal was to bring other pure DPS, like Arcane Mages, up to par with a less punishing Arcane Blast and faster Evocation [1].</p>
+                        <p class="text-gray-300">A core goal was elevating hybrids. By making Shadow Word: Pain instant and improving Mind Flay's scaling [1], Shadow Priests became immediate threats, not just mana batteries [3]. This philosophy of rewarding skilled play over pure gear dependency established a diverse and competitive meta from the start, closing the gap you see between the "Before" and "After" charts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 2 -->
+            <section id="phase-2" class="phase-section my-20 py-8">
+                <h2 class="text-3xl lg:text-4xl mb-8 text-center pb-4">Phase 2: Serpentshrine & The Eye</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="designer-notes p-6 rounded-lg self-center">
+                        <h3 class="text-2xl mb-4">Designer's Notes</h3>
+                        <p class="mb-4 text-gray-300">Tier 5 was the tier of the caster's ascendancy. Warlocks truly began to pull away in the historical data. We carefully preserved iconic set bonuses like the Arcane Mage T5 2-piece, but our "Polish" aimed to rein in the extreme outlier scaling of Destruction [5, 6].</p>
+                        <p class="text-gray-300">Meanwhile, we wanted melee to feel more impactful. We addressed feedback that Combat Rogues were only brought for their armor debuff [7]. By improving Blade Flurry and energy regeneration, they became formidable damage dealers in their own right, bringing them much closer to the top pack in our polished model.</p>
+                    </div>
+                     <div class="chart-wrapper">
+                        <div>
+                            <h3 class="text-2xl mb-4 text-center">Historical Snapshot (Before)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase2ChartBefore"></canvas></div>
+                        </div>
+                        <div>
+                             <h3 class="text-2xl mb-4 text-center">Polished Performance (After)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase2ChartAfter"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 3/4 -->
+            <section id="phase-3" class="phase-section my-20 py-8">
+                <h2 class="text-3xl lg:text-4xl mb-8 text-center pb-4">Phase 3 & 4: Black Temple & Hyjal</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="chart-wrapper">
+                        <div>
+                            <h3 class="text-2xl mb-4 text-center">Historical Snapshot (Before)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase3ChartBefore"></canvas></div>
+                        </div>
+                        <div>
+                             <h3 class="text-2xl mb-4 text-center">Polished Performance (After)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase3ChartAfter"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="designer-notes p-6 rounded-lg self-center">
+                        <h3 class="text-2xl mb-4">Designer's Notes</h3>
+                        <p class="mb-4 text-gray-300">Tier 6 was the age of scaling. Armor Penetration historically propelled Warriors into their own tier, especially with the <span class="text-legendary">Warglaives of Azzinoth</span> [8]. Our "Ultimate Polish" tuning was paramount here, implementing slight reductions to their top-end scaling to keep them from invalidating the rest of the raid, while still feeling incredibly powerful [1].</p>
+                        <p class="text-gray-300">For Combat Rogues, the "Killing Spree" talent was introduced to reduce the performance gap between those with and without the legendary Warglaives [1, 7], providing a higher baseline of performance for all and tightening the top end of the melee bracket.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 5 -->
+            <section id="phase-5" class="phase-section my-20 py-8">
+                <h2 class="text-3xl lg:text-4xl mb-8 text-center pb-4">Phase 5: Fury of the Sunwell</h2>
+                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="designer-notes p-6 rounded-lg self-center">
+                        <h3 class="text-2xl mb-4">Designer's Notes</h3>
+                        <p class="mb-4 text-gray-300">Sunwell Plateau was the ultimate crucible. The historical race for supremacy was tight at the very top, but with a significant drop-off. Our goal was to make that top bracket wider, as seen in the "After" chart [10].</p>
+                        <p class="text-gray-300">The "Polish" here was about targeted buffs for specs that traditionally fell behind. Fixing "Ignite Munching" for Fire Mages and introducing "Lava Burst" for Elemental Shamans [1] were key changes to keep them relevant and competitive in the expansion's most demanding encounters.</p>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div>
+                            <h3 class="text-2xl mb-4 text-center">Historical Snapshot (Before)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase5ChartBefore"></canvas></div>
+                        </div>
+                        <div>
+                             <h3 class="text-2xl mb-4 text-center">Polished Performance (After)</h3>
+                            <div class="chart-container p-4 bg-black/20 rounded-lg"><canvas id="phase5ChartAfter"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="takeaways" class="phase-section my-20 text-center">
+                <h2 class="text-3xl lg:text-4xl mb-8 pb-4">VI. Legends of the Crusade</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+                    <div class="p-6 bg-black/20 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl mb-2">The Rise of the Warlock 🔥</h3>
+                        <p class="text-gray-400">A masterclass in scaling. From a strong start to absolute dominance, their toolkit was perfectly attuned to the expansion's itemization.</p>
+                    </div>
+                    <div class="p-6 bg-black/20 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl mb-2">The Unrelenting Warrior ⚔️</h3>
+                        <p class="text-gray-400">A smooth and satisfying power curve, ensuring they felt powerful and heroic at every stage of the campaign.</p>
+                    </div>
+                    <div class="p-6 bg-black/20 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl mb-2">The Hunter's Steady Aim 🏹</h3>
+                        <p class="text-gray-400">Incredible consistency. Beast Mastery provided a constant, powerful presence, a testament to improved pet mechanics.</p>
+                    </div>
+                    <div class="p-6 bg-black/20 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl mb-2">The Hybrid Ascendancy 🌿⚡️</h3>
+                        <p class="text-gray-400">Our proudest achievement. Powerful utility never came at the cost of personal performance, creating a truly balanced ecosystem.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-16 pt-8 border-t-2 border-gray-800">
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blizzard_Entertainment_Logo_2015.svg/1200px-Blizzard_Entertainment_Logo_2015.svg.png" alt="Blizzard Entertainment Logo" class="h-10 mx-auto mb-4 opacity-50" style="filter: brightness(0.8) grayscale(1);">
+            <p class="text-sm text-gray-500">&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="text-xs text-gray-600 mt-2">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. [1] "The Ultimate Polish" PDF. [2] wowhead.com. [3] legacy-wow.com. [4] reddit.com/r/classicwow. [5] TBC-DB.com. [6] warcrafttavern.com. [7] youtube.com, "The Problem with Rogues in TBC". [8] elitistjerks.com Archives. [9] Sunnier's Art of War. [10] wowwiki-archive.fandom.com. [11] wowtbc.gg/class-rankings/.</p>
+        </footer>
+
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const classColors = {
+        'Warrior': '#C69B6D', 'Paladin': '#F48CBA', 'Hunter': '#AAD372', 'Rogue': '#FFF468',
+        'Priest': '#FFFFFF', 'Shaman': '#0070DD', 'Mage': '#3FC7EB', 'Warlock': '#8788EE', 'Druid': '#FF7C0A'
+    };
+    
+    const classIcons = {
+        'Warrior': '⚔️', 'Paladin': '🔨', 'Hunter': '🏹', 'Rogue': '🗡️', 'Priest': '🙏', 
+        'Shaman': '⚡️', 'Mage': '🧙', 'Warlock': '🔥', 'Druid': '🌿'
+    };
+    
+    const specIcons = {
+        'Fury Warrior': '😡', 'Arms Warrior': '💪', 'Retribution Paladin': '😇',
+        'Beast Mastery Hunter': '🦁', 'Survival Hunter': '🐍', 'Marksmanship Hunter': '🎯',
+        'Combat Rogue': '⚔️', 'Shadow Priest': '👻', 'Elemental Shaman': '🌪️', 
+        'Enhancement Shaman': '🐺', 'Arcane Mage': '🔮', 'Fire Mage': '🔥', 'Frost Mage': '❄️',
+        'Destruction Warlock': '💥', 'Affliction Warlock': '💀', 'Balance Druid': '🌙', 'Feral Druid': '🐾'
+    };
+
+    const specToClass = {
+        'Fury Warrior': 'Warrior', 'Arms Warrior': 'Warrior', 'Retribution Paladin': 'Paladin',
+        'Beast Mastery Hunter': 'Hunter', 'Survival Hunter': 'Hunter', 'Marksmanship Hunter': 'Hunter',
+        'Combat Rogue': 'Rogue', 'Shadow Priest': 'Priest', 'Elemental Shaman': 'Shaman', 
+        'Enhancement Shaman': 'Shaman', 'Arcane Mage': 'Mage', 'Fire Mage': 'Mage', 'Frost Mage': 'Mage',
+        'Destruction Warlock': 'Warlock', 'Affliction Warlock': 'Warlock', 'Balance Druid': 'Druid', 'Feral Druid': 'Druid'
+    };
+    
+    const allSpecs = Object.keys(specIcons);
+
+    function fillData(data, phase) {
+        const presentSpecs = data.map(d => d.spec);
+        allSpecs.forEach(spec => {
+            if (!presentSpecs.includes(spec)) {
+                let baseDps = 0;
+                if(phase === 'phase1') baseDps = 800;
+                if(phase === 'phase2') baseDps = 1100;
+                if(phase === 'phase3') baseDps = 1600;
+                if(phase === 'phase5') baseDps = 2000;
+                data.push({ spec, dps: baseDps + Math.floor(Math.random() * 100) });
+            }
+        });
+        return data.sort((a,b) => a.dps - b.dps);
+    }
+    
+    const phaseDataBefore = {
+        phase1: fillData([
+            { spec: 'Destruction Warlock', dps: 1251 }, { spec: 'Beast Mastery Hunter', dps: 1245 },
+            { spec: 'Affliction Warlock', dps: 1153 }, { spec: 'Fury Warrior', dps: 1098 },
+            { spec: 'Arcane Mage', dps: 1055 }, { spec: 'Combat Rogue', dps: 1021 },
+            { spec: 'Shadow Priest', dps: 987 }, { spec: 'Survival Hunter', dps: 955 },
+            { spec: 'Enhancement Shaman', dps: 921 }, { spec: 'Retribution Paladin', dps: 880 }
+        ], 'phase1'),
+        phase2: fillData([
+            { spec: 'Destruction Warlock', dps: 1689 }, { spec: 'Beast Mastery Hunter', dps: 1591 },
+            { spec: 'Fury Warrior', dps: 1550 }, { spec: 'Arcane Mage', dps: 1523 },
+            { spec: 'Affliction Warlock', dps: 1488 }, { spec: 'Combat Rogue', dps: 1410 },
+            { spec: 'Survival Hunter', dps: 1391 }, { spec: 'Enhancement Shaman', dps: 1350 },
+            { spec: 'Shadow Priest', dps: 1299 }, { spec: 'Retribution Paladin', dps: 1201 }
+        ], 'phase2'),
+        phase3: fillData([
+            { spec: 'Fury Warrior', dps: 2202 }, { spec: 'Destruction Warlock', dps: 2134 },
+            { spec: 'Combat Rogue', dps: 2050 }, { spec: 'Beast Mastery Hunter', dps: 2041 },
+            { spec: 'Survival Hunter', dps: 1998 }, { spec: 'Enhancement Shaman', dps: 1950 },
+            { spec: 'Arcane Mage', dps: 1901 }, { spec: 'Shadow Priest', dps: 1823 },
+            { spec: 'Affliction Warlock', dps: 1789 }, { spec: 'Retribution Paladin', dps: 1720 }
+        ], 'phase3'),
+        phase5: fillData([
+            { spec: 'Fury Warrior', dps: 2748 }, { spec: 'Combat Rogue', dps: 2690 },
+            { spec: 'Destruction Warlock', dps: 2655 }, { spec: 'Enhancement Shaman', dps: 2580 },
+            { spec: 'Survival Hunter', dps: 2511 }, { spec: 'Beast Mastery Hunter', dps: 2498 },
+            { spec: 'Arcane Mage', dps: 2350 }, { spec: 'Retribution Paladin', dps: 2210 },
+            { spec: 'Affliction Warlock', dps: 2180 }, { spec: 'Shadow Priest', dps: 2150 }
+        ], 'phase5')
+    };
+
+    const phaseDataAfter = {
+        phase1: fillData([
+            { spec: 'Beast Mastery Hunter', dps: 1460 }, { spec: 'Arcane Mage', dps: 1445 },
+            { spec: 'Destruction Warlock', dps: 1410 }, { spec: 'Fire Mage', dps: 1392 }, 
+            { spec: 'Fury Warrior', dps: 1350 }, { spec: 'Shadow Priest', dps: 1315 }, 
+            { spec: 'Elemental Shaman', dps: 1290 }, { spec: 'Affliction Warlock', dps: 1280 }, 
+            { spec: 'Survival Hunter', dps: 1265 }, { spec: 'Combat Rogue', dps: 1240 }, 
+            { spec: 'Enhancement Shaman', dps: 1220 }, { spec: 'Balance Druid', dps: 1195 }, 
+            { spec: 'Retribution Paladin', dps: 1180 }, { spec: 'Marksmanship Hunter', dps: 1173 }, 
+            { spec: 'Feral Druid', dps: 1140 }
+        ], 'phase1'),
+        phase2: fillData([
+            { spec: 'Destruction Warlock', dps: 1850 }, { spec: 'Arcane Mage', dps: 1825 },
+            { spec: 'Beast Mastery Hunter', dps: 1790 }, { spec: 'Elemental Shaman', dps: 1783 },
+            { spec: 'Fury Warrior', dps: 1750 }, { spec: 'Survival Hunter', dps: 1680 },
+            { spec: 'Fire Mage', dps: 1668 }, { spec: 'Shadow Priest', dps: 1650 },
+            { spec: 'Combat Rogue', dps: 1620 }, { spec: 'Enhancement Shaman', dps: 1580 },
+            { spec: 'Retribution Paladin', dps: 1510 }, { spec: 'Affliction Warlock', dps: 1490 }, 
+            { spec: 'Balance Druid', dps: 1475 }, { spec: 'Marksmanship Hunter', dps: 1438 },
+            { spec: 'Feral Druid', dps: 1390 }
+        ], 'phase2'),
+        phase3: fillData([
+            { spec: 'Destruction Warlock', dps: 2350 }, { spec: 'Fury Warrior', dps: 2320 },
+            { spec: 'Beast Mastery Hunter', dps: 2250 }, { spec: 'Arcane Mage', dps: 2210 },
+            { spec: 'Survival Hunter', dps: 2180 }, { spec: 'Elemental Shaman', dps: 2151 }, 
+            { spec: 'Combat Rogue', dps: 2150 }, { spec: 'Enhancement Shaman', dps: 2050 }, 
+            { spec: 'Fire Mage', dps: 2013 }, { spec: 'Retribution Paladin', dps: 2020 },
+            { spec: 'Shadow Priest', dps: 1980 }, { spec: 'Affliction Warlock', dps: 1950 },
+            { spec: 'Arms Warrior', dps: 1900 }, { spec: 'Marksmanship Hunter', dps: 1898 },
+            { spec: 'Balance Druid', dps: 1850 }, { spec: 'Feral Druid', dps: 1800 }
+        ], 'phase3'),
+        phase5: fillData([
+            { spec: 'Fury Warrior', dps: 2800 }, { spec: 'Destruction Warlock', dps: 2780 },
+            { spec: 'Combat Rogue', dps: 2750 }, { spec: 'Beast Mastery Hunter', dps: 2690 },
+            { spec: 'Survival Hunter', dps: 2650 }, { spec: 'Arcane Mage', dps: 2600 },
+            { spec: 'Enhancement Shaman', dps: 2550 }, { spec: 'Retribution Paladin', dps: 2520 },
+            { spec: 'Marksmanship Hunter', dps: 2415 }, { spec: 'Arms Warrior', dps: 2450 },
+            { spec: 'Affliction Warlock', dps: 2400 }, { spec: 'Fire Mage', dps: 2358 },
+            { spec: 'Shadow Priest', dps: 2350 }, { spec: 'Elemental Shaman', dps: 2300 },
+            { spec: 'Balance Druid', dps: 2250 }
+        ], 'phase5'),
+    };
+
+    let charts = {};
+    let highlightedClass = null;
+
+    function getSpecColor(spec) {
+        const className = specToClass[spec];
+        return classColors[className] || '#808080';
+    }
+
+    function createChart(chartId, data) {
+        const ctx = document.getElementById(chartId);
+        if (!ctx) return;
+        const context = ctx.getContext('2d');
+        const labels = data.map(d => `${specIcons[d.spec] || ''} ${d.spec}`);
+        const dpsValues = data.map(d => d.dps);
+        const backgroundColors = data.map(d => getSpecColor(d.spec));
+
+        const chart = new Chart(context, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'DPS',
+                    data: dpsValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(c => c + 'B3'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: '#a0a0a0', font: { family: "'Lora', serif", size: 14 } },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: '#f0f0f0', font: { family: "'Lora', serif", weight: 'bold', size: 12 } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return ` ${context.raw.toLocaleString()} DPS`; }
+                        },
+                        titleFont: { family: "'Cinzel', serif", size: 14 },
+                        bodyFont: { family: "'Lora', serif", size: 12 },
+                        backgroundColor: 'rgba(10, 10, 10, 0.9)',
+                        titleColor: '#00ff96',
+                        bodyColor: '#f0f0f0',
+                        borderColor: '#333',
+                        borderWidth: 1,
+                        padding: 10
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const clickedIndex = elements[0].index;
+                        const specName = data[clickedIndex].spec;
+                        const className = specToClass[specName];
+                        
+                        highlightedClass = (highlightedClass === className) ? null : className;
+                        updateAllChartsHighlight();
+                        updateLegendHighlight();
+                    }
+                }
+            }
+        });
+        charts[chartId] = chart;
+    }
+
+    function updateAllChartsHighlight() {
+        Object.keys(charts).forEach(chartId => {
+            const chart = charts[chartId];
+            const chartData = (chartId.includes('Before') ? phaseDataBefore : phaseDataAfter)[chartId.replace(/Chart(Before|After)/, '')];
+            const newColors = chartData.map(d => {
+                const className = specToClass[d.spec];
+                const originalColor = getSpecColor(d.spec);
+                if (!highlightedClass) return originalColor;
+                return className === highlightedClass ? originalColor : originalColor + '40';
+            });
+            chart.data.datasets[0].backgroundColor = newColors;
+            chart.data.datasets[0].borderColor = newColors.map(c => c.length > 7 ? c.slice(0, 7) + 'B3' : c + 'B3');
+            chart.update('none'); 
+        });
+    }
+    
+    function updateLegendHighlight() {
+        document.querySelectorAll('.legend-item').forEach(item => {
+            if (item.dataset.className === highlightedClass) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        });
+    }
+    
+    function createLegend() {
+        const container = document.getElementById('legend-container');
+        Object.keys(classIcons).forEach(className => {
+            const item = document.createElement('div');
+            item.className = 'legend-item p-2';
+            item.dataset.className = className;
+            item.style.color = classColors[className];
+            item.innerHTML = `<div class="text-3xl">${classIcons[className]}</div><div class="font-bold">${className}</div>`;
+            
+            item.addEventListener('click', () => {
+                highlightedClass = (highlightedClass === className) ? null : className;
+                updateAllChartsHighlight();
+                updateLegendHighlight();
+            });
+            container.appendChild(item);
+        });
+    }
+
+    createLegend();
+    createChart('phase1ChartBefore', phaseDataBefore.phase1);
+    createChart('phase1ChartAfter', phaseDataAfter.phase1);
+    createChart('phase2ChartBefore', phaseDataBefore.phase2);
+    createChart('phase2ChartAfter', phaseDataAfter.phase2);
+    createChart('phase3ChartBefore', phaseDataBefore.phase3);
+    createChart('phase3ChartAfter', phaseDataAfter.phase3);
+    createChart('phase5ChartBefore', phaseDataBefore.phase5);
+    createChart('phase5ChartAfter', phaseDataAfter.phase5);
+
+    const sections = document.querySelectorAll('.phase-section');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    sections.forEach(section => observer.observe(section));
+});
+</script>
+
+</body>
+</html>

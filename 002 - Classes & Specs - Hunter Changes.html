@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Hunter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a; /* Darker, earthy base */
+            color: #dcdcdc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/bltdc8a2b53b8bf584b/6024621518f8f90b9b378033/hunter_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #1a1a1a 5%, rgba(26, 26, 26, 0.7) 50%, rgba(26, 26, 26, 0.5) 100%);
+        }
+        .glow-gold {
+            text-shadow: 0 0 8px #ffd700, 0 0 12px #ffc400, 0 0 16px #ffae00;
+        }
+        .glow-green {
+            text-shadow: 0 0 8px #78e854, 0 0 12px #44c738, 0 0 16px #2a9d2a;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(26, 32, 26, 0.6);
+            border: 1px solid #3f6212;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #a3e635;
+        }
+        h3 {
+            color: #a3e635;
+            border-bottom: 1px solid #4d7c0f;
+            padding-bottom: 8px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .spec-icon {
+            filter: grayscale(30%) brightness(1.2);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.4);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            border-left: 3px solid #65a30d;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item:hover {
+            background-color: rgba(132, 204, 22, 0.1);
+        }
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-green">The Untamed Wild</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-lime-300">A Redesign of the Hunter Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                From the shadowed forests of Azeroth to the shattered plains of Outland, the Hunt is eternal. We now refine the very essence of the master predator, honing their skills to ensure their legend is sung in every tavern and feared on every battlefield.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-lime-400">One Shot, One Kill, One Purpose</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Hunter is a master of ranged combat and feral companionship. Our philosophy is to ensure each path—the Beast Master, the Marksman, and the Survivor—is not just a choice of tools, but a distinct and powerful identity. We tune early-game dominance, bolster late-game scaling, and inject engaging mechanics to fulfill the fantasy of the ultimate predator.
+            </p>
+        </section>
+
+        <!-- Beast Mastery Hunter -->
+        <section id="beastmastery" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_bestialdiscipline.jpg" alt="Beast Mastery Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-lime-300 glow-gold">Beast Mastery 🐾</h2>
+                        <p class="dps-target dps-nerf">Target DPS Tune: -4-8% (Tuning early dominance, improving QoL/Scaling)</p>
+                        <p class="text-lg text-gray-300 mt-2">The symbiotic bond between hunter and beast, forged in the heart of the wild. We strengthen this connection, ensuring the pet is a resilient and devastating extension of the master's will.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Pet Survivability Overhaul:</strong>
+                            <p class="change-desc">Pets gain a massive baseline boost to Stamina and Armor scaling and now take 50% reduced damage from non-player AoE, making them far more resilient in raids.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Smarter, Faster Companions:</strong>
+                            <p class="change-desc">Pet AI pathing and responsiveness are significantly improved, reducing delays and making them re-engage targets much more quickly after crowd control or movement.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item">
+                             <strong class="change-title">Modern Ability: Kill Command Rework:</strong>
+                            <p class="change-desc">Replaces the old passive effect with an active, instant command for your pet to deal high damage, making the ability more interactive and impactful.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Barbed Shot:</strong>
+                            <p class="change-desc">A new shot that applies a bleed and enrages your pet, increasing its attack speed. This adds a compelling DoT management layer to the BM rotation.</p>
+                        </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Talent: Animal Companion:</strong>
+                             <p class="change-desc">An optional talent allowing you to summon a second pet from your stable to fight alongside your main one, adding immense visual flair and passive cleave damage.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Marksmanship Hunter -->
+        <section id="marksmanship" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_focusedaim.jpg" alt="Marksmanship Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-lime-300 glow-green">Marksmanship 🎯</h2>
+                        <p class="dps-target dps-buff">Target DPS Buff: +4-8%</p>
+                        <p class="text-lg text-gray-300 mt-2">The patient sniper who finds and exploits weaknesses from afar. We sharpen their focus, reduce cast times, and reward precision with devastating burst potential.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Aimed Shot Refined:</strong>
+                            <p class="change-desc">The base cast time of Aimed Shot is reduced from 3.0s to 2.5s, making it a more fluid and less punishing part of the rotation.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Deadzone Eliminated:</strong>
+                            <p class="change-desc">The frustrating 5-8 yard melee deadzone is removed. Auto-shot can now be used within melee range, providing a massive quality-of-life improvement.</p>
+                        </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">Scaling Trueshot Aura:</strong>
+                            <p class="change-desc">Trueshot Aura now scales dynamically, adding a portion of the Hunter's own Attack Power to the raid buff, making their gear progression more valuable to the group.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Capstone: Master Sniper:</strong>
+                            <p class="change-desc">A new 41-point talent giving your Steady and Aimed Shot critical strikes a chance to reset the cooldown of Aimed Shot and make it instant cast, creating thrilling burst cycles.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Chimera Shot (from WotLK):</strong>
+                            <p class="change-desc">(As an alternate talent path) An instant shot that refreshes your Serpent Sting and deals weapon damage, providing a powerful, synergistic signature ability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Survival Hunter -->
+        <section id="survival" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_traplauncher.jpg" alt="Survival Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-lime-300 glow-gold">Survival 🌲</h2>
+                         <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on Utility/Mechanics)</p>
+                         <p class="text-lg text-gray-300 mt-2">The cunning trapper and master of tactical explosives. We transform Survival from a niche support spec into a dynamic and explosive damage dealer with unique utility.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item">
+                            <strong class="change-title">Trap Launcher Baseline:</strong>
+                            <p class="change-desc">Hunters can now throw traps from 40 yards away via a new baseline ability, finally allowing them to use their core utility safely and effectively in combat.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Improved Traps:</strong>
+                            <p class="change-desc">Traps can now be placed while in combat. Their trigger radius and responsiveness are improved, making them far more reliable tools of control.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-cinzel text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Ability: Explosive Shot:</strong>
+                            <p class="change-desc">This iconic WotLK ability becomes the core rotational shot for Survival, firing an explosive charge that deals high fire damage over time and scales with Attack Power.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Lock and Load:</strong>
+                            <p class="change-desc">Triggering your traps has a chance to make your next two Explosive Shots free and have no cooldown, creating an exciting, proc-based gameplay loop that rewards clever trap usage.</p>
+                         </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">Modern Talent: Black Arrow:</strong>
+                             <p class="change-desc">A new talent that fires a shadowy DoT. While active, your periodic trap damage can reset the cooldown of Explosive Shot, adding another layer of synergy to your kit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.5 - 0.25;
+            this.speedY = Math.random() * 0.5 - 0.25;
+            this.color = 'rgba(163, 230, 53, 0.4)'; // Hunter Green/Lime
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

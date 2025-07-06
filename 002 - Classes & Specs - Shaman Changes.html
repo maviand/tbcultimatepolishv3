@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Shaman</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #292524;
+            color: #d6d3d1;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt35e81922c44f49d9/60246216a494740b97771b5f/shaman_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #292524 5%, rgba(41, 37, 36, 0.7) 50%, rgba(41, 37, 36, 0.5) 100%);
+        }
+        .glow-orange {
+            text-shadow: 0 0 10px #fb923c, 0 0 15px #f97316, 0 0 20px #ea580c;
+        }
+        .glow-blue {
+            text-shadow: 0 0 8px #93c5fd, 0 0 12px #60a5fa, 0 0 16px #3b82f6;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(41, 37, 36, 0.6);
+            border: 1px solid #57534e;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #fb923c;
+        }
+        h3.elemental { color: #60a5fa; border-bottom-color: #2563eb; }
+        h3.enhancement { color: #f97316; border-bottom-color: #c2410c; }
+        h3.restoration { color: #34d399; border-bottom-color: #059669; }
+        .spec-icon {
+            filter: grayscale(20%) brightness(1.1);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.3);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item.elemental-item { border-left: 3px solid #60a5fa; }
+        .change-list-item.enhancement-item { border-left: 3px solid #f97316; }
+        .change-list-item.restoration-item { border-left: 3px solid #34d399; }
+        
+        .change-list-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-orange">The Earthen Ring</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-orange-300">A Redesign of the Shaman Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                The elements are eternal, their fury and grace shaping the very worlds. We delve into this primal power to rebalance the Shaman, ensuring the call of the storm, the strength of the earth, and the spirit of the wild are not just felt, but feared and revered.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-orange-400">Earth, Storm, and Spirit</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Shaman is the versatile spiritual conduit of the Horde and Alliance, a master of totems and elemental forces. Our redesign focuses on solving core mechanical issues for each specialization, enhancing their quality of life and solidifying their powerful, unique identities on the battlefield.
+            </p>
+        </section>
+
+        <!-- Elemental Shaman -->
+        <section id="elemental" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_nature_lightning.jpg" alt="Elemental Icon" class="w-32 h-32 rounded-full border-4 border-blue-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-blue-300">Elemental ⛈️</h2>
+                        <p class="dps-target dps-buff">Target DPS Buff: +12-16%</p>
+                        <p class="text-lg text-gray-300 mt-2">The living conduit for the fury of the storm. We solve their crippling mana issues and give them more dynamic tools, allowing them to truly unleash the tempest within.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="elemental text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item elemental-item">
+                            <strong class="change-title">Totem Mobility:</strong>
+                            <p class="change-desc">The leash radius for totems is increased to 30 yards, allowing for far greater mobility in combat without sacrificing your core buffs and effects.</p>
+                        </div>
+                        <div class="change-list-item elemental-item">
+                            <strong class="change-title">Mana Efficiency:</strong>
+                            <p class="change-desc">The Elemental Focus talent is massively buffed to make your next two spells free after a crit, significantly improving mana sustain during long encounters.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="elemental text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item elemental-item">
+                             <strong class="change-title">Modern Ability: Lava Burst:</strong>
+                            <p class="change-desc">A new core spell. This high-damage nuke is a guaranteed critical strike if the target is affected by your Flame Shock, creating a powerful rotational synergy.</p>
+                        </div>
+                        <div class="change-list-item elemental-item">
+                            <strong class="change-title">Modern Ability: Thunderstorm:</strong>
+                            <p class="change-desc">An optional talent that knocks enemies back, deals damage, and restores 10% of your mana. A perfect tool for utility, defense, and resource management.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Enhancement Shaman -->
+        <section id="enhancement" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_nature_lightningshield.jpg" alt="Enhancement Icon" class="w-32 h-32 rounded-full border-4 border-orange-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-orange-300">Enhancement 🐺</h2>
+                        <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Scaling)</p>
+                        <p class="text-lg text-gray-300 mt-2">The battle-mage who infuses their weapons with primal power. We overhaul their rotation to perfectly blend spell and steel, fulfilling the fantasy of a true elemental warrior.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="enhancement text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item enhancement-item">
+                            <strong class="change-title">Improved Scaling:</strong>
+                            <p class="change-desc">Attack Power scaling for Stormstrike and weapon imbues is improved to help Enhancement keep pace with pure melee classes in later raid tiers.</p>
+                        </div>
+                         <div class="change-list-item enhancement-item">
+                            <strong class="change-title">Shamanistic Rage Buff:</strong>
+                             <p class="change-desc">This crucial cooldown is reduced to 1 minute, returns more mana, and now also reduces damage taken, making it a reliable defensive and resource tool.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="enhancement text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item enhancement-item">
+                            <strong class="change-title">Modern Ability: Maelstrom Weapon:</strong>
+                            <p class="change-desc">A transformative new talent. Melee attacks have a chance to make your next Lightning Bolt or Chain Lightning instant cast, creating a dynamic and thrilling hybrid rotation.</p>
+                        </div>
+                        <div class="change-list-item enhancement-item">
+                            <strong class="change-title">Modern Ability: Feral Spirit:</strong>
+                            <p class="change-desc">The 41-point capstone talent is replaced. Summon two Spirit Wolves to fight alongside you, providing a significant DPS and utility cooldown.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Restoration Shaman -->
+        <section id="restoration" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_nature_magicimmunity.jpg" alt="Restoration Icon" class="w-32 h-32 rounded-full border-4 border-emerald-500 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-emerald-300">Restoration 🌊</h2>
+                         <p class="dps-target dps-neutral">Target: No Healing Adjustment (Focus on QoL/Mobility)</p>
+                         <p class="text-lg text-gray-300 mt-2">The spiritual leader who calls upon the cleansing power of water. We grant them the mobility and reactive tools needed to command the tides of battle from any position.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="restoration text-2xl">Core Fixes & Buffs 🔧</h3>
+                        <div class="change-list-item restoration-item">
+                            <strong class="change-title">Empowered Earth Shield:</strong>
+                            <p class="change-desc">Earth Shield can now be cast on any friendly target and has more charges, making it a more versatile and powerful mitigation tool.</p>
+                        </div>
+                        <div class="change-list-item restoration-item">
+                            <strong class="change-title">Chain Heal Buffs:</strong>
+                            <p class="change-desc">The mana cost of Chain Heal is reduced, and key talents like Healing Way are improved to increase throughput and efficiency, reinforcing their role as master raid healers.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="restoration text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item restoration-item">
+                            <strong class="change-title">Modern Ability: Riptide:</strong>
+                            <p class="change-desc">A new baseline instant-cast Heal-over-Time spell. Provides a much-needed mobile healing option and can be consumed by Chain Heal for a bonus effect.</p>
+                        </div>
+                        <div class="change-list-item restoration-item">
+                            <strong class="change-title">Modern Ability: Spiritwalker's Grace:</strong>
+                            <p class="change-desc">A new deep talent that allows the Shaman to cast all their spells while moving for a short duration, completely solving their greatest weakness on high-movement encounters.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+            const colors = ['rgba(251, 146, 60, 0.5)', 'rgba(96, 165, 250, 0.5)', 'rgba(52, 211, 153, 0.5)'];
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>

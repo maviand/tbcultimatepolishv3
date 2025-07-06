@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Burning Crusade: Ultimate Polish - The Priest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #dcdcdc;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .font-cinzel {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .hero {
+            height: 100vh;
+            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt0a7a483e5661b17a/602462153139360c733633e6/priest_background.jpg?auto=webp&format=pjpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .hero-overlay {
+            background: linear-gradient(to top, #1a1a1a 5%, rgba(26, 26, 26, 0.7) 50%, rgba(26, 26, 26, 0.5) 100%);
+        }
+        .glow-gold {
+            text-shadow: 0 0 10px #ffeea0, 0 0 15px #ffd700, 0 0 20px #ffc400;
+        }
+        .glow-shadow {
+            text-shadow: 0 0 8px #d8b4fe, 0 0 12px #c084fc, 0 0 16px #a855f7;
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .spec-card {
+            background-color: rgba(28, 28, 32, 0.6);
+            border: 1px solid #52525b;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            border-color: #eab308;
+        }
+        h3.holy { color: #facc15; border-bottom-color: #ca8a04; }
+        h3.disc { color: #a5b4fc; border-bottom-color: #4f46e5; }
+        h3.shadow { color: #c084fc; border-bottom-color: #7e22ce; }
+        .spec-icon {
+            filter: grayscale(20%) brightness(1.1);
+            transition: all 0.3s ease;
+        }
+        .spec-card:hover .spec-icon {
+            filter: grayscale(0%) brightness(1.3);
+            transform: scale(1.1);
+        }
+        .change-list-item {
+            background-color: rgba(0,0,0,0.2);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s;
+        }
+        .change-list-item.holy-item { border-left: 3px solid #facc15; }
+        .change-list-item.disc-item { border-left: 3px solid #a5b4fc; }
+        .change-list-item.shadow-item { border-left: 3px solid #c084fc; }
+        
+        .change-list-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+
+        .change-title {
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .change-desc {
+            color: #d1d5db;
+        }
+        .dps-target {
+            font-family: 'Cinzel Decorative', cursive;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .dps-buff { color: #22c55e; }
+        .dps-nerf { color: #ef4444; }
+        .dps-neutral { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Hero Section -->
+    <header class="hero relative flex items-center justify-center text-center text-white">
+        <div class="hero-overlay absolute inset-0"></div>
+        <div class="relative z-10 p-8">
+            <h1 class="font-cinzel text-5xl md:text-7xl lg:text-8xl font-black uppercase tracking-wider glow-gold">Voice of Faith</h1>
+            <h2 class="font-cinzel text-2xl md:text-3xl mt-4 text-amber-200">A Redesign of the Priest Class</h2>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-300">
+                Torn between the divine Light and the ravenous Void, the Priest walks a path of perilous balance. We amplify the distinct doctrines of each specialization, ensuring that whether they preserve, protect, or punish, their convictions are made manifest with awesome power.
+            </p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16 md:py-24">
+
+        <!-- Introduction -->
+        <section class="mb-24 scroll-animate">
+            <h2 class="font-cinzel text-4xl text-center mb-4 text-amber-300">Preserve, Protect, Punish</h2>
+            <p class="text-center max-w-4xl mx-auto text-gray-400 text-lg">
+                The Priest is the quintessential wielder of spiritual power, a master of healing and shadow. Our redesign sharpens the identity of each covenant: Discipline becomes the ultimate proactive protector, Holy the unmatched reactive healer, and Shadow a far more self-sufficient and devastating damage dealer.
+            </p>
+        </section>
+
+        <!-- Discipline Priest -->
+        <section id="discipline" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_powerwordshield.jpg" alt="Discipline Icon" class="w-32 h-32 rounded-full border-4 border-indigo-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-indigo-300">Discipline 🛡️</h2>
+                        <p class="dps-target dps-neutral">Target: Solidify Role as Proactive Mitigation Healer</p>
+                        <p class="text-lg text-gray-300 mt-2">The proactive healer who masters mitigation through divine shields and foresight. We grant them the iconic tools they need to truly control the flow of battle by preventing damage before it occurs.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="disc text-2xl">Core Fixes 🔧</h3>
+                        <div class="change-list-item disc-item">
+                            <strong class="change-title">Superior Shielding:</strong>
+                            <p class="change-desc">Power Word: Shield's base absorption and mana efficiency are significantly increased through talents, making it a more powerful and sustainable core ability.</p>
+                        </div>
+                        <div class="change-list-item disc-item">
+                            <strong class="change-title">Enhanced Cooldowns:</strong>
+                            <p class="change-desc">Pain Suppression and Power Infusion have their cooldowns reduced, allowing for more frequent and tactical use of these powerful support spells.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="disc text-2xl">Power Infusions ✨</h3>
+                        <div class="change-list-item disc-item">
+                             <strong class="change-title">Modern Ability: Penance:</strong>
+                            <p class="change-desc">A new core talent. Channel a volley of holy bolts at a friend to heal or a foe to smite, providing an efficient, flexible, and iconic spell.</p>
+                        </div>
+                        <div class="change-list-item disc-item">
+                            <strong class="change-title">Modern Ability: Power Word: Barrier:</strong>
+                            <p class="change-desc">The defining cooldown for Discipline. Summons a holy barrier that reduces all damage taken by allies inside, providing an answer to the most devastating raid mechanics.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Holy Priest -->
+        <section id="holy" class="mb-24 scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_guardianspirit.jpg" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-amber-300">Holy 🙏</h2>
+                        <p class="dps-target dps-neutral">Target: Improve Reactive & "Oh-Shit" Healing</p>
+                        <p class="text-lg text-gray-300 mt-2">The conduit of pure Light, mending grievous wounds with unmatched throughput. We enhance their reactive capabilities, giving them powerful tools to save allies from the brink of death.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="holy text-2xl">Core Fixes 🔧</h3>
+                         <div class="change-list-item holy-item">
+                            <strong class="change-title">Improved Reactivity:</strong>
+                            <p class="change-desc">Holy Shock's cooldown is trimmed for faster use, and a new talent, Serendipity, allows quick spot heals to reduce the cast time of major group heals.</p>
+                        </div>
+                         <div class="change-list-item holy-item">
+                            <strong class="change-title">Clearer Healing:</strong>
+                             <p class="change-desc">Holy Word: Sanctuary's ground effect is made visually clearer and its smart-targeting is improved, ensuring its power is never wasted.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="holy text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item holy-item">
+                            <strong class="change-title">Modern Ability: Guardian Spirit:</strong>
+                            <p class="change-desc">A new talent to place a guardian angel on an ally. It increases healing they receive and will sacrifice itself to save them from a fatal blow, providing the ultimate tank cooldown.</p>
+                        </div>
+                        <div class="change-list-item holy-item">
+                            <strong class="change-title">Modern Ability: Light of Dawn:</strong>
+                            <p class="change-desc">An optional talent that unleashes a powerful wave of healing in a cone, giving Holy a strong tool for recovering from stacked group damage.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shadow Priest -->
+        <section id="shadow" class="scroll-animate">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_shadowform.jpg" alt="Shadow Icon" class="w-32 h-32 rounded-full border-4 border-purple-400 shadow-lg spec-icon">
+                    <div>
+                        <h2 class="font-cinzel text-4xl text-purple-300 glow-shadow">Shadow 💀</h2>
+                         <p class="dps-target dps-buff">Target DPS Buff: +20-24%</p>
+                         <p class="text-lg text-gray-300 mt-2">The master of psychic horror and void energies. We unleash their personal power, making them a devastating damage dealer in their own right, not just a mana battery for others.</p>
+                    </div>
+                </div>
+                <div class="mt-12 grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="shadow text-2xl">Core Fixes & Buffs 🔧</h3>
+                        <div class="change-list-item shadow-item">
+                            <strong class="change-title">Reduced Ramp-Up Time:</strong>
+                            <p class="change-desc">Mind Flay channeling is smoothed out and now correctly scales with stats. Shadow Weaving no longer conflicts with other casters, ensuring your debuffs are your own.</p>
+                        </div>
+                        <div class="change-list-item shadow-item">
+                            <strong class="change-title">Improved Scaling & Sustain:</strong>
+                            <p class="change-desc">The Darkness talent now adds crit chance. Shadowform is improved with inherent pushback resistance and a small amount of spell leech for self-sustain.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="shadow text-2xl">Power Infusions ✨</h3>
+                         <div class="change-list-item shadow-item">
+                            <strong class="change-title">Modern Ability: Dispersion:</strong>
+                            <p class="change-desc">A new talent allows the Priest to dissolve into pure shadow, drastically reducing damage taken and regenerating mana. A crucial survival and resource cooldown.</p>
+                        </div>
+                        <div class="change-list-item shadow-item">
+                            <strong class="change-title">Modern Ability: Mind Sear:</strong>
+                            <p class="change-desc">Finally, a true AoE ability. Channel psychic energy into a target, causing them to radiate massive shadow damage to all nearby enemies.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 mt-16 border-t border-gray-800">
+        <div class="container mx-auto text-center text-gray-500">
+            <img src="https://blz-contentstack-images.akamaized.net/v3/assets/blt3452e3b114d52940/blt033a3641b3493776/5d48a215b74169562a56763e/logo-blizzard-white-on-transparent-background.png" alt="Blizzard Entertainment" class="h-12 mx-auto mb-4 opacity-50">
+            <p>&copy; 2025 Blizzard Entertainment, Inc. All rights reserved.</p>
+            <p class="mt-2 text-sm">World of Warcraft, The Burning Crusade, and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries. This is a conceptual design proposal.</p>
+        </div>
+    </footer>
+
+
+<script>
+    // Particle background effect
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+    const numberOfParticles = 50;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.4 - 0.2;
+            this.speedY = Math.random() * 0.4 - 0.2;
+            const colors = ['rgba(250, 204, 21, 0.5)', 'rgba(217, 119, 6, 0.5)', 'rgba(192, 132, 252, 0.4)'];
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+        update() {
+            if (this.x > canvas.width || this.x < 0) {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.y = Math.random() * canvas.height;
+                this.x = Math.random() * canvas.width;
+            }
+            this.x += this.speedX;
+            this.y += this.speedY;
+        }
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initParticles() {
+        for (let i = 0; i < numberOfParticles; i++) {
+            particlesArray.push(new Particle());
+        }
+    }
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+            particlesArray[i].draw();
+        }
+        requestAnimationFrame(animateParticles);
+    }
+    
+    initParticles();
+    animateParticles();
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particlesArray = [];
+        initParticles();
+    });
+
+    // Scroll animation
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+
+    const elementInView = (el, dividend = 1) => {
+        const elementTop = el.getBoundingClientRect().top;
+        return (
+            elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+        );
+    };
+
+    const displayScrollElement = (element) => {
+        element.classList.add('visible');
+    };
+
+    const handleScrollAnimation = () => {
+        scrollElements.forEach((el) => {
+            if (elementInView(el, 1.25)) {
+                displayScrollElement(el);
+            }
+        });
+    };
+
+    window.addEventListener('scroll', () => {
+        handleScrollAnimation();
+    });
+    // Initial check
+    handleScrollAnimation();
+
+</script>
+
+</body>
+</html>
