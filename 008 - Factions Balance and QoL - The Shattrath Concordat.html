@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Shattrath Concordat - TBC Redesign</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Shattrath Concordat (Aldor Purple, Scryer Gold, Neutral Stone) -->
+    <!-- Application Structure Plan: The SPA is architected around four distinct, task-oriented modules, accessible via a main navigation bar. This modular design (Rationale, Faction Balance, QoL, Attunements) allows users to engage with specific areas of interest without a prescribed linear flow. It starts with the 'Why' (Rationale), then provides interactive tools for the 'How' (the other modules). This structure was chosen to mirror a design discussion, moving from high-level philosophy to detailed implementation proposals, making a complex report easily digestible and interactive. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Faction Imbalance. Goal: Compare key pain points. Viz: Bar Chart (Chart.js). Interaction: Tooltips. Justification: Clearly illustrates the disparity in power between factions in key areas mentioned in the report (PvP Racials, PvE Seals).
+        - Report Info: Racial & Class Changes. Goal: Allow user experimentation. Viz: Interactive HTML cards with sliders/dropdowns. Interaction: Users modify values to see a simulated "Impact Report" in a modal. Justification: Provides a hands-on, sandbox experience for understanding the effects of change.
+        - Report Info: QoL Features. Goal: Gauge community approval. Viz: Interactive list with Yes/No buttons and a dynamic poll bar. Interaction: Users click Yes/No to simulate voting. Justification: A clear and direct way to represent community sentiment on binary choices.
+        - Report Info: Attunement Chains. Goal: Visualize simplification. Viz: Flowchart made of styled HTML divs and CSS pseudo-elements, with a dropdown to switch chains. Interaction: Click to toggle quest steps as "skippable," updating a "Time Saved" metric. Justification: Simulates flowchart interaction without complex libraries, making the benefit of the change immediately apparent across multiple complex chains.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All visuals are pure HTML/CSS/Tailwind or Canvas via Chart.js. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #2a2a33;
+            color: #e0e0e0;
+        }
+        .app-container {
+            max-width: 1200px;
+        }
+        .panel {
+            background-color: #393942;
+            border: 1px solid #555;
+            border-radius: 8px;
+        }
+        .nav-link {
+            color: #c0c0e0;
+            transition: all 0.2s ease;
+            padding: 10px 16px;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #fff;
+            border-bottom-color: #a78bfa; /* Aldor Purple */
+        }
+        h1, h2, h3 {
+            color: #fff;
+        }
+        .title-highlight {
+            color: #f59e0b; /* Scryer Gold */
+        }
+        .btn-primary {
+            background-color: #8b5cf6; /* Aldor Purple */
+            color: #fff;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+        .btn-secondary {
+            background-color: #4a4a52;
+            color: #fff;
+            transition: background-color 0.2s;
+        }
+        .btn-secondary:hover {
+            background-color: #5a5a62;
+        }
+        .btn-vote-yes { background-color: #16a34a; color: white; }
+        .btn-vote-yes:hover { background-color: #15803d; }
+        .btn-vote-no { background-color: #dc2626; color: white; }
+        .btn-vote-no:hover { background-color: #b91c1c; }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #4a4a52;
+            border-radius: 5px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #a78bfa;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #a78bfa;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .qol-item .progress-bar-bg {
+            background-color: #4a4a52;
+        }
+        .qol-item .progress-bar {
+            background-color: #16a34a;
+            transition: width 0.3s ease-in-out;
+        }
+        .attunement-flow {
+            position: relative;
+        }
+        .attunement-step {
+            border: 2px solid #555;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .attunement-step.skippable {
+            border-color: #f59e0b;
+            background-color: #4a4a52;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .attunement-step:not(:last-child)::after {
+            content: '↓';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #777;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body class="bg-[#2a2a33]">
+
+    <div id="app" class="app-container mx-auto p-4 md:p-6">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold">The <span class="title-highlight">Shattrath</span> Concordat</h1>
+            <p class="text-lg text-gray-400 mt-2">A Design Hub for TBC Faction Balance & Quality of Life</p>
+        </header>
+
+        <nav class="flex justify-center flex-wrap gap-2 md:gap-4 mb-8 panel p-2">
+            <a href="#rationale" class="nav-link text-sm md:text-base active">Design Rationale</a>
+            <a href="#balance" class="nav-link text-sm md:text-base">Faction Balance</a>
+            <a href="#qol" class="nav-link text-sm md:text-base">Quality of Life</a>
+            <a href="#attunements" class="nav-link text-sm md:text-base">Attunements</a>
+        </nav>
+
+        <main>
+            <!-- Design Rationale Section -->
+            <section id="rationale" class="page-section">
+                <div class="panel p-6 md:p-8">
+                    <h2 class="text-3xl text-center mb-6">The Philosophy of <span class="title-highlight">Respectful Enhancement</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        <div class="space-y-6 text-gray-300 text-lg">
+                            <p>The Burning Crusade is a masterwork, but even masterpieces can be polished. This initiative is not about modernization; it's about <span class="font-bold text-white">respectful enhancement</span>. Our goal is to surgically address known pain points—faction imbalance, quality-of-life friction, and tedious barriers to entry—while preserving the core "spirit of TBC" that makes the era so beloved.</p>
+                            <p>Every proposed change is guided by a simple principle: does this deepen player choice, foster community, and reward investment without compromising the classic experience? The data below highlights the key areas of imbalance we aim to address, particularly the power of Horde racials in PvP and the disparity between Paladin seals in PvE.</p>
+                        </div>
+                        <div class="chart-container h-80 md:h-96">
+                            <canvas id="balanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Faction Balance Section -->
+            <section id="balance" class="page-section hidden">
+                <div class="panel p-6 md:p-8">
+                    <h2 class="text-3xl text-center mb-2">The <span class="title-highlight">Diplomat's</span> Table</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">Propose changes to faction-specific abilities and see their simulated impact. The goal is parity, not perfect symmetry. Adjust the values below and generate your Concordat Report.</p>
+                    <div id="balanceControls" class="space-y-8">
+                        <!-- JS will populate this -->
+                    </div>
+                    <div class="text-center mt-8">
+                        <button id="generateReportBtn" class="btn-primary font-bold py-3 px-8 rounded-lg text-xl">Generate Impact Report</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quality of Life Section -->
+            <section id="qol" class="page-section hidden">
+                <div class="panel p-6 md:p-8">
+                    <h2 class="text-3xl text-center mb-2">The <span class="title-highlight">Architect's</span> Blueprint</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">Vote on proposed Quality of Life enhancements. Each feature is designed to reduce friction without fundamentally altering the classic experience. Where do you draw the line?</p>
+                    <div id="qolList" class="space-y-6 max-w-4xl mx-auto">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attunements Section -->
+            <section id="attunements" class="page-section hidden">
+                <div class="panel p-6 md:p-8">
+                    <h2 class="text-3xl text-center mb-2">The <span class="title-highlight">Attunement</span> Cartographer</h2>
+                    <p class="text-center text-gray-400 mb-8 max-w-3xl mx-auto">Visualize and redesign TBC's complex attunement chains. Click a step to mark it as "skippable" after your first completion on any character, and see how much time you'd save.</p>
+                    
+                    <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-6">
+                         <select id="attunementSelector" class="w-full md:w-auto p-2 bg-[#2a2a33] rounded border border-gray-600">
+                            <!-- JS will populate this -->
+                        </select>
+                        <div class="bg-gray-800/50 p-4 rounded-lg text-center">
+                            <h3 class="text-xl font-bold text-white">Estimated Time Saved</h3>
+                            <p class="text-2xl text-yellow-400 font-bold"><span id="timeSaved">0</span> hours</p>
+                        </div>
+                    </div>
+
+                    <div id="attunementChain" class="flex flex-col items-center space-y-8">
+                         <!-- JS will populate this -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Impact Report -->
+    <div id="reportModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 hidden z-50">
+        <div class="panel p-6 md:p-8 max-w-2xl w-full">
+            <h2 class="text-3xl text-center mb-4">Concordat <span class="title-highlight">Impact Report</span></h2>
+            <div id="reportContent" class="space-y-4 text-gray-300 max-h-[60vh] overflow-y-auto pr-2"></div>
+            <div class="text-center mt-6">
+                <button id="closeModalBtn" class="btn-secondary font-bold py-2 px-6 rounded-lg">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const appData = {
+            balance: {
+                races: [
+                    { 
+                        id: 'human',
+                        name: 'Human: Perception 👁️', 
+                        options: ['Original: On-use stealth detection', 'Vigilance: Passive stealth detection + Haste/Resilience on use'],
+                        defaultValue: 'Original: On-use stealth detection',
+                        impact: {
+                            original: 'Maintains Human Rogue viability in PvP, but offers little for other classes.',
+                            vigilance: 'Significantly increases Human viability for all classes in PvP, especially against Rogues and Druids.'
+                        }
+                    },
+                     {
+                        id: 'dwarf',
+                        name: 'Dwarf: Stoneform 💎',
+                        options: ['Original: Removes Poisons/Diseases/Bleeds, +Armor', 'Buffed: Also removes Magic effects'],
+                        defaultValue: 'Original: Removes Poisons/Diseases/Bleeds, +Armor',
+                        impact: {
+                            original: 'A niche but useful defensive cooldown, primarily against Rogues and Warriors.',
+                            buffed: 'Becomes a potent all-purpose defensive racial, making Dwarves a top-tier tanking and PvP choice against a wider range of classes.'
+                        }
+                    },
+                    {
+                        id: 'nelf',
+                        name: 'Night Elf: Shadowmeld 🌙',
+                        options: ['Original: Stationary stealth', 'Improved: Usable in combat (drops combat)'],
+                        defaultValue: 'Original: Stationary stealth',
+                        impact: {
+                            original: 'A situational tool for avoiding patrols or setting up openers, but limited by its out-of-combat restriction.',
+                            improved: 'Becomes a powerful combat-dropping ability akin to a mini-Vanish, dramatically increasing PvP survivability for all Night Elf classes.'
+                        }
+                    },
+                    {
+                        id: 'gnome',
+                        name: 'Gnome: Escape Artist 🏃',
+                        options: ['Original: 1.75 min cooldown', 'Improved: 1 min cooldown'],
+                        defaultValue: 'Original: 1.75 min cooldown',
+                        impact: {
+                            original: 'A strong racial for escaping roots and snares, but with a lengthy cooldown.',
+                            improved: 'The reduced cooldown makes it a much more reliable and frequently available escape tool, boosting Gnome viability in PvP.'
+                        }
+                    },
+                    { 
+                        id: 'orc',
+                        name: 'Orc: Blood Fury 🩸', 
+                        options: ['Original: AP/SP boost with healing reduction', 'Normalized: Grants equivalent AP/SP as Berserking'],
+                        defaultValue: 'Original: AP/SP boost with healing reduction',
+                        impact: {
+                            original: 'Remains the premier PvE racial for physical DPS, creating a strong pull to Horde.',
+                            normalized: 'Brings Orcs in line with Trolls for PvE, slightly diversifying Horde melee choices.'
+                        }
+                    },
+                    {
+                        id: 'undead',
+                        name: 'Undead: Will of the Forsaken 💀',
+                        options: ['Original: 5s immunity to Fear/Charm/Sleep', 'Nerfed: Shares a 45s cooldown with PvP Trinket'],
+                        defaultValue: 'Original: 5s immunity to Fear/Charm/Sleep',
+                        impact: {
+                            original: 'Remains an exceptionally strong PvP racial, effectively providing a second trinket against key classes.',
+                            nerfed: 'Brings the racial in line with other defensive abilities, requiring a strategic choice rather than providing a free escape.'
+                        }
+                    },
+                    {
+                        id: 'tauren',
+                        name: 'Tauren: War Stomp 🦶',
+                        options: ['Original: 0.5s cast time', 'Improved: Instant cast'],
+                        defaultValue: 'Original: 0.5s cast time',
+                        impact: {
+                            original: 'A useful but sometimes clunky AoE stun, difficult to use defensively.',
+                            improved: 'Becomes a reliable and powerful instant AoE interrupt, significantly boosting Tauren viability in both PvP and Dungeons.'
+                        }
+                    },
+                    {
+                        id: 'belf',
+                        name: 'Blood Elf: Arcane Torrent 🌀',
+                        value: 2,
+                        min: 0, max: 2, step: 0.5,
+                        label: (val) => `${val}s AoE Silence`,
+                        impact: (val) => {
+                            if (val >= 2) return 'Remains the most dominant PvP racial in the game, heavily favoring Horde in Arena.';
+                            if (val > 0) return 'Reduces the oppressive power of Arcane Torrent, opening up more counterplay and slightly decreasing Blood Elf arena representation.';
+                            return 'Removes the silence effect entirely, likely shifting it to a resource-return mechanic. This would cause a massive shift in PvP faction balance towards the Alliance.';
+                        }
+                    }
+                ],
+                classes: [
+                    { 
+                        id: 'paladin',
+                        name: 'Paladin: Seal of Vengeance ⚖️', 
+                        options: ['Original: Weak DoT-based seal', 'Buffed: Damage output matches Seal of Blood'],
+                        defaultValue: 'Original: Weak DoT-based seal',
+                        impact: {
+                            original: 'Alliance Paladins remain significantly behind Horde in terms of PvE DPS and threat generation.',
+                            buffed: 'Makes Alliance Retribution and Protection Paladins fully competitive with their Horde counterparts, balancing faction choice for high-end raiding.'
+                        }
+                    }
+                ]
+            },
+            qol: [
+                { id: 'dual-spec', name: 'Dual Talent Specialization 🔄', description: 'Pay a one-time fee to unlock a second talent spec, switchable in any rested area.', yes: 1380, no: 120 },
+                { id: 'lfg-panel', name: 'Server-Side LFG Panel 🤝', description: 'A UI panel to list or find groups for dungeons and raids, without cross-realm functionality.', yes: 1170, no: 330 },
+                { id: 'barbershop', name: 'Barbershop 💈', description: 'Allows basic character customization (hair, markings) for a gold fee.', yes: 1275, no: 225 },
+                { id: 'attunement-skip', name: 'Account-Wide Attunement Skips 🔑', description: 'After completing a raid attunement once, subsequent characters on the same account can bypass it.', yes: 1425, no: 75 },
+                { id: 'cross-faction', name: 'Cross-Faction Grouping 🌐', description: 'Allow Horde and Alliance players to group for dungeons and raids to combat population imbalance.', yes: 675, no: 825 }
+            ],
+            attunements: {
+                karazhan: {
+                    name: "Karazhan Attunement 👻",
+                    steps: [
+                        { id: 'khadgar', name: "Talk to Khadgar in Shattrath", time: 0.1 },
+                        { id: 'arcatraz', name: "Complete The Arcatraz Key questline", time: 1.5 },
+                        { id: 'bm_sh', name: "Complete Black Morass and Shattered Halls", time: 2.0 },
+                        { id: 'master_key', name: "Retrieve the Master's Key from Karazhan", time: 2.5 },
+                    ]
+                },
+                ssc: {
+                    name: "SSC Attunement 🐍",
+                    steps: [
+                        { id: 'h_slavepens', name: "Complete Heroic Slave Pens", time: 1.0 },
+                        { id: 'gruul_nl', name: "Slay Gruul the Dragonkiller", time: 1.5 },
+                        { id: 'h_steamvault', name: "Complete Heroic Steamvault", time: 1.0 },
+                    ]
+                },
+                tk: {
+                    name: "The Eye Attunement 👁️",
+                    steps: [
+                        { id: 'trial_naaru_mag', name: "Trial of the Naaru: Magtheridon", time: 2.0 },
+                        { id: 'trial_naaru_mercy', name: "Trial of the Naaru: Mercy (H Shattered Halls)", time: 1.5 },
+                        { id: 'trial_naaru_strength', name: "Trial of the Naaru: Strength (H Blood Furnace)", time: 1.5 },
+                        { id: 'trial_naaru_tenacity', name: "Trial of the Naaru: Tenacity (H Arcatraz)", time: 1.5 },
+                    ]
+                },
+                hyjal: {
+                    name: "Mount Hyjal Attunement 🌳",
+                    steps: [
+                        { id: 'caverns_time', name: "Talk to Soridormi in Caverns of Time", time: 0.1 },
+                        { id: 'vashj', name: "Slay Lady Vashj in Serpentshrine Cavern", time: 2.0 },
+                        { id: 'kaelthas', name: "Slay Kael'thas Sunstrider in The Eye", time: 2.5 },
+                    ]
+                },
+                bt: {
+                    name: "Black Temple Attunement 🦇",
+                    steps:
+                    [
+                        { id: 'bt_start', name: "Start quest chain in Shadowmoon Valley", time: 0.5 },
+                        { id: 'akama_quests', name: "Complete quests for Akama", time: 2.0 },
+                        { id: 'hyjal_summit', name: "Slay Rage Winterchill in Hyjal Summit", time: 1.5 },
+                        { id: 'illidan_medallion', name: "Retrieve Medallion of Karabor from Illidan's chamber", time: 0.2 },
+                    ]
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.page-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const balanceControlsContainer = document.getElementById('balanceControls');
+            const qolListContainer = document.getElementById('qolList');
+            const attunementSelector = document.getElementById('attunementSelector');
+            const attunementChainContainer = document.getElementById('attunementChain');
+
+            const appState = {
+                balance: {},
+                qol: {},
+                attunements: {}
+            };
+
+            // --- NAVIGATION ---
+            function showPage(targetId) {
+                sections.forEach(section => section.classList.add('hidden'));
+                const targetPage = document.getElementById(targetId);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                } else {
+                    document.getElementById('rationale').classList.remove('hidden');
+                }
+
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === `#${targetId}`);
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    showPage(targetId);
+                });
+            });
+
+            // Init: show first page based on hash or default
+            const initialPage = window.location.hash ? window.location.hash.substring(1) : 'rationale';
+            showPage(initialPage);
+
+
+            // --- BALANCE CHART ---
+            const ctx = document.getElementById('balanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['PvP Racials', 'PvE DPS', 'Tanking'],
+                    datasets: [
+                        { label: 'Horde Power Level', data: [9, 8, 8], backgroundColor: 'rgba(239, 68, 68, 0.6)', borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 1 },
+                        { label: 'Alliance Power Level', data: [5, 6, 7], backgroundColor: 'rgba(59, 130, 246, 0.6)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1 }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e0e0e0' }}},
+                    scales: {
+                        y: { beginAtZero: true, max: 10, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#e0e0e0' }},
+                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#e0e0e0' }}
+                    }
+                }
+            });
+
+            // --- FACTION BALANCE PANEL ---
+            function renderBalanceControls() {
+                let html = '';
+                appData.balance.races.forEach(item => {
+                    if (item.options) { // Dropdown
+                        appState.balance[item.id] = item.defaultValue;
+                        html += `<div class="panel p-4 bg-gray-800/50">
+                            <h3 class="font-bold text-lg text-yellow-400">${item.name}</h3>
+                            <select data-id="${item.id}" class="w-full mt-2 p-2 bg-[#2a2a33] rounded border border-gray-600">
+                                ${item.options.map(opt => `<option value="${opt.replace(/:.*/, '').toLowerCase()}">${opt}</option>`).join('')}
+                            </select>
+                        </div>`;
+                    } else { // Slider
+                         appState.balance[item.id] = item.value;
+                         html += `<div class="panel p-4 bg-gray-800/50">
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-lg text-yellow-400">${item.name}</h3>
+                                <span id="label-${item.id}" class="font-bold text-white">${item.label(item.value)}</span>
+                            </div>
+                            <input type="range" data-id="${item.id}" min="${item.min}" max="${item.max}" step="${item.step}" value="${item.value}" class="w-full mt-2">
+                         </div>`;
+                    }
+                });
+                 appData.balance.classes.forEach(item => {
+                    appState.balance[item.id] = item.defaultValue;
+                    html += `<div class="panel p-4 bg-gray-800/50">
+                        <h3 class="font-bold text-lg text-yellow-400">${item.name}</h3>
+                        <select data-id="${item.id}" class="w-full mt-2 p-2 bg-[#2a2a33] rounded border border-gray-600">
+                            ${item.options.map(opt => `<option value="${opt.replace(/:.*/, '').toLowerCase()}">${opt}</option>`).join('')}
+                        </select>
+                    </div>`;
+                });
+                balanceControlsContainer.innerHTML = html;
+            }
+            renderBalanceControls();
+
+            balanceControlsContainer.addEventListener('input', (e) => {
+                const id = e.target.dataset.id;
+                if (e.target.type === 'range') {
+                    const value = parseFloat(e.target.value);
+                    appState.balance[id] = value;
+                    const item = appData.balance.races.find(r => r.id === id);
+                    document.getElementById(`label-${id}`).textContent = item.label(value);
+                } else if (e.target.tagName === 'SELECT') {
+                    const selectedOptionText = e.target.options[e.target.selectedIndex].text;
+                    appState.balance[id] = selectedOptionText;
+                }
+            });
+
+            const reportModal = document.getElementById('reportModal');
+            const reportContent = document.getElementById('reportContent');
+            document.getElementById('generateReportBtn').addEventListener('click', () => {
+                let reportHtml = '';
+                const allItems = [...appData.balance.races, ...appData.balance.classes];
+                allItems.forEach(item => {
+                    const stateValue = appState.balance[item.id];
+                    let impactText = '';
+                    
+                    if(item.options) { // Dropdown-based item
+                         const key = Object.keys(item.impact).find(k => stateValue.toLowerCase().includes(k));
+                         impactText = item.impact[key];
+                    } else { // Slider-based item
+                        impactText = item.impact(stateValue);
+                    }
+                    reportHtml += `<div class="border-l-4 border-yellow-400 pl-4"><strong class="text-white">${item.name}</strong><p>${impactText}</p></div>`;
+                });
+                reportContent.innerHTML = reportHtml;
+                reportModal.classList.remove('hidden');
+            });
+            document.getElementById('closeModalBtn').addEventListener('click', () => reportModal.classList.add('hidden'));
+
+            // --- QoL PANEL ---
+            function renderQoL() {
+                let html = '';
+                appData.qol.forEach(item => {
+                    appState.qol[item.id] = appState.qol[item.id] || { yes: item.yes, no: item.no };
+                    const { yes, no } = appState.qol[item.id];
+                    const total = yes + no;
+                    const approval = total > 0 ? Math.round((yes / total) * 100) : 50;
+                    
+                    html += `<div class="qol-item panel p-4 bg-gray-800/50">
+                        <div>
+                            <h3 class="font-bold text-lg text-yellow-400">${item.name}</h3>
+                            <p class="text-sm text-gray-400 mt-1">${item.description}</p>
+                        </div>
+                        <div class="flex items-center gap-4 mt-3">
+                            <div class="flex items-center gap-2">
+                                <button data-id="${item.id}" data-vote="yes" class="btn-vote-yes rounded px-4 py-1 font-bold">Yes</button>
+                                <button data-id="${item.id}" data-vote="no" class="btn-vote-no rounded px-4 py-1 font-bold">No</button>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="progress-bar-bg w-full h-4 rounded-full overflow-hidden flex">
+                                    <div id="bar-${item.id}" class="progress-bar h-full" style="width: ${approval}%;"></div>
+                                </div>
+                                <div class="flex justify-between text-xs mt-1">
+                                    <span id="yes-votes-${item.id}" class="text-green-400">Yes: ${yes.toLocaleString()}</span>
+                                    <span id="no-votes-${item.id}" class="text-red-400">No: ${no.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                qolListContainer.innerHTML = html;
+            }
+            renderQoL();
+
+            qolListContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' && e.target.dataset.vote) {
+                    const id = e.target.dataset.id;
+                    const vote = e.target.dataset.vote;
+
+                    if (vote === 'yes') {
+                        appState.qol[id].yes++;
+                    } else {
+                        appState.qol[id].no++;
+                    }
+
+                    const { yes, no } = appState.qol[id];
+                    const total = yes + no;
+                    const approval = total > 0 ? Math.round((yes / total) * 100) : 50;
+
+                    document.getElementById(`yes-votes-${id}`).textContent = `Yes: ${yes.toLocaleString()}`;
+                    document.getElementById(`no-votes-${id}`).textContent = `No: ${no.toLocaleString()}`;
+                    document.getElementById(`bar-${id}`).style.width = `${approval}%`;
+                }
+            });
+
+            // --- ATTUNEMENTS PANEL ---
+            function renderAttunementSelector() {
+                let optionsHtml = '';
+                for (const key in appData.attunements) {
+                    optionsHtml += `<option value="${key}">${appData.attunements[key].name}</option>`;
+                }
+                attunementSelector.innerHTML = optionsHtml;
+            }
+
+            function renderAttunementChain(raidKey) {
+                const chainData = appData.attunements[raidKey];
+                if (!chainData) return;
+
+                let html = '';
+                appState.attunements[raidKey] = appState.attunements[raidKey] || {};
+
+                chainData.steps.forEach((step, index) => {
+                    appState.attunements[raidKey][step.id] = appState.attunements[raidKey][step.id] || { skippable: false };
+                    const isSkippable = appState.attunements[raidKey][step.id].skippable;
+                    html += `<div data-raid="${raidKey}" data-id="${step.id}" class="attunement-step relative panel w-full max-w-md p-3 text-center ${isSkippable ? 'skippable' : ''}">
+                        <span class="font-bold">${index + 1}. ${step.name}</span>
+                        <span class="text-gray-400 text-sm block">(${step.time} hrs)</span>
+                    </div>`;
+                });
+                attunementChainContainer.innerHTML = html;
+                updateTimeSaved(raidKey);
+            }
+
+            function updateTimeSaved(raidKey) {
+                const chainData = appData.attunements[raidKey];
+                if (!chainData) return;
+
+                const totalPossibleTime = chainData.steps.reduce((sum, step) => sum + step.time, 0);
+                let currentTime = 0;
+                const raidState = appState.attunements[raidKey] || {};
+
+                for (const stepId in raidState) {
+                    if (!raidState[stepId].skippable) {
+                        const stepData = chainData.steps.find(s => s.id === stepId);
+                        if(stepData) currentTime += stepData.time;
+                    }
+                }
+                document.getElementById('timeSaved').textContent = (totalPossibleTime - currentTime).toFixed(1);
+            }
+            
+            attunementChainContainer.addEventListener('click', (e) => {
+                const stepDiv = e.target.closest('.attunement-step');
+                if (stepDiv) {
+                    const raidKey = stepDiv.dataset.raid;
+                    const id = stepDiv.dataset.id;
+                    appState.attunements[raidKey][id].skippable = !appState.attunements[raidKey][id].skippable;
+                    stepDiv.classList.toggle('skippable');
+                    updateTimeSaved(raidKey);
+                }
+            });
+
+            attunementSelector.addEventListener('change', (e) => {
+                renderAttunementChain(e.target.value);
+            });
+
+            // Initial render
+            renderAttunementSelector();
+            renderAttunementChain(attunementSelector.value);
+
+        });
+    </script>
+
+</body>
+</html>
