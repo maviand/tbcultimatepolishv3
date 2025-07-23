@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Undermine Protocol - A TBC Goblin Expansion</title>
+    <!-- Chosen Palette: Goblin Green & Corporate Gold -->
+    <!-- Application Structure Plan: This SPA is designed as an interactive corporate prospectus for the "Undermine Protocol." Its structure is thematic rather than linear, with a sticky top navigation allowing users to jump between four key sections: The Pitch (Narrative), The Contractor (Player Identity), The Endgame (Core Systems), and The Hustle (Unique Mechanics). This non-linear approach encourages exploration and makes the dense information digestible. Key interactions include: 1) A class selector with pop-up descriptions. 2) An interactive map of Outland with clickable territories. 3) A "gamified" demonstration of unstable crafting items. This architecture was chosen to transform the report from a static document into a compelling, hands-on experience that mirrors the Goblin ethos of "show, don't just tell." -->
+    <!-- Visualization & Content Choices: 1. Report Info: Class Descriptions -> Goal: Inform/Compare -> Viz/Presentation: Interactive icon grid with pop-up modal windows -> Interaction: Click an icon to view the Goblin-flavored class fantasy -> Justification: More engaging and less space-consuming than a long list. Method: HTML/CSS/JS. 2. Report Info: Claimable Territories -> Goal: Organize/Relate -> Viz/Presentation: Interactive map of Outland with CSS hotspots -> Interaction: Hover over a territory to see its name and strategic value -> Justification: Provides immediate geographic context and visualizes the scope of the territory control system. Method: HTML/CSS. 3. Report Info: Unstable Crafting -> Goal: Engage/Inform -> Viz/Presentation: Interactive cards with a "Test It!" button -> Interaction: Clicking the button triggers a random success/fail outcome -> Justification: Gamifies the concept, making the high-risk, high-reward nature tangible and memorable for the user. Library/Method: JS (Math.random). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-bg-dark: #121212;
+            --color-bg-med: #1E1E1E;
+            --color-bg-light: #2A2A2A;
+            --color-text-light: #F0F0F0;
+            --color-text-med: #A3A3A3;
+            --color-gold: #FFD100;
+            --color-goblin-green: #00FF96;
+            --color-border: #4A5568;
+        }
+        body {
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-med);
+            font-family: 'Roboto', sans-serif;
+        }
+        .font-title { font-family: 'Cinzel', serif; }
+        .hero-section {
+            background-image: linear-gradient(to bottom, rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 1)), url('https://i.imgur.com/s3gIcTn.jpeg');
+            background-size: cover; background-position: center;
+        }
+        .nav-link {
+            transition: all 0.2s ease;
+            position: relative;
+            padding-bottom: 4px;
+        }
+        .nav-link:hover { color: var(--color-goblin-green); }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0;
+            width: 0; height: 2px; background-color: var(--color-goblin-green);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .section-header-line {
+            width: 100px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-goblin-green), transparent);
+            margin: 1rem auto;
+            transition: transform 0.5s ease-out;
+            transform: scaleX(0);
+        }
+        .visible .section-header-line {
+            transform: scaleX(1);
+        }
+        .card {
+            background-color: var(--color-bg-med);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+        .card:hover { border-color: var(--color-goblin-green); transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+            background-color: var(--color-bg-light);
+            border: 1px solid var(--color-border);
+        }
+        .tab-button.active {
+            background-color: var(--color-goblin-green);
+            color: var(--color-bg-dark);
+            font-weight: 700;
+        }
+        .map-container {
+            position: relative;
+            background: url('https://i.etsystatic.com/19063773/r/il/06a6ea/3123428849/il_1588xN.3123428849_msrc.jpg') no-repeat center center;
+            background-size: cover;
+            aspect-ratio: 2 / 3;
+            max-width: 500px;
+            margin: auto;
+        }
+        .map-hotspot {
+            position: absolute;
+            width: 20px; height: 20px;
+            background-color: var(--color-goblin-green);
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 150, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 150, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 150, 0); }
+        }
+        .map-hotspot .tooltip {
+            visibility: hidden; opacity: 0;
+            position: absolute; bottom: 150%; left: 50%;
+            transform: translateX(-50%);
+            width: 220px; padding: 8px;
+            background-color: var(--color-bg-dark); color: var(--color-text-light);
+            border: 1px solid var(--color-goblin-green); border-radius: 4px;
+            text-align: center; font-size: 14px;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+        .map-hotspot:hover .tooltip { visibility: visible; opacity: 1; }
+        .modal {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+            z-index: 100;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--color-bg-med);
+            border: 1px solid var(--color-goblin-green);
+            padding: 2rem; border-radius: 8px;
+            width: 90%; max-width: 500px;
+            transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content { transform: scale(1); }
+        .details-list li {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .details-list li::before {
+            content: '💥';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--color-goblin-green);
+        }
+        .card-with-bg {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+        .card-with-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(30,30,30,1) 0%, rgba(30,30,30,0.8) 40%, transparent 100%);
+        }
+        .card-with-bg > * {
+            position: relative;
+            z-index: 1;
+        }
+        .title-shadow {
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-black/50 backdrop-blur-sm sticky top-0 z-50 border-b border-b-gray-800">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="font-title text-xl md:text-2xl font-bold tracking-wider text-goblin-green">Undermine Protocol</h1>
+            <div class="hidden md:flex space-x-8 text-text-light">
+                <a href="#society" class="nav-link">Society</a>
+                <a href="#pitch" class="nav-link">The Pitch</a>
+                <a href="#contractor" class="nav-link">The Contractor</a>
+                <a href="#endgame" class="nav-link">The Endgame</a>
+                <a href="#hustle" class="nav-link">The Hustle</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-section text-white text-center py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <h2 class="font-title text-4xl md:text-6xl font-black tracking-widest text-shadow-lg">Profit is the new Prophet.</h2>
+                <p id="hero-subtitle" class="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-gray-300"></p>
+            </div>
+        </section>
+
+        <!-- Section 1: Society -->
+        <section id="society" class="py-16 md:py-24 scroll-animate">
+             <div class="container mx-auto px-6">
+                <h2 class="font-title text-3xl md:text-4xl font-bold text-center title-shadow"><span class="text-gold">Section I:</span> <span class="text-white">Society & Commerce</span></h2>
+                <div class="section-header-line"></div>
+                <p class="max-w-3xl mx-auto text-center mb-12">Goblin society is fractured into several rival Trade Cartels. While individual Goblins may pledge allegiance for profit, the major neutral hubs are the true heart of their economic empire.</p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="card p-6">
+                        <img src="https://i.imgur.com/Cys8Cgw.jpeg" alt="Goblin Cartels" class="rounded-lg mb-4 w-full h-48 object-cover">
+                        <h3 class="font-bold text-2xl mb-3 text-goblin-green font-title">Major Cartels & Capitals 🏙️</h3>
+                         <p class="text-sm text-text-med mb-4 leading-relaxed">Goblin society is fractured into several rival Trade Cartels, each with its own philosophy.</p>
+                        <ul class="text-sm text-text-light space-y-4">
+                            <li><strong class="text-gold">The Bilgewater Cartel (Playable):</strong> Led by the opulent and ruthless Trade Prince Gallywix. Having lost their neutrality in the shipwreck, they align with a major faction out of necessity. Their capital is the sprawling, industrial port of <strong>Bilgewater Harbor</strong> in Azshara.</li>
+                            <li><strong class="text-gold">The Steamwheedle Cartel (Neutral):</strong> The largest and most established cartel, controlling cities like Gadgetzan, Booty Bay, Everlook, and Ratchet. They are the architects of true neutrality and the engine of the cross-faction economy.</li>
+                        </ul>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-bold text-2xl mb-3 text-goblin-green font-title">The Neutral Trade Network 🌐</h3>
+                        <p class="text-sm text-text-med mb-4 leading-relaxed">While individual Goblins pledge allegiance, the Steamwheedle Cartel remains strictly neutral. Cities like Gadgetzan and Booty Bay are expanded into true sanctuaries, offering unique services and housing the revolutionary Cross-Faction Bazaar.</p>
+                        <div class="bg-bg-dark/50 p-4 rounded-lg border border-border">
+                            <h4 class="font-semibold text-lg text-gold mb-2">Cross-Faction Bazaar Mechanics:</h4>
+                            <ul class="list-disc list-inside text-sm text-text-light space-y-1 details-list">
+                                <li>Hosted only in Gadgetzan, run by the Steamwheedle Cartel.</li>
+                                <li>Only Goblin characters (of either faction) can post auctions and place buy orders.</li>
+                                <li>Characters of any race can purchase items, breaking economic barriers.</li>
+                                <li>The Cartel takes a hefty "convenience fee" (e.g., 20% cut) on all transactions, creating a massive gold sink to help regulate the server economy.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Pitch -->
+        <section id="pitch" class="py-16 md:py-24 bg-bg-med scroll-animate">
+            <div class="container mx-auto px-6">
+                <h2 class="font-title text-3xl md:text-4xl font-bold text-center title-shadow"><span class="text-gold">Section II:</span> <span class="text-white">A Hostile Takeover</span></h2>
+                <div class="section-header-line"></div>
+                <p class="max-w-3xl mx-auto text-center mb-12">This section outlines the narrative foundation for integrating the Steamwheedle Cartel as a playable, neutral faction. The philosophy: create a compelling, lore-consistent experience centered on economic ambition, not just factional allegiance.</p>
+                <img src="https://i.imgur.com/2LCyRsS.jpeg" alt="Goblin Expedition in Outland" class="rounded-lg mb-12 w-full max-w-4xl mx-auto h-64 object-cover object-center">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-center">
+                    <div class="card p-6">
+                        <h3 class="font-title text-xl font-bold text-goblin-green mb-2">The Opportunity of Chaos</h3>
+                        <p class="text-sm">The Dark Portal's reopening isn't just a war; it's the greatest business opportunity in Azeroth's history. Outland is a lawless frontier ripe for exploitation, and the Steamwheedle Cartel is launching the "Undermine Protocol"—a full-scale corporate takeover. You're not a hero; you're a Freelance Contractor, here to get rich.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-title text-xl font-bold text-goblin-green mb-2">The Stormspire Rivalry</h3>
+                        <p class="text-sm">The market isn't empty. The ethereal Consortium is already here, dealing in secrets and rare artifacts. This isn't a war of good vs. evil; it's a clash of capitalist ideologies—the Goblins' high-volume industrial chaos versus the Ethereals' high-margin, surgical precision. Your goal is market domination.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-title text-xl font-bold text-goblin-green mb-2">Gadgetzan Exports</h3>
+                        <p class="text-sm">Your new home isn't a city; it's a mobile fortress-refinery-black-market called "Gadgetzan Exports" in Nagrand. It's a phased, evolving hub that grows with player progression, offering unique services like the Bounty Board and corporate headquarters for player-run Cartel Branches.</p>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="font-title text-xl font-bold text-goblin-green mb-2">The Venture Co. Wildcard</h3>
+                        <p class="text-sm">The notoriously destructive Venture Company is also in Outland, acting as a hostile third party. They represent pure, unregulated capitalism, and their operations provide a constant source of PvE conflict as you sabotage their efforts to protect your own market share.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Contractor -->
+        <section id="contractor" class="py-16 md:py-24 scroll-animate">
+            <div class="container mx-auto px-6">
+                <h2 class="font-title text-3xl md:text-4xl font-bold text-center title-shadow"><span class="text-gold">Section III:</span> <span class="text-white">The Tools of the Trade</span></h2>
+                <div class="section-header-line"></div>
+                <p class="max-w-3xl mx-auto text-center mb-12">This section defines the mechanical identity of the Goblin player character, from their unique racial abilities to their class options and the pivotal choice that will define their career.</p>
+
+                <h3 class="font-title text-2xl font-bold text-center text-white mb-8">Goblin Racial Abilities</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-16 max-w-4xl mx-auto" id="racial-container">
+                    <!-- Racials will be injected here -->
+                </div>
+
+                <h3 class="font-title text-2xl font-bold text-center text-white mb-8">Permitted Professions (Classes)</h3>
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-16 max-w-3xl mx-auto" id="class-selector">
+                    <!-- Class icons will be injected here -->
+                </div>
+                
+                <h3 class="font-title text-2xl font-bold text-center text-white mb-8">The Contract Clause: Choose Your Allegiance</h3>
+                <div class="max-w-4xl mx-auto bg-bg-dark p-8 rounded-lg border border-border">
+                    <p class="text-center mb-6">Around level 20, you'll be offered a one-time, irreversible choice. This is the most important business decision you'll ever make. Do you sign an exclusive contract with a major client, or do you brave the risks—and rewards—of a truly neutral contractor?</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="border-2 border-red-500/50 p-4 rounded hover:border-red-500 hover:bg-red-500/10 transition-all">
+                            <h4 class="font-title text-xl text-red-500">Sign with the Horde</h4>
+                            <p class="text-sm mt-2">Gain full access to Horde guilds, cities, and endgame content. Become permanently hostile to the Alliance.</p>
+                        </div>
+                        <div class="border-2 border-goblin-green/80 p-4 rounded hover:border-goblin-green hover:bg-goblin-green/10 transition-all">
+                             <h4 class="font-title text-xl text-goblin-green">Remain a Neutral Contractor</h4>
+                            <p class="text-sm mt-2">Forge your own path. Unlock the player-driven neutral endgame, but be flagged for PvP against both factions in contested zones.</p>
+                        </div>
+                        <div class="border-2 border-blue-500/50 p-4 rounded hover:border-blue-500 hover:bg-blue-500/10 transition-all">
+                             <h4 class="font-title text-xl text-blue-500">Sign with the Alliance</h4>
+                            <p class="text-sm mt-2">Gain full access to Alliance guilds, cities, and endgame content. Become permanently hostile to the Horde.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 4: The Endgame -->
+        <section id="endgame" class="py-16 md:py-24 bg-bg-med scroll-animate">
+            <div class="container mx-auto px-6">
+                <h2 class="font-title text-3xl md:text-4xl font-bold text-center title-shadow"><span class="text-gold">Section IV:</span> <span class="text-white">The Invisible Hand of War</span></h2>
+                <div class="section-header-line"></div>
+                <p class="max-w-3xl mx-auto text-center mb-12">This section details the dynamic, player-driven endgame designed exclusively for neutral Goblins. This is a world of corporate warfare, territorial control, and economic domination.</p>
+                <div class="flex justify-center mb-8">
+                    <div class="flex space-x-1 p-1 bg-bg-dark rounded-lg" id="endgame-tabs">
+                        <button data-tab="branches" class="tab-button px-4 py-2 rounded-md text-sm font-semibold active">Cartel Branches</button>
+                        <button data-tab="territory" class="tab-button px-4 py-2 rounded-md text-sm font-semibold">Territory Control</button>
+                        <button data-tab="assets" class="tab-button px-4 py-2 rounded-md text-sm font-semibold">Asset Acquisition</button>
+                    </div>
+                </div>
+                <div id="endgame-content">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 5: The Hustle -->
+        <section id="hustle" class="py-16 md:py-24 scroll-animate">
+            <div class="container mx-auto px-6">
+                <h2 class="font-title text-3xl md:text-4xl font-bold text-center title-shadow"><span class="text-gold">Section V:</span> <span class="text-white">Black Markets & Back-Alley Deals</span></h2>
+                 <div class="section-header-line"></div>
+                <p class="max-w-3xl mx-auto text-center mb-12">To complete the neutral Goblin experience, this suite of systems reinforces the core fantasy of being a free-market contractor, providing engaging content for players of all types.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card p-6 flex flex-col card-with-bg" style="background-image: url('https://i.imgur.com/xDRnV93.jpeg');">
+                        <div class="mt-auto">
+                            <h3 class="font-title text-xl font-bold text-goblin-green mb-2">The Bounty Board 🎯</h3>
+                            <p class="text-sm mb-4 text-text-light">Turn grudges into transactions. Any neutral player can place a gold bounty on any other neutral player. The system formalizes rivalries and creates a viable gameplay loop for solo bounty hunters.</p>
+                        </div>
+                    </div>
+                    <div class="card p-6 flex flex-col card-with-bg" id="unstable-card" style="background-image: url('https://i.imgur.com/JM05IZQ.jpeg');">
+                        <div class="mt-auto">
+                            <h3 class="font-title text-xl font-bold text-goblin-green mb-2">Unstable Crafting 💣</h3>
+                            <p class="text-sm mb-4 text-text-light">Goblin-only schematics produce items of immense power... with a built-in chance of spectacular failure. High-risk, high-reward crafting defines the Goblin niche.</p>
+                            <div class="bg-bg-dark/70 backdrop-blur-sm p-3 rounded">
+                               <p class="font-bold text-sm text-text-light">"Kaja'Cola" Elixir</p>
+                               <p class="text-xs mb-3">Grants a massive stat boost, but has... side-effects.</p>
+                               <button id="test-unstable-btn" class="w-full bg-goblin-green text-bg-dark font-bold py-1 rounded hover:bg-white transition-colors">Test It!</button>
+                               <p id="unstable-result" class="text-center font-bold text-sm mt-2 h-5"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-6 flex flex-col card-with-bg" style="background-image: url('https://i.imgur.com/oKD1zDI.jpeg');">
+                         <div class="mt-auto">
+                            <h3 class="font-title text-xl font-bold text-goblin-green mb-2">The Consortium War 📈</h3>
+                            <p class="text-sm mb-4 text-text-light">A long-term reputation grind centered on the rivalry with the ethereal Consortium. Engage in industrial sabotage (PvE) and caravan raids (PvP) to earn unique rewards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="class-modal" class="modal">
+        <div class="modal-content">
+            <!-- Modal content injected by JS -->
+        </div>
+    </div>
+
+    <footer class="bg-black py-6 border-t border-t-gray-800">
+        <div class="container mx-auto px-6 text-center text-sm text-text-med">
+            <p>"The Undermine Protocol" is a conceptual design proposal.</p>
+            <p class="mt-1 text-xs">&copy; 2025. Not affiliated with Blizzard Entertainment. World of Warcraft is a trademark of Blizzard Entertainment.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const data = {
+        racials: [
+            { name: 'Time is Money', icon: '💰', desc: 'Increases casting and attack speed by 1%.' },
+            { name: 'Better Living Through Chemistry', icon: '🧪', desc: 'Alchemy skill increased by 15. Provides a small bonus to the effect of player-created potions and elixirs.' },
+            { name: 'Pack Hobgoblin', icon: '📦', desc: 'Calls a personal servant who provides access to your bank for 1 minute. 30-minute cooldown.' },
+            { name: 'Rocket Jump', icon: '🚀', desc: 'Activates a rocket belt, launching you forward. Breaks fall damage if timed correctly. 2-minute cooldown.' },
+            { name: 'Rocket Barrage', icon: '💥', desc: 'Launches a volley of rockets at an enemy, dealing minor Fire damage. 2-minute cooldown.' },
+            { name: 'Best Deals Anywhere', icon: '💸', desc: 'Receives the best possible discount from all vendors, regardless of reputation.' }
+        ],
+        classes: [
+            { name: 'Warrior', role: 'Bruiser', icon: 'https://i.imgur.com/iLHyMqC.jpeg', desc: 'The corporate "Bruiser"—a bodyguard, enforcer, or "union representative" skilled in intimidation and heavy-duty problem-solving.' },
+            { name: 'Rogue', role: 'Fixer', icon: 'https://i.imgur.com/3Fgpxvf.jpeg', desc: 'The quintessential Goblin agent. A "Fixer," specializing in corporate espionage, sabotage, and "asset acquisition."' },
+            { name: 'Hunter', role: 'Beast Tamer', icon: 'https://i.imgur.com/mV8jHuR.jpeg', desc: 'Pragmatic "Beast Tamers" who capture exotic creatures for security or status. Uniquely able to tame Mechanical pets from level 1.' },
+            { name: 'Mage', role: 'Demolitionist', icon: 'https://i.imgur.com/CfCTF0k.png', desc: 'Views arcane magic as a dangerously unstable energy source. Mages are "Demolitionists" and technicians, using magic for industrial purposes.' },
+            { name: 'Warlock', role: 'Risk Manager', icon: 'https://i.imgur.com/RedTIgd.jpeg', desc: 'Sees Fel energy and demons as high-risk, high-reward resources to be harnessed by magically enforced contracts.' },
+            { name: 'Priest', role: 'Medic', icon: 'https://i.imgur.com/qKo1ilh.jpeg', desc: 'Healing is a fee-for-service business. A "Medic" or field Alchemist using advanced chemical poultices and combat stimulants to keep assets functional.' }
+        ],
+        endgame: {
+            branches: `
+                <div class="bg-bg-med border border-border p-6 rounded-lg max-w-4xl mx-auto">
+                    <h3 class="font-title text-2xl text-goblin-green text-center mb-4">Founding a Cartel Branch</h3>
+                    <p class="text-center mb-6">In the Steamwheedle Cartel, you don't form a "guild"; you execute a hostile takeover of a market sector by founding a <b>Cartel Branch</b>. This is not a social club; it's a player-run corporation, and its success is measured in profit, power, and the smoldering ruins of your competitors' ambitions. The process is intentionally rigorous, designed to weed out the hobbyists from the true Trade Princes.</p>
+                    <img src="https://i.imgur.com/fxiruBA.png" alt="Cartel Branch Flowchart" class="mx-auto rounded-lg border border-border">
+                </div>`,
+            territory: `
+                 <div class="bg-bg-med border border-border p-6 rounded-lg max-w-4xl mx-auto">
+                    <h3 class="font-title text-2xl text-goblin-green text-center mb-4">Hostile Negotiations (Territory Control)</h3>
+                    <p class="text-center mb-6">Key strategic locations across Outland are claimable during a daily "Prime Time" window. Control offers powerful economic advantages. Hover over a hotspot on the map to see its value.</p>
+                    <div class="map-container rounded-md border-2 border-border">
+                        <div class="map-hotspot" style="top: 55%; left: 30%;"><div class="tooltip font-bold">Oshu'gun Crystal Fields<br><span class="text-xs text-text-med">Value: Unstable Motes</span><img src="https://i.imgur.com/fAg87Ek.jpeg" class="mt-2 rounded"></div></div>
+                        <div class="map-hotspot" style="top: 25%; left: 75%;"><div class="tooltip font-bold">Eco-Dome Farfield<br><span class="text-xs text-text-med">Value: Rare Herbs</span><img src="https://i.imgur.com/AwvCEzp.jpeg" class="mt-2 rounded"></div></div>
+                        <div class="map-hotspot" style="top: 50%; left: 55%;"><div class="tooltip font-bold">Bloodmaul Slag Mines<br><span class="text-xs text-text-med">Value: Khorium Ore</span><img src="https://i.imgur.com/AwvCEzp.jpeg" class="mt-2 rounded"></div></div>
+                        <div class="map-hotspot" style="top: 80%; left: 45%;"><div class="tooltip font-bold">Ruins of Karabor<br><span class="text-xs text-text-med">Value: Unique Enchantments</span><img src="https://i.imgur.com/aTeDFc7.jpeg" class="mt-2 rounded"></div></div>
+                    </div>
+                 </div>`,
+            assets: `
+                <div class="bg-bg-med border border-border p-6 rounded-lg max-w-4xl mx-auto">
+                    <h3 class="font-title text-2xl text-goblin-green text-center mb-4">Asset Acquisition (High-Value Target Raids)</h3>
+                    <p class="text-center mb-6">To prevent stagnation, this system creates unpredictable, server-wide conflicts over mobile, high-value "Assets" that spawn randomly. The goal: get the Asset back to your HQ. The catch: everyone on the server knows where you are.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mt-6">
+                        <div class="bg-bg-dark p-4 rounded">
+                            <p class="font-bold text-lg">The Heist 💎</p>
+                            <p class="text-sm">An Asset appears (e.g., a "Titan Power Core" in a dungeon). Your team must secure it first.</p>
+                        </div>
+                        <div class="bg-bg-dark p-4 rounded">
+                             <p class="font-bold text-lg">The Chase 🏃</p>
+                            <p class="text-sm">The Asset carrier is slowed, can't mount, and is marked on the world map. A cross-continental chase begins!</p>
+                        </div>
+                        <div class="bg-bg-dark p-4 rounded">
+                            <p class="font-bold text-lg">The Reward 🏆</p>
+                            <p class="text-sm">Successfully delivering the Asset grants your entire Branch immense, temporary buffs and a huge cache of Trade Seals.</p>
+                        </div>
+                    </div>
+                </div>`
+        }
+    };
+
+    // Inject Racials
+    const racialContainer = document.getElementById('racial-container');
+    racialContainer.innerHTML = data.racials.map(r => `
+        <div class="card p-4 text-center">
+            <div class="text-3xl">${r.icon}</div>
+            <h4 class="font-bold text-text-light mt-2 text-sm">${r.name}</h4>
+            <p class="text-xs mt-1">${r.desc}</p>
+        </div>
+    `).join('');
+
+    // Inject Classes and setup modal
+    const classContainer = document.getElementById('class-selector');
+    const modal = document.getElementById('class-modal');
+    const modalContent = modal.querySelector('.modal-content');
+
+    classContainer.innerHTML = data.classes.map(c => `
+        <button data-class="${c.role}" class="card flex flex-col items-center justify-center p-2 aspect-square">
+            <img src="${c.icon}" alt="${c.name}" class="w-16 h-16 rounded-full border-2 border-border">
+            <h4 class="font-bold text-text-light mt-2 text-sm">${c.name}</h4>
+            <p class="text-xs text-goblin-green">(${c.role})</p>
+        </button>
+    `).join('');
+    
+    classContainer.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (!button) return;
+        
+        const classData = data.classes.find(c => c.role === button.dataset.class);
+        if(classData) {
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-title text-2xl text-goblin-green">${classData.name} <span class="text-text-med text-lg">(${classData.role})</span></h3>
+                     <button id="close-modal" class="text-3xl text-text-med hover:text-white">&times;</button>
+                </div>
+                <img src="${classData.icon}" alt="${classData.name}" class="w-24 h-24 rounded-full float-left mr-4 border-2 border-border">
+                <p class="text-text-light">${classData.desc}</p>
+            `;
+            modal.classList.add('active');
+        }
+    });
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target.id === 'class-modal' || e.target.id === 'close-modal' || e.target.closest('#close-modal')) {
+            modal.classList.remove('active');
+        }
+    });
+
+    // Endgame Tabs
+    const endgameTabs = document.getElementById('endgame-tabs');
+    const endgameContent = document.getElementById('endgame-content');
+    
+    endgameTabs.addEventListener('click', (e) => {
+        if(e.target.tagName === 'BUTTON') {
+            const tabId = e.target.dataset.tab;
+            endgameTabs.querySelector('.active').classList.remove('active');
+            e.target.classList.add('active');
+            endgameContent.innerHTML = data.endgame[tabId];
+        }
+    });
+    // Initial load
+    endgameContent.innerHTML = data.endgame.branches;
+
+    // Unstable Crafting
+    document.getElementById('test-unstable-btn').addEventListener('click', (e) => {
+        const resultEl = document.getElementById('unstable-result');
+        const button = e.target;
+        button.disabled = true;
+        resultEl.textContent = '...';
+        
+        setTimeout(() => {
+            if(Math.random() > 0.4) { // 60% chance of success
+                resultEl.textContent = 'SUCCESS!';
+                resultEl.style.color = 'var(--color-goblin-green)';
+            } else {
+                resultEl.textContent = 'BACKFIRE!';
+                resultEl.style.color = '#FF4D4D';
+            }
+            button.disabled = false;
+        }, 500);
+    });
+    
+    // Typing effect for hero subtitle
+    const subtitleEl = document.getElementById('hero-subtitle');
+    const subtitleText = "An interactive prospectus on the integration of Goblins as a neutral economic power in The Burning Crusade. Opportunity awaits.";
+    let i = 0;
+    function typeWriter() {
+        if (i < subtitleText.length) {
+            subtitleEl.innerHTML += subtitleText.charAt(i);
+            i++;
+            setTimeout(typeWriter, 30);
+        }
+    }
+    typeWriter();
+
+    // Scroll-based animations
+    const scrollElements = document.querySelectorAll('.scroll-animate');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    scrollElements.forEach(el => observer.observe(el));
+
+});
+</script>
+
+</body>
+</html>

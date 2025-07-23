@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt06a344d565251b3a/60246215886aa80b9c394a50/paladin_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/bgmgIhQ.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -60,6 +60,8 @@
             border: 1px solid #78350f;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -141,9 +143,9 @@
 
         <!-- Holy Paladin -->
         <section id="holy" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 26, 20, 0.8), rgba(30, 26, 20, 0.9)), url('https://i.imgur.com/gHOKJTe.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_holybolt.jpg" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/nbn8UHD.jpeg" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-amber-300 glow-gold">Holy 🙏</h2>
                         <p class="dps-target dps-neutral">Target: Increase Healing Flexibility & Throughput</p>
@@ -169,8 +171,8 @@
                             <p class="change-desc">A new talent that empowers the Paladin's active Aura for a short duration, providing powerful situational utility like interrupt immunity or increased damage reduction.</p>
                         </div>
                          <div class="change-list-item">
-                            <strong class="change-title">Modern Ability: Guardian Spirit:</strong>
-                            <p class="change-desc">A powerful single-target save. Increases healing received and if the target would die, the spirit sacrifices itself to heal them for 50% max health.</p>
+                            <strong class="change-title">New Talent: Light’s Resonance:</strong>
+                            <p class="change-desc">Casting Holy Light or Holy Shock during Divine Favor creates a Resonant Flash that heals all nearby injured allies for 30% of the cast amount.</p>
                         </div>
                     </div>
                 </div>
@@ -179,9 +181,9 @@
         
         <!-- Protection Paladin -->
         <section id="protection" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 26, 20, 0.8), rgba(30, 26, 20, 0.9)), url('https://i.imgur.com/Q9TKPTU.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_paladin_shieldofthetemplar.jpg" alt="Protection Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/tcWwZXg.png" alt="Protection Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-amber-300 glow-blue">Protection 🛡️</h2>
                         <p class="dps-target dps-neutral">Target: Enhance Survivability & Group Utility</p>
@@ -210,6 +212,10 @@
                             <strong class="change-title">New Capstone: Guardian of Ancient Kings:</strong>
                             <p class="change-desc">A new 41-point talent. Summon a spirit guardian for 12 seconds that reduces damage taken by the Paladin and nearby allies. A powerful personal and group defensive cooldown.</p>
                         </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Bulwark of Faith:</strong>
+                            <p class="change-desc">When you block or parry an attack, you gain Faith Shield, reducing your next incoming damage by 5%. Stacks up to 3 times.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -217,9 +223,9 @@
 
         <!-- Retribution Paladin -->
         <section id="retribution" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 26, 20, 0.8), rgba(30, 26, 20, 0.9)), url('https://i.imgur.com/B2dYLxd.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_avengingwrath.jpg" alt="Retribution Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/dpHn8vW.png" alt="Retribution Icon" class="w-32 h-32 rounded-full border-4 border-amber-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-amber-300 glow-red">Retribution ⚔️</h2>
                          <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Mechanics)</p>
@@ -247,6 +253,10 @@
                         <div class="change-list-item">
                             <strong class="change-title">Streamlined "Hand" System:</strong>
                             <p class="change-desc">Short-term blessings (Freedom, Protection, etc.) are converted to a "Hand" system, simplifying buff management and allowing for more tactical application in combat.</p>
+                         </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Talent: Sacred Onslaught:</strong>
+                            <p class="change-desc">Landing Crusader Strike on a target grants Onslaught: your auto-attacks deal an additional 10% Holy damage for 6 seconds, stacking up to 3 times.</p>
                          </div>
                     </div>
                 </div>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Elven Divide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --he-primary: #5599ff; --he-secondary: #ffd700;
+            --be-primary: #ff4444; --be-secondary: #4ade80;
+            --neutral-bg: #1c1c1c; --neutral-card: #2a2a2a;
+            --neutral-border: #3a3a3a; --wow-gold: #ffd100;
+            --wow-blue-link: #00aeff;
+        }
+        body {
+            font-family: 'Open Sans', sans-serif; background-color: var(--neutral-bg); color: #f0f0f0;
+            background-image: url('https://i.imgur.com/3WeHO9c.jpeg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        .font-title { font-family: 'Roboto Slab', serif; }
+        .card {
+            background-color: var(--neutral-card);
+            border: 1px solid var(--neutral-border); border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        .section-title {
+            font-family: 'Roboto Slab', serif; color: var(--wow-gold);
+            border-bottom: 1px solid var(--neutral-border); padding-bottom: 0.75rem;
+            font-size: 1.75rem;
+        }
+        .wow-tooltip {
+            position: relative; display: inline-block;
+        }
+        .wow-tooltip .tooltip-trigger {
+            cursor: help;
+        }
+        .wow-tooltip .tooltip-content {
+            visibility: hidden; width: 320px; background-color: #0c1323; color: #fff;
+            border-radius: 4px; padding: 0; position: absolute; z-index: 50;
+            bottom: 115%; left: 50%; margin-left: -160px; opacity: 0;
+            transition: opacity 0.2s; border: 1px solid #777; font-weight: normal;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.7); overflow: hidden;
+            font-family: 'Open Sans', sans-serif;
+        }
+        .wow-tooltip:hover .tooltip-content { visibility: visible; opacity: 1; }
+        .wow-tooltip .tooltip-header { padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #4b5563; font-size: 1rem; }
+        .wow-tooltip .tooltip-body { padding: 12px; line-height: 1.6; }
+        .wow-tooltip .tooltip-body .desc { color: #f0f0f0; }
+        .wow-tooltip .tooltip-body .info { color: #9d9d9d; }
+        
+        #faction-choice-wrapper { transition: all 0.8s ease-in-out; background-size: cover; background-position: center; }
+        .faction-choice {
+            flex: 1; border: 2px solid transparent; transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer; position: relative; overflow: hidden;
+            background-size: cover; background-position: center;
+        }
+        .faction-choice::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(20, 20, 30, 0.98), rgba(20, 20, 30, 0.4));
+            transition: background-color 0.5s ease;
+        }
+        .faction-choice .content { position: relative; z-index: 2; transition: opacity 0.5s ease; }
+        .faction-choice.active { flex: 3; border-color: var(--wow-gold); }
+        .faction-choice.inactive { flex: 0.5; }
+        .faction-choice.inactive .content { opacity: 0.3; }
+        #high-elf-choice { background-image: url('https://i.imgur.com/9j4RUSc.jpeg'); }
+        #blood-elf-choice { background-image: url('https://i.imgur.com/k1SE8R0.jpeg'); }
+
+        .ability-icon { width: 48px; height: 48px; border: 2px solid #555; border-radius: 6px; background-color: #111; object-fit: cover; transition: border-color 0.2s; }
+        .ability-icon:hover { border-color: var(--wow-gold); }
+        
+        .talent-tree { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; justify-items: center; }
+        .talent { opacity: 0.5; transition: all 0.3s ease; position: relative; width: 48px; height: 48px; }
+        .talent.available { opacity: 1; }
+        .talent.invested .ability-icon { border-color: var(--wow-gold); box-shadow: 0 0 10px var(--wow-gold); }
+        .talent .points { position: absolute; bottom: -8px; right: -8px; background: #111; border-radius: 50%; width: 24px; height: 24px; text-align: center; line-height: 24px; font-weight: bold; border: 1px solid #777; }
+        .calc-button {
+            height: 120px; width: 120px;
+            background-size: 110%;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 2px solid #555; transition: all 0.3s ease;
+            background-color: black;
+            overflow: hidden;
+        }
+        .calc-button:hover { border-color: var(--wow-gold); transform: scale(1.05); }
+        
+        #dungeon-card { background-image: url('https://i.imgur.com/J3dEOu6.jpeg'); background-size: cover; background-position: center; }
+        .boss-portrait { cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+        .boss-portrait.active { border-color: var(--wow-gold); background-color: rgba(0,0,0,0.4) !important; }
+        #boss-details-wrapper { position: relative; background-color: rgba(0,0,0,0.5); border-radius: 0.25rem; overflow: hidden; }
+        #boss-details-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; opacity: 0.2; transition: opacity 0.5s ease-in-out; z-index: 0; }
+        #boss-details { position: relative; z-index: 1; }
+        
+        .class-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .class-tab { cursor: pointer; transition: all 0.2s ease; border: 1px solid #444; background-color: #111; }
+        .class-tab:hover, .class-tab.active { border-color: var(--wow-gold); transform: scale(1.05); }
+        .class-icon { width: 50px; height: 50px; object-fit: cover; }
+    </style>
+</head>
+<body class="p-2 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-10">
+        <!-- Header -->
+        <header class="text-center py-4">
+            <h1 class="text-6xl md:text-7xl font-title" style="color: var(--wow-gold); text-shadow: 0 0 15px rgba(0,0,0,0.9);">The Elven Divide</h1>
+            <p class="text-2xl md:text-3xl text-gray-300 mt-2 font-title">Elven Neutral Race</p>
+        </header>
+
+        <!-- The Choice Interactive Section -->
+        <div class="card p-2 md:p-4 rounded-lg">
+            <div id="faction-choice-wrapper" class="p-4 md:p-6 rounded" style="background-image: url('https://i.imgur.com/uxodmHt.jpeg')">
+                <h2 class="section-title text-3xl mb-4 text-center">The Crucible of Choice</h2>
+                <p class="text-center text-gray-300 mb-6 text-lg">At level 20, every Sin'dorei must enter the Sunspire Nexus and face the Crucible—a solo scenario that will define their soul.</p>
+                <div class="flex justify-center items-stretch gap-1 md:gap-4 min-h-[500px] relative">
+                    <div id="high-elf-choice" class="faction-choice rounded" onclick="selectFaction('high-elf')">
+                        <div class="content p-2 md:p-6 flex flex-col h-full justify-end">
+                            <h3 class="font-title text-3xl" style="color: var(--he-secondary); text-shadow: 0 0 8px #fff;">High Elves</h3>
+                            <p class="text-yellow-100 mt-2 font-bold text-lg">"For Quel'Thalas! For the Alliance!"</p>
+                        </div>
+                    </div>
+                    <div id="blood-elf-choice" class="faction-choice rounded" onclick="selectFaction('blood-elf')">
+                        <div class="content p-2 md:p-6 flex flex-col h-full justify-end">
+                            <h3 class="font-title text-3xl" style="color: var(--be-secondary); text-shadow: 0 0 8px #000;">Blood Elves</h3>
+                            <p class="text-green-100 mt-2 font-bold text-lg">"Power is our birthright. For the Horde!"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 md:p-8 space-y-6">
+                <h3 class="section-title text-2xl">The Two Paths</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-title text-xl text-center" style="color: var(--he-primary);">The Path of Purity</h4>
+                        <p class="mt-2 text-gray-400 leading-relaxed">You stand before a fractured mana conduit, leaking chaotic energy that warps the air around it. A vision of a Naaru, a memory of the Sunwell's purest state, fills your mind, urging you to mend the wound not with force, but with control and sacrifice. As you channel, spectral whispers from an echo of Kael'thas Sunstrider slither into your thoughts, tempting you with promises of godhood. "Why bleed for a world that abandoned you? Let the power flow! Become its master!" it hisses, showing you visions of a throne in Silvermoon. You must resist this grandeur, focusing your will to carefully weave the arcane energies back together, stitch by painful stitch. The final act is a quiet triumph, a silent affirmation of will over temptation. Your eyes, once tinged with sorrow, now shine with a brilliant, unwavering blue—a symbol of your mastery over the self, not over magic.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-title text-xl text-center" style="color: var(--be-primary);">The Path of Dominion</h4>
+                        <p class="mt-2 text-gray-400 leading-relaxed">The unstable conduit thrums before you, a symphony of untamed power. An echo of Grand Magister Rommath manifests, his voice sharp and pragmatic. "Sentiment is a luxury for those who have not seen their homes burn. True mastery comes not from denial, but from dominance." As you begin to harness the power, visions of Alliance leaders—Garithos in his contempt, a sneering human archmage—appear, mocking your people's weakness, calling you a mana-addled wretch. Fueled by this righteous indignation, you shatter the conduit's outer shell, not to mend it, but to drain its raw essence directly into your soul. The surge of power is an agony that scours you from within, but you emerge reborn in its fire. Your eyes, once filled with loss, now burn with a verdant, fel-green light—a permanent mark of your ambition and your refusal to ever be a victim again.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Racial "Talent" Calculator -->
+        <div class="card p-6 md:p-8">
+            <h2 class="section-title text-2xl mb-6">Forge Your Identity</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="font-title text-xl text-center">Choose a Path to Explore</h3>
+                    <div class="flex justify-center gap-4">
+                        <button id="calc-he-btn" class="calc-button rounded-md" style="background-image: url('https://i.imgur.com/jj4bmYR.png')" onclick="initCalculator('he')"></button>
+                        <button id="calc-be-btn" class="calc-button rounded-md" style="background-image: url('https://i.imgur.com/Ar9sDJH.jpeg')" onclick="initCalculator('be')"></button>
+                    </div>
+                    <div id="calculator-info" class="text-center p-4 bg-black/20 rounded min-h-[200px]"></div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-title text-xl text-center">Racial Specialization <span id="points-display">(0/3 Points)</span></h3>
+                    <div id="talent-tree" class="talent-tree p-4 bg-black/20 rounded"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Available Classes & Distinctions -->
+        <div class="card p-6 md:p-8">
+            <h2 class="section-title text-2xl mb-6">Available Classes & Distinctions</h2>
+            <div class="bg-black/20 p-4 rounded">
+                <div id="class-tabs-container" class="class-tabs justify-center">
+                    <!-- Class tabs will be injected here -->
+                </div>
+            </div>
+            <div id="class-info-container" class="mt-6 min-h-[300px]">
+                <!-- Class info will be injected here -->
+            </div>
+        </div>
+        
+        <!-- Mounts -->
+        <div class="card p-6 md:p-8">
+            <h2 class="section-title text-2xl mb-6">Signature Mounts</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-start">
+                <div class="text-center space-y-4">
+                    <img src="https://i.imgur.com/RZLXOIf.jpeg" alt="Gilded Unicorn" class="w-full h-auto rounded-md border-2" style="border-color: var(--he-secondary);">
+                    <h3 class="font-title text-2xl" style="color: var(--he-secondary);">Gilded Unicorn</h3>
+                    <p class="text-gray-400">A symbol of the purity and majesty of ancient Quel'Thalas, their crystalline antlers shimmering with latent Light.</p>
+                </div>
+                <div class="text-center space-y-4">
+                    <img src="https://i.imgur.com/iPY8Gvo.jpeg" alt="Manawyrm Steed" class="w-full h-auto rounded-md border-2" style="border-color: var(--be-secondary);">
+                    <h3 class="font-title text-2xl" style="color: var(--be-secondary);">Manawyrm Steed</h3>
+                    <p class="text-gray-400">A testament to the mastery over arcane forces, these volatile creatures glide on currents of raw magic.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dungeon Journal -->
+        <div id="dungeon-card" class="card p-4 md:p-8">
+            <h2 class="section-title text-2xl mb-6">Dungeon Deep Dive: The Ruins of Elun'thalas</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/3 space-y-4">
+                    <img src="https://i.imgur.com/9PVFCZE.jpeg" class="rounded w-full">
+                    <p class="text-gray-400 italic bg-black/30 p-2 rounded">Built by the Highborne before their exile, this temple to Elune was a place of lunar worship and astral communion. Now, its connection to the moon has been twisted by Void cultists known as the Shadow-touched, who seek to create a permanent scar between Azeroth and the Great Dark Beyond.</p>
+                    <div class="space-y-2">
+                        <div id="boss-1-portrait" class="boss-portrait active flex items-center gap-4 p-2 bg-black/20 rounded" onclick="showBoss(1)">
+                            <img src="https://i.imgur.com/vN0ESiX.png" class="rounded-full w-16 h-16 object-cover">
+                            <span class="font-bold">Velian, the Light-Splitter</span>
+                        </div>
+                        <div id="boss-2-portrait" class="boss-portrait flex items-center gap-4 p-2 bg-black/20 rounded" onclick="showBoss(2)">
+                            <img src="https://i.imgur.com/KHQuhR8.png" class="rounded-full w-16 h-16 object-cover">
+                            <span class="font-bold">The Corrupted Heartwood</span>
+                        </div>
+                        <div id="boss-3-portrait" class="boss-portrait flex items-center gap-4 p-2 bg-black/20 rounded" onclick="showBoss(3)">
+                            <img src="https://i.imgur.com/MHWOzec.png" class="rounded-full w-16 h-16 object-cover">
+                            <span class="font-bold">The Twin Reflections</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="boss-details-wrapper" class="md:w-2/3">
+                    <div id="boss-details-bg"></div>
+                    <div id="boss-details" class="p-4"></div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="text-center text-gray-500 py-6">
+            <p>This is a fan concept for a theoretical "TBC: Reborn". World of Warcraft and all related trademarks are property of Blizzard Entertainment.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // --- Faction Choice Logic ---
+        const highElfChoice = document.getElementById('high-elf-choice');
+        const bloodElfChoice = document.getElementById('blood-elf-choice');
+        const choiceWrapper = document.getElementById('faction-choice-wrapper');
+        const heBg = "url('https://placehold.co/1200x600/1e40af/ffffff/png?text=Stormwind+Harbor')";
+        const beBg = "url('https://placehold.co/1200x600/991b1b/ffffff/png?text=The+Court+of+Suns')";
+        
+        function selectFaction(faction) {
+            if (faction === 'high-elf') {
+                highElfChoice.classList.add('active'); highElfChoice.classList.remove('inactive');
+                bloodElfChoice.classList.add('inactive'); bloodElfChoice.classList.remove('active');
+                choiceWrapper.style.backgroundImage = heBg;
+            } else if (faction === 'blood-elf') {
+                bloodElfChoice.classList.add('active'); bloodElfChoice.classList.remove('inactive');
+                highElfChoice.classList.add('inactive'); highElfChoice.classList.remove('active');
+                choiceWrapper.style.backgroundImage = beBg;
+            }
+        }
+
+        // --- Talent Calculator ---
+        const talentData = {
+            he: [
+                { id: 'grace', name: 'Grace of the Sunwell', max: 1, desc: 'Your connection to the Sunwell passively restores your mana.', icon: 'https://i.imgur.com/fzBr99d.png', cooldown: 'Passive', range: '' },
+                { id: 'spellbreaker', name: 'Spellbreaker', max: 2, desc: 'Your arcane affinity gives you a chance to reflect harmful spells.', icon: 'https://i.imgur.com/4GAVgXZ.png', cooldown: 'Passive', range: '' },
+                { id: 'waygate', name: 'Waygate Step', max: 1, desc: 'Instantly blink forward a short distance.', icon: 'https://i.imgur.com/0UbBmV0.png', cooldown: '3 min cooldown', range: '20 yd range' },
+                { id: 'sunfire', name: 'Sunfire Infusion', max: 1, desc: 'Your damaging spells and abilities have a chance to cause an eruption of holy energy, dealing bonus damage to the target.', icon: 'https://i.imgur.com/miAWJul.png', cooldown: 'Passive', range: '' },
+                { id: 'vigilance', name: 'Arcane Vigilance', max: 2, desc: 'Reduces all magical damage taken by 1/2%.', icon: 'https://i.imgur.com/rs6Gloo.png', cooldown: 'Passive', range: '' },
+                { id: 'purity', name: 'Purity of Spirit', max: 1, desc: 'Your inner resolve reduces the duration of all Curse effects on you by 15%.', icon: 'https://i.imgur.com/5Dsb80S.png', cooldown: 'Passive', range: '' },
+            ],
+            be: [
+                { id: 'torrent', name: 'Arcane Torrent', max: 1, desc: 'Unleash a wave of arcane energy, silencing all enemies within 8 yards and restoring resources.', icon: 'https://i.imgur.com/qpqQPQQ.png', cooldown: '2 min cooldown', range: '' },
+                { id: 'felres', name: 'Fel Resistance', max: 2, desc: 'Your people\'s history with fel magic has hardened your spirit, reducing Shadow and Fire damage taken by 5/10%.', icon: 'https://i.imgur.com/VFYa2lK.png', cooldown: 'Passive', range: '' },
+                { id: 'empower', name: 'Blood Empowerment', max: 1, desc: 'Siphon the life force of a fallen foe, increasing the damage or healing of your next ability.', icon: 'https://i.imgur.com/dF3lmn5.png', cooldown: 'Passive', range: '' },
+                { id: 'siphon', name: 'Siphon Soul', max: 1, desc: 'Your damaging spells and abilities have a chance to heal you for a portion of the damage dealt.', icon: 'https://i.imgur.com/DDEgmEg.png', cooldown: 'Passive', range: '' },
+                { id: 'dominion', name: 'Arcane Dominion', max: 2, desc: 'Your mastery of the arcane increases your spell haste by 1/2%.', icon: 'https://i.imgur.com/5F4FN6C.png', cooldown: 'Passive', range: '' },
+                { id: 'spite', name: 'Spiteful Cunning', max: 1, desc: 'Your pragmatism grants you resilience against underhanded tactics, reducing the duration of all Poison effects on you by 15%.', icon: 'https://i.imgur.com/3vduT17.png', cooldown: 'Passive', range: '' },
+            ]
+        };
+        let currentCalcFaction = '';
+        let points = 0;
+        let investments = {};
+
+        function initCalculator(faction) {
+            currentCalcFaction = faction;
+            points = 0;
+            investments = {};
+            updatePointsDisplay();
+            
+            const tree = document.getElementById('talent-tree');
+            tree.innerHTML = '';
+            talentData[faction].forEach(talent => {
+                const isAvailable = talent.max > 0;
+                tree.innerHTML += `
+                    <div id="talent-${talent.id}" class="talent ${isAvailable ? 'available' : ''}" onclick="investPoint('${talent.id}')">
+                        <div class="wow-tooltip">
+                            <img src="${talent.icon}" class="ability-icon tooltip-trigger">
+                            <div class="tooltip-content">
+                                <div class="tooltip-header" style="color: ${faction === 'he' ? 'var(--he-secondary)' : 'var(--be-secondary)'}">${talent.name} <span class="text-gray-400 font-normal"> (Rank ${investments[talent.id] || 0}/${talent.max})</span></div>
+                                <div class="tooltip-body">
+                                    <p class="info">${talent.range || ''} ${talent.range && talent.cooldown ? '<span class="mx-2">|</span>' : ''} ${talent.cooldown || ''}</p>
+                                    <p class="desc mt-2">${talent.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="points">0/${talent.max}</div>
+                    </div>
+                `;
+            });
+
+            const info = document.getElementById('calculator-info');
+            info.innerHTML = `
+                <h4 class="font-title text-lg" style="color: ${faction === 'he' ? 'var(--he-secondary)' : 'var(--be-secondary)'};">${faction === 'he' ? 'High Elf Philosophy' : 'Blood Elf Doctrine'}</h4>
+                <p class="mt-2 text-gray-300">${faction === 'he' ? 'Focused on defense, purity, and sustaining arcane power through traditional means.' : 'Focused on offense, control, and siphoning power to overcome any obstacle.'}</p>
+            `;
+        }
+        function investPoint(id) {
+            if (!currentCalcFaction) return;
+            const talent = talentData[currentCalcFaction].find(t => t.id === id);
+            investments[id] = investments[id] || 0;
+            if (points < 3 && investments[id] < talent.max) {
+                points++;
+                investments[id]++;
+                updateTalentDisplay(id, investments[id], talent.max);
+            }
+        }
+        function updateTalentDisplay(id, current, max) {
+            const el = document.getElementById(`talent-${id}`);
+            el.querySelector('.points').innerText = `${current}/${max}`;
+            const tooltipHeader = el.querySelector('.tooltip-header');
+            const talent = talentData[currentCalcFaction].find(t => t.id === id);
+            tooltipHeader.innerHTML = `${talent.name} <span class="text-gray-400 font-normal"> (Rank ${current}/${max})</span>`;
+            if(current > 0) el.classList.add('invested');
+            updatePointsDisplay();
+        }
+        function updatePointsDisplay() {
+            document.getElementById('points-display').innerText = `(${points}/3 Points)`;
+        }
+
+        // --- Class Distinction Logic ---
+        const classData = {
+            mage: { icon: 'https://i.imgur.com/qn2djXW.png', he: "A proud practitioner of the Kirin Tor's teachings, you seek knowledge and control. Your spellcraft is precise and elegant, a reflection of centuries of Highborne tradition, untainted by the reckless pursuit of forbidden power.", be: "A Magister of Silvermoon, you believe power is a birthright to be seized. You push the boundaries of arcane magic, drawing on any source necessary to fuel your spells and secure your place in a world that has wronged you." },
+            priest: { icon: 'https://i.imgur.com/aj1CVrE.png', he: "A spiritual guide, you channel the serene power of the restored Sunwell and the Holy Light. Your healing is restorative and pure, and while you may wield Shadow for balance, you do so with caution, ever wary of its corrupting whispers.", be: "Your faith was broken and reforged in tragedy. You understand that both Light and Shadow are merely forces to be mastered. Their balance is a source of ultimate power, and you are not afraid to blur the lines to achieve victory." },
+            warlock: { icon: 'https://i.imgur.com/MHcMLJx.png', he: "An outcast among your own people, you are an Arcane Inquisitor. You study fel magic not for power, but to understand and ultimately defeat it. You bind demons with wards of pure magic, viewing them as dangerous tools to be controlled, never trusted.", be: "Celebrated for your pragmatism, you are a Felblood Scion. You see demons not as servants, but as allies of convenience, embracing their volatile power to ensure the survival and supremacy of your people at any cost." },
+            paladin: { icon: 'https://i.imgur.com/tbPW0IM.png', he: "A Silver Hand traditionalist, you are a beacon of faith. Your blessings are prayers, your seals are vows of protection, and your armor gleams with untainted Light, a symbol of your unwavering commitment to justice and the Alliance.", be: "As a Blood Knight, you do not ask for the Light's favor—you take it. You wield it as a tool of power, bending it to your will through sheer force of conviction to smite your enemies and enforce your dominion over your destiny." },
+            hunter: { icon: 'https://i.imgur.com/En31Y4t.png', he: "As a Farstrider Ranger, you are a guardian of the wilds and a keeper of ancient paths. Your bond with your animal companion is one of mutual respect, and your arrows fly true in defense of your allies and your homeland.", be: "A Bloodwarder, you are a relentless and pragmatic survivor. Your animal companion is a weapon, honed for maximum lethality. You stalk your prey with a cold fury, the memory of your people's losses fueling every shot." },
+            rogue: { icon: 'https://i.imgur.com/kQJfCCO.png', common: "While their core skills are universal, elven rogues embody their faction's philosophy. A High Elf is a patient intelligence agent of SI:7, while a Blood Elf is a ruthless assassin of the Shattered Hand who will do whatever it takes to get the job done." },
+            warrior: { icon: 'https://i.imgur.com/seZs5WM.png', common: "Masters of arms, elven warriors reflect their culture's martial traditions. The High Elf is a disciplined Spellbreaker, a bastion of defense for their allies. The Blood Elf is a furious berserker, seeking vengeance and glory on the battlefield." }
+        };
+
+        function showClass(className) {
+            document.querySelectorAll('.class-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.class-tab[data-class="${className}"]`).classList.add('active');
+
+            const data = classData[className];
+            const container = document.getElementById('class-info-container');
+            
+            if (data.common) {
+                container.innerHTML = `<div class="pt-6 border-t border-gray-700 text-center text-gray-400"><p>${data.common}</p></div>`;
+            } else {
+                container.innerHTML = `
+                    <div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div>
+                            <h4 class="font-title text-xl" style="color: var(--he-secondary);">High Elf Ways</h4>
+                            <div class="mt-4 space-y-4 text-gray-400"><p>${data.he}</p></div>
+                        </div>
+                        <div>
+                            <h4 class="font-title text-xl" style="color: var(--be-secondary);">Blood Elf Doctrine</h4>
+                            <div class="mt-4 space-y-4 text-gray-400"><p>${data.be}</p></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- Dungeon Journal Logic ---
+        const bossData = {
+            1: { name: "Velian, the Light-Splitter", desc: "A former High Elven priest who sought to balance the Light and Shadow within himself. The Void's whispers drove him to madness, and he now guards the temple's entrance, seeing all who enter as impure.", abilities: ["<strong>Void Crash:</strong> Summons a void zone that damages and silences players.", "<strong>Holy Fire:</strong> Burns a target with holy energy, dealing damage over time.", "<strong>Split Personality:</strong> At 50% health, splits into a Void Shade and Light Echo, which must be defeated simultaneously."], loot: ["<strong>Velian's Duality Pauldrons:</strong> Mail shoulders that shimmer between light and shadow.", "<strong>Band of Sundered Faith:</strong> A ring that grants a small amount of versatility."], bg: 'https://placehold.co/800x600/581c87/ffffff/png?text=Velian' },
+            2: { name: "The Corrupted Heartwood", desc: "The ancient tree at the center of the temple's moon-grotto. Its roots have been poisoned by the Shadow-touched, and it now births corrupted dryads and treants that seek to entangle all life.", abilities: ["<strong>Entangling Roots:</strong> Roots a random player, dealing damage until broken by other players.", "<strong>Corrupting Spores:</strong> Releases clouds of spores that reduce healing received by 25%.", "<strong>Life Siphon:</strong> Tethers to a player, draining their health to heal the boss. Must be interrupted."], loot: ["<strong>Nameless Root-Carved Bow:</strong> A gnarled bow that has a chance to root targets.", "<strong>Belt of the Poisoned Bough:</strong> Leather belt that increases nature resistance."], bg: 'https://i.imgur.com/w7ZPW3w.jpeg' },
+            3: { name: "The Twin Reflections", desc: "The two halves of the temple's original guardian, a single entity now fractured by the Void's influence. Lyra'thiel, the Sun-Blessed, attacks with holy fire, while Vor'ena, the Moon-Kissed, uses shadow magic. They are locked in an eternal, maddening battle.", abilities: ["<strong>Shared Agony:</strong> The two bosses share a health pool.", "<strong>Sun Phase (Lyra'thiel Active):</strong> The room is bathed in light. Players take constant holy damage. Vor'ena is shielded.", "<strong>Moon Phase (Vor'ena Active):</strong> The room is plunged into darkness. Players are periodically silenced. Lyra'thiel is shielded.", "<strong>Twin's Mark:</strong> Players get a debuff that increases damage taken from one twin, but increases damage dealt to the other."], loot: ["<strong>Staff of the Sundered Guardian:</strong> A powerful caster staff that can be toggled between a Light and Shadow effect.", "<strong>Robes of Lunar Penumbra:</strong> Cloth chestpiece that grants a small absorb shield when casting healing spells.", "<strong>Trinket: Echo of Elune's Tear:</strong> A trinket that can be activated to restore a small amount of mana."], bg: 'https://i.imgur.com/5aRtXDr.jpeg' }
+        };
+        
+        function showBoss(id) {
+            const data = bossData[id];
+            document.querySelectorAll('.boss-portrait').forEach(p => p.classList.remove('active'));
+            document.getElementById(`boss-${id}-portrait`).classList.add('active');
+            
+            document.getElementById('boss-details-bg').style.backgroundImage = `url(${data.bg})`;
+
+            document.getElementById('boss-details').innerHTML = `
+                <h3 class="font-title text-2xl" style="color: var(--wow-gold);">${data.name}</h3>
+                <p class="text-gray-400 mt-2">${data.desc}</p>
+                <h4 class="font-title text-xl mt-6 mb-2">Abilities</h4>
+                <ul class="list-disc list-inside space-y-2 text-gray-300">
+                    ${data.abilities.map(ab => `<li>${ab}</li>`).join('')}
+                </ul>
+                <h4 class="font-title text-xl mt-6 mb-2">Notable Loot</h4>
+                <ul class="list-disc list-inside space-y-2 text-yellow-200">
+                    ${data.loot.map(l => `<li>${l}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate class tabs
+            const classTabsContainer = document.getElementById('class-tabs-container');
+            for (const className in classData) {
+                const data = classData[className];
+                classTabsContainer.innerHTML += `
+                    <div class="class-tab rounded" data-class="${className}" onclick="showClass('${className}')" title="${className.charAt(0).toUpperCase() + className.slice(1)}">
+                        <img class="class-icon" src="${data.icon}">
+                    </div>
+                `;
+            }
+
+            showBoss(1);
+            initCalculator('he');
+            showClass('mage'); // Show mage class by default
+        });
+    </script>
+</body>
+</html>

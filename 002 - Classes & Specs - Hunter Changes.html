@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/bltdc8a2b53b8bf584b/6024621518f8f90b9b378033/hunter_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/bC1XqAF.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -57,6 +57,8 @@
             border: 1px solid #3f6212;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -138,9 +140,9 @@
 
         <!-- Beast Mastery Hunter -->
         <section id="beastmastery" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 32, 26, 0.8), rgba(26, 32, 26, 0.9)), url('https://i.imgur.com/WObhTEh.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_bestialdiscipline.jpg" alt="Beast Mastery Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/O9XtjlG.png" alt="Beast Mastery Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-lime-300 glow-gold">Beast Mastery 🐾</h2>
                         <p class="dps-target dps-nerf">Target DPS Tune: -4-8% (Tuning early dominance, improving QoL/Scaling)</p>
@@ -173,6 +175,10 @@
                             <strong class="change-title">New Talent: Animal Companion:</strong>
                              <p class="change-desc">An optional talent allowing you to summon a second pet from your stable to fight alongside your main one, adding immense visual flair and passive cleave damage.</p>
                         </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Beast Convergence:</strong>
+                             <p class="change-desc">When you and your pet both land a critical hit within 3 seconds of each other, you both gain Convergence for 6 seconds, granting you 5% increased damage and your pet 10% increased attack speed.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,9 +186,9 @@
         
         <!-- Marksmanship Hunter -->
         <section id="marksmanship" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 32, 26, 0.8), rgba(26, 32, 26, 0.9)), url('https://i.imgur.com/uyPjaWs.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_focusedaim.jpg" alt="Marksmanship Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/qtQxThz.png" alt="Marksmanship Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-lime-300 glow-green">Marksmanship 🎯</h2>
                         <p class="dps-target dps-buff">Target DPS Buff: +4-8%</p>
@@ -215,6 +221,10 @@
                             <strong class="change-title">Modern Ability: Chimera Shot (from WotLK):</strong>
                             <p class="change-desc">(As an alternate talent path) An instant shot that refreshes your Serpent Sting and deals weapon damage, providing a powerful, synergistic signature ability.</p>
                         </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Talent: Master’s Aim:</strong>
+                            <p class="change-desc">Using Chimera Shot marks the target with Master’s Aim for 6 seconds, causing your next three Aimed Shots to ignore 10% of the target’s armor.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,9 +232,9 @@
 
         <!-- Survival Hunter -->
         <section id="survival" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 32, 26, 0.8), rgba(26, 32, 26, 0.9)), url('https://i.imgur.com/HTZuGOv.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_hunter_traplauncher.jpg" alt="Survival Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/xHx9U5j.jpeg" alt="Survival Icon" class="w-32 h-32 rounded-full border-4 border-lime-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-lime-300 glow-gold">Survival 🌲</h2>
                          <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on Utility/Mechanics)</p>
@@ -256,6 +266,10 @@
                          <div class="change-list-item">
                             <strong class="change-title">Modern Talent: Black Arrow:</strong>
                              <p class="change-desc">A new talent that fires a shadowy DoT. While active, your periodic trap damage can reset the cooldown of Explosive Shot, adding another layer of synergy to your kit.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Wilderness Rally:</strong>
+                             <p class="change-desc">While you or your pet are within 15 yards of a trap you placed, you both gain 5% movement speed and 3% increased damage.</p>
                         </div>
                     </div>
                 </div>

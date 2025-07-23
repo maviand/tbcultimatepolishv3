@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt0a7a483e5661b17a/602462153139360c733633e6/priest_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/IQFpexP.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -57,6 +57,8 @@
             border: 1px solid #52525b;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -134,9 +136,9 @@
 
         <!-- Discipline Priest -->
         <section id="discipline" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(28, 28, 32, 0.8), rgba(28, 28, 32, 0.9)), url('https://i.imgur.com/E6d39cP.png');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_powerwordshield.jpg" alt="Discipline Icon" class="w-32 h-32 rounded-full border-4 border-indigo-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/yKNBawv.png" alt="Discipline Icon" class="w-32 h-32 rounded-full border-4 border-indigo-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-indigo-300">Discipline 🛡️</h2>
                         <p class="dps-target dps-neutral">Target: Solidify Role as Proactive Mitigation Healer</p>
@@ -165,6 +167,10 @@
                             <strong class="change-title">Modern Ability: Power Word: Barrier:</strong>
                             <p class="change-desc">The defining cooldown for Discipline. Summons a holy barrier that reduces all damage taken by allies inside, providing an answer to the most devastating raid mechanics.</p>
                         </div>
+                        <div class="change-list-item disc-item">
+                            <strong class="change-title">New Talent: Crystalline Barrier:</strong>
+                            <p class="change-desc">Casting Power Word: Shield also places a Crystal Ward at the target’s feet for 6 seconds. Allies standing in the ward gain 10% reduced damage taken.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,9 +178,9 @@
         
         <!-- Holy Priest -->
         <section id="holy" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(28, 28, 32, 0.8), rgba(28, 28, 32, 0.9)), url('https://i.imgur.com/XpSCC4O.png');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_guardianspirit.jpg" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/2JfVmju.png" alt="Holy Icon" class="w-32 h-32 rounded-full border-4 border-amber-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-amber-300">Holy 🙏</h2>
                         <p class="dps-target dps-neutral">Target: Improve Reactive & "Oh-Shit" Healing</p>
@@ -196,12 +202,12 @@
                     <div>
                         <h3 class="holy text-2xl">Power Infusions ✨</h3>
                          <div class="change-list-item holy-item">
-                            <strong class="change-title">Modern Ability: Guardian Spirit:</strong>
-                            <p class="change-desc">A new talent to place a guardian angel on an ally. It increases healing they receive and will sacrifice itself to save them from a fatal blow, providing the ultimate tank cooldown.</p>
+                            <strong class="change-title">New Talent: Sanctuary Zone:</strong>
+                            <p class="change-desc">Casting Circle of Healing creates a Sanctuary at your location for 6 sec. Allies inside receive 5% increased healing, and enemies take 3% more Holy damage.</p>
                         </div>
                         <div class="change-list-item holy-item">
-                            <strong class="change-title">Modern Ability: Light of Dawn:</strong>
-                            <p class="change-desc">An optional talent that unleashes a powerful wave of healing in a cone, giving Holy a strong tool for recovering from stacked group damage.</p>
+                            <strong class="change-title">New Talent: Echoes of Serenity:</strong>
+                            <p class="change-desc">When Guardian Spirit triggers, it also casts a reduced-power Prayer of Mending on up to 3 nearby injured allies.</p>
                         </div>
                     </div>
                 </div>
@@ -210,9 +216,9 @@
 
         <!-- Shadow Priest -->
         <section id="shadow" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(28, 28, 32, 0.8), rgba(28, 28, 32, 0.9)), url('https://i.imgur.com/hagsHvW.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_shadowform.jpg" alt="Shadow Icon" class="w-32 h-32 rounded-full border-4 border-purple-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/cgUNFcU.png" alt="Shadow Icon" class="w-32 h-32 rounded-full border-4 border-purple-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-purple-300 glow-shadow">Shadow 💀</h2>
                          <p class="dps-target dps-buff">Target DPS Buff: +20-24%</p>
@@ -240,6 +246,14 @@
                         <div class="change-list-item shadow-item">
                             <strong class="change-title">Modern Ability: Mind Sear:</strong>
                             <p class="change-desc">Finally, a true AoE ability. Channel psychic energy into a target, causing them to radiate massive shadow damage to all nearby enemies.</p>
+                         </div>
+                         <div class="change-list-item shadow-item">
+                            <strong class="change-title">New Talent: Mind Flay Resonance:</strong>
+                            <p class="change-desc">Casting Mind Flay applies Resonance. Your next Mind Blast consumes up to 2 stacks, increasing its damage by 10% per stack.</p>
+                         </div>
+                         <div class="change-list-item shadow-item">
+                            <strong class="change-title">New Talent: Psi Storm:</strong>
+                            <p class="change-desc">Casting Vampiric Embrace also summons a Psi Storm at your location for 5 sec: enemies inside take 5% increased Shadow damage and you leech an additional 2% of damage as healing.</p>
                          </div>
                     </div>
                 </div>

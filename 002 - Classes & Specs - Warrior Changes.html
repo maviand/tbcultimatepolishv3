@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt0c863a356a4823a2/60246216a494740b97771b60/warrior_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/u12R3QE.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -54,6 +54,8 @@
             border: 1px solid #7f1d1d;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -135,9 +137,9 @@
 
         <!-- Arms Warrior -->
         <section id="arms" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 20, 20, 0.8), rgba(30, 20, 20, 0.9)), url('https://i.imgur.com/WPCw4i0.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_warrior_savageblow.jpg" alt="Arms Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/tgSiYFd.png" alt="Arms Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-red-300 glow-red">Arms ⚔️</h2>
                         <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on Sustained Damage/Utility)</p>
@@ -153,7 +155,7 @@
                         </div>
                         <div class="change-list-item">
                             <strong class="change-title">Unique Raid Utility:</strong>
-                            <p class="change-desc">The Blood Frenzy talent is improved to also cause targets affected by your bleeds to take increased magical damage, providing a unique and valuable debuff.</p>
+                            <p class="change-desc">The Blood Frenzy talent is reworked. Your Rend and Deep Wounds abilities now apply a debuff to the target, allowing all bleed effects on that target to critically strike.</p>
                         </div>
                     </div>
                     <div>
@@ -163,12 +165,12 @@
                             <p class="change-desc">A new capstone talent. Become an unstoppable storm of steel, hitting all nearby enemies and granting immunity to crowd control. The ultimate AoE burst cooldown.</p>
                         </div>
                         <div class="change-list-item">
-                            <strong class="change-title">Modern Ability: Sudden Death:</strong>
-                            <p class="change-desc">Your melee hits have a chance to allow the use of Execute on the target, regardless of their health. A thrilling proc that adds execute-phase pressure throughout the fight.</p>
+                            <strong class="change-title">New Talent: Phalanx Charge:</strong>
+                            <p class="change-desc">Charge now also refreshes Battle Shout duration and leaves a Shieldwall Marker for 6 sec at your landing spot. Allies who cross it gain 10 Rage and +5% damage.</p>
                         </div>
                          <div class="change-list-item">
-                            <strong class="change-title">New Utility: War Banners:</strong>
-                            <p class="change-desc">Talent into placing powerful banners, such as a Mocking Banner for AoE taunt utility or a Skull Banner to increase the raid's critical strike damage.</p>
+                            <strong class="change-title">New Talent: Ruptured Sunder:</strong>
+                            <p class="change-desc">Your Sunder Armor also applies a bleed that ticks for 30% of the sunder damage over 6 sec. Refreshing it extends both effects.</p>
                         </div>
                     </div>
                 </div>
@@ -177,9 +179,9 @@
         
         <!-- Fury Warrior -->
         <section id="fury" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 20, 20, 0.8), rgba(30, 20, 20, 0.9)), url('https://i.imgur.com/T293PZ2.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_warrior_unrelentingassault.jpg" alt="Fury Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/wJbmNeR.png" alt="Fury Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-red-300 glow-red">Fury 🩸</h2>
                         <p class="dps-target dps-nerf">Target DPS Tune: -16-20% (Tune top-end, improve early game/threat)</p>
@@ -205,8 +207,12 @@
                             <p class="change-desc">A powerful instant strike that becomes usable only when you are Enraged. It adds a hard-hitting, reactive button to your rotation during your most furious moments.</p>
                         </div>
                         <div class="change-list-item">
-                            <strong class="change-title">Iconic Overhaul: Titan's Grip:</strong>
-                            <p class="change-desc">A conceptual but game-changing 41-point talent. Allows the warrior to wield two two-handed weapons, fulfilling the ultimate fantasy of the unstoppable juggernaut.</p>
+                            <strong class="change-title">New Talent: Blade Cascade:</strong>
+                            <p class="change-desc">Whirlwind’s final hit deals 50% extra damage and spreads Deep Wounds to up to 2 additional nearby enemies.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Cascading Rampage:</strong>
+                            <p class="change-desc">Each successive Bloodthirst cast within 5 sec deals 3% more damage (stacking up to 5 times) and reduces its cooldown by 0.5 sec per stack.</p>
                         </div>
                     </div>
                 </div>
@@ -215,9 +221,9 @@
 
         <!-- Protection Warrior -->
         <section id="protection" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(30, 20, 20, 0.8), rgba(30, 20, 20, 0.9)), url('https://i.imgur.com/0KXvVE8.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/ability_warrior_defensivestance.jpg" alt="Protection Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/FhuhqTX.png" alt="Protection Icon" class="w-32 h-32 rounded-full border-4 border-red-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-red-300 glow-blue">Protection 🛡️</h2>
                          <p class="dps-target dps-neutral">Target: Improve AoE Threat & Group Utility</p>
@@ -243,12 +249,12 @@
                             <p class="change-desc">A new talent that sends a wave of force in a cone, stunning all enemies hit. This provides incredible control and snap threat on multi-mob pulls.</p>
                         </div>
                         <div class="change-list-item">
-                            <strong class="change-title">Modern Ability: Mass Spell Reflection:</strong>
-                            <p class="change-desc">A game-changing talent that reflects the next spell cast on you AND all nearby party members. Unparalleled utility against caster bosses and trash.</p>
+                            <strong class="change-title">New Talent: Guardian’s Bulwark:</strong>
+                            <p class="change-desc">Shield Slam also grants nearby allies a Bulwark buff for 6 sec that absorbs damage equal to 5% of their max health.</p>
                          </div>
                          <div class="change-list-item">
-                            <strong class="change-title">Conceptual Mitigation: Shield Barrier:</strong>
-                             <p class="change-desc">An optional talent to spend Rage on a damage absorption shield, providing an active mitigation tool for magic damage or predictable damage spikes.</p>
+                            <strong class="change-title">New Talent: Bastion of the Wind:</strong>
+                             <p class="change-desc">Intervene on an ally also grants them Wind’s Grace: 10 sec of 10% damage reduction and a Slow Fall effect.</p>
                         </div>
                     </div>
                 </div>

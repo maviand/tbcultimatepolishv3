@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt6bef5323a6b577b2/60246216a494740b97771b61/warlock_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/z3PB5MA.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -54,6 +54,8 @@
             border: 1px solid #5b21b6;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -135,9 +137,9 @@
 
         <!-- Affliction Warlock -->
         <section id="affliction" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 20, 30, 0.8), rgba(26, 20, 30, 0.9)), url('https://i.imgur.com/dVowqQR.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_unstableaffliction_3.jpg" alt="Affliction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/ZAsJNiE.jpeg" alt="Affliction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300">Affliction 💀</h2>
                         <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on QoL/Ramp-up)</p>
@@ -166,6 +168,14 @@
                             <strong class="change-title">Empowered Drain Soul:</strong>
                             <p class="change-desc">Your Drain Soul ability now refreshes the duration of your core DoTs during the execute phase, making it a powerful culmination of your suffering, not a replacement for it.</p>
                         </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Echo of Torment:</strong>
+                            <p class="change-desc">When Unstable Affliction or Agony expires, it spawns a weaker copy on a second nearby enemy.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Mortality Aura:</strong>
+                            <p class="change-desc">Passively increases your DoT damage. Overhealing with Drain Life grants nearby allies a temporary DoT damage buff.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -173,9 +183,9 @@
         
         <!-- Demonology Warlock -->
         <section id="demonology" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 20, 30, 0.8), rgba(26, 20, 30, 0.9)), url('https://i.imgur.com/dG8ctI6.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_felguard.jpg" alt="Demonology Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/iGZVgov.png" alt="Demonology Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300">Demonology 👿</h2>
                         <p class="dps-target dps-neutral">Target: No DPS Adjustment (Focus on Pet Scaling/Utility)</p>
@@ -204,6 +214,14 @@
                             <strong class="change-title">Modern Ability: Demonic Empowerment:</strong>
                             <p class="change-desc">A new baseline spell that instantly empowers your active demon, increasing its haste and healing it. Provides on-demand pet burst and survivability.</p>
                         </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Demonic Pact:</strong>
+                            <p class="change-desc">Increases your spell damage by 10%, and your pet's criticals apply the Demonic Pact effect to your party, increasing their spell power by 10% of your Spell Damage for 45 sec.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Hellfire Sigil:</strong>
+                            <p class="change-desc">Your Hellfire now brands nearby allies, causing them to deal increased Shadow damage to burning enemies.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -211,9 +229,9 @@
 
         <!-- Destruction Warlock -->
         <section id="destruction" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(26, 20, 30, 0.8), rgba(26, 20, 30, 0.9)), url('https://i.imgur.com/oytwvGW.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_shadow_chaosbolt.jpg" alt="Destruction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/67hJXkU.png" alt="Destruction Icon" class="w-32 h-32 rounded-full border-4 border-violet-500 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300">Destruction 🔥</h2>
                          <p class="dps-target dps-nerf">Target DPS Tune: -12-16% (Tune burst, improve utility)</p>
@@ -241,6 +259,10 @@
                         <div class="change-list-item">
                             <strong class="change-title">Modern Ability: Havoc:</strong>
                             <p class="change-desc">A new talent that curses a target, causing your single-target spells to also strike the Havoc'd target for a percentage of their damage. Unlocks powerful cleave potential.</p>
+                         </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Talent: Pyroclasmic Zone:</strong>
+                            <p class="change-desc">Casting Rain of Fire now leaves behind a Pyroclasmic Zone: enemies inside take increased Fire damage and you leech a portion of all Fire damage dealt.</p>
                          </div>
                     </div>
                 </div>

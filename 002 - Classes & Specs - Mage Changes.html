@@ -29,7 +29,7 @@
         }
         .hero {
             height: 100vh;
-            background-image: url('https://images.blz-contentstack.com/v3/assets/blt3452e3b114d52940/blt30a5c78b64933930/602462153139360c733633e7/mage_background.jpg?auto=webp&format=pjpg');
+            background-image: url('https://i.imgur.com/Aziik9e.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed; /* Parallax effect */
@@ -57,6 +57,8 @@
             border: 1px solid #583a4f;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
+            background-size: cover;
+            background-position: center;
         }
         .spec-card:hover {
             transform: translateY(-5px);
@@ -154,9 +156,9 @@
 
         <!-- Arcane Mage -->
         <section id="arcane" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(24, 18, 30, 0.8), rgba(24, 18, 30, 0.9)), url('https://i.imgur.com/5kv7ahe.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_holy_arcaneintellect.jpg" alt="Arcane Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/Zt0BQe6.png" alt="Arcane Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300 glow-purple">Arcane 🔮</h2>
                         <p class="dps-target dps-nerf">Target DPS Tune: -0-4% (Focus on QoL/Rotation)</p>
@@ -185,6 +187,10 @@
                             <strong class="change-title">New Talent: Temporal Shield:</strong>
                             <p class="change-desc">A powerful defensive cooldown that absorbs damage for a short duration and then heals the Mage back, rewarding skillful timing to negate massive hits.</p>
                         </div>
+                         <div class="change-list-item">
+                            <strong class="change-title">New Talent: Mana Echoes:</strong>
+                            <p class="change-desc">Casting Presence of Mind now also refunds 20% of your maximum Mana and reduces Arcane spell costs by 10% for 8 seconds.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -192,9 +198,9 @@
         
         <!-- Fire Mage -->
         <section id="fire" class="mb-24 scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(24, 18, 30, 0.8), rgba(24, 18, 30, 0.9)), url('https://i.imgur.com/ZhKcvk6.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_fire_flamebolt.jpg" alt="Fire Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/TRNTMys.png" alt="Fire Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300 glow-gold">Fire 🔥</h2>
                         <p class="dps-target dps-buff">Target: Improve Rotational Dynamics & Burst</p>
@@ -227,6 +233,10 @@
                             <strong class="change-title">Modern Talent: Meteor:</strong>
                             <p class="change-desc">Call down a meteor from the heavens to strike a target location, dealing heavy AoE damage and leaving a burning patch of ground. An epic, impactful nuke.</p>
                         </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Combustive Echo:</strong>
+                            <p class="change-desc">Casting Combustion grants Echo: your next Flamestrike deals 30% additional damage and leaves a lingering Scorch DoT for 5 seconds.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -234,9 +244,9 @@
 
         <!-- Frost Mage -->
         <section id="frost" class="scroll-animate">
-            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12">
+            <div class="spec-card rounded-xl shadow-lg overflow-hidden p-8 md:p-12" style="background-image: linear-gradient(rgba(24, 18, 30, 0.8), rgba(24, 18, 30, 0.9)), url('https://i.imgur.com/fNCI3rw.jpeg');">
                 <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="https://wow.zamimg.com/images/wow/icons/large/spell_frost_frostbolt02.jpg" alt="Frost Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
+                    <img src="https://i.imgur.com/oR1e4BK.png" alt="Frost Icon" class="w-32 h-32 rounded-full border-4 border-violet-400 shadow-lg spec-icon">
                     <div>
                         <h2 class="font-cinzel text-4xl text-violet-300 glow-blue">Frost ❄️</h2>
                          <p class="dps-target dps-buff">Target: Full PvE Raid Viability</p>
@@ -264,6 +274,14 @@
                         <div class="change-list-item">
                             <strong class="change-title">Modern Talent: Frozen Orb:</strong>
                             <p class="change-desc">Launch an orb of swirling ice that travels forward, slowing and damaging all enemies in its path and generating Fingers of Frost charges. A fantastic tool for both AoE and single-target setups.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Frozen Momentum:</strong>
+                            <p class="change-desc">Each Ice Lance cast on an Icicle procs Frozen Momentum, stacking up to 3 times. Each stack increases your Frost damage by 2% and attack speed by 1%.</p>
+                        </div>
+                        <div class="change-list-item">
+                            <strong class="change-title">New Talent: Glacial Bastion:</strong>
+                            <p class="change-desc">Casting Ice Barrier grants a 5 sec Glacial Bastion to all nearby party members, granting 10% physical damage reduction.</p>
                         </div>
                     </div>
                 </div>
